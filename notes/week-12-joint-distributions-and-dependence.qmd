@@ -1,0 +1,414 @@
+---
+title: "Week 12 — Joint distributions & dependence"
+subtitle: "Marginal, conditional, covariance, and correlation"
+page_mode: math_derivation_week
+week_contract: math_derivation
+source_mode: source-informed
+readings:
+  - "Grinstead & Snell, Ch 6 / Ch 7 — Variance, covariance & sums — supports covariance, correlation, and the independence-implies-zero-covariance result"
+  - "MIT OCW 18.05 — joint distributions, covariance and correlation — supports the joint-table picture and the linear-association reading of ρ"
+toc: true
+---
+
+## Mathematical goal
+
+By the end of this week you should be able to take **two** random variables that live on the same morning —
+not one at a time, but together — and read four linked objects off a single **joint** distribution: the
+joint pmf, the two marginals, a conditional distribution, and the two summaries of how the variables move
+together, covariance and correlation.
+
+The targets for the week are these statements, which we build and then use. For discrete $X$ and $Y$ the
+**joint pmf** assigns probability to each pair, the **marginals** sum out one variable, and a **conditional**
+renormalizes a slice:
+
+$$
+p(x,y) \;=\; P(X = x,\; Y = y),
+\qquad
+p_X(x) \;=\; \sum_y p(x,y),
+\qquad
+p_{Y\mid X}(y \mid x) \;=\; \frac{p(x,y)}{p_X(x)}\quad (p_X(x) > 0).
+$$
+
+The **covariance** measures how $X$ and $Y$ vary together, with the computational identity we will lean on:
+
+$$
+\operatorname{Cov}(X,Y) \;=\; E\!\big[(X - E[X])(Y - E[Y])\big]
+\;=\; E[XY] - E[X]\,E[Y].
+$$
+
+The **correlation** rescales covariance by the two standard deviations into a unit-free number trapped in
+$[-1,1]$:
+
+$$
+\rho \;=\; \rho_{X,Y} \;=\; \frac{\operatorname{Cov}(X,Y)}{\sigma_X\,\sigma_Y},
+\qquad
+-1 \;\le\; \rho \;\le\; 1 .
+$$
+
+You should be able to: build marginals and a conditional from a joint table, compute $E[XY]$ from the table,
+get covariance from the identity above, standardize it into $\rho$, and — the conceptual headline — explain
+why **independence forces $\operatorname{Cov}=0$ but a zero covariance does not force independence.**
+
+## The week question
+
+> Maya's morning has more than one uncertain quantity at a time — does it rain, **and** is she late? When two
+> random variables share the same experiment, how do we describe them *together*, and how do we put a single
+> number on whether they move with or against each other?
+
+Weeks 6–11 followed **one** random variable at a time: the quiz score $X$, the arrival count $N$, the wait
+$T$. But the interesting questions in Maya's world are about pairs. Back in weeks 3–4 we found that "rain" and
+"on time" were **not independent** — knowing it rained changed the chance of being on time. This week gives
+that informal "not independent" a quantitative spine: a joint table that holds both variables, and a number,
+$\rho$, that reports the direction and strength of their *linear* association.
+
+## Notation
+
+| Symbol | Meaning |
+|---|---|
+| $X, Y$ | two discrete random variables on the same experiment |
+| $p(x,y)$ | **joint** pmf, $p(x,y) = P(X = x,\, Y = y)$ |
+| $p_X(x)$, $p_Y(y)$ | **marginal** pmfs, found by summing the joint over the other variable |
+| $p_{Y\mid X}(y\mid x)$ | **conditional** pmf of $Y$ given $X = x$, equal to $p(x,y)/p_X(x)$ |
+| $E[XY]$ | expectation of the product, $\sum_x \sum_y x\,y\,p(x,y)$ |
+| $\operatorname{Cov}(X,Y)$ | covariance, $E[XY] - E[X]E[Y]$; same units as $X$ times units of $Y$ |
+| $\sigma_X, \sigma_Y$ | standard deviations of $X$ and $Y$ (with $\sigma_X^2 = \operatorname{Var}(X)$) |
+| $\rho$, $\rho_{X,Y}$ | correlation, $\operatorname{Cov}(X,Y)/(\sigma_X \sigma_Y)$, always in $[-1,1]$ |
+| $X \perp Y$ | $X$ and $Y$ **independent**: $p(x,y) = p_X(x)\,p_Y(y)$ for every pair |
+
+## Conceptual setup
+
+### The joint table holds everything
+
+For two discrete variables, the entire joint distribution fits in a rectangular table: one row per value of
+$X$, one column per value of $Y$, and the **joint probability** $p(x,y)$ in each cell. Two requirements make
+it a legitimate distribution — every cell is non-negative, and the cells sum to $1$:
+
+$$
+p(x,y) \ge 0 \quad\text{for all pairs},
+\qquad
+\sum_x \sum_y p(x,y) \;=\; 1 .
+$$
+
+Everything else this week is *extracted* from that table by summing or rescaling. Nothing new needs to be
+stored.
+
+### Marginals live in the margins
+
+To recover the distribution of $X$ alone — ignoring $Y$ — sum each row across all of $Y$'s values. These
+row sums (and the column sums for $Y$) are written in the **margins** of the table, which is exactly why
+they are called **marginal** distributions:
+
+$$
+p_X(x) \;=\; \sum_y p(x,y),
+\qquad
+p_Y(y) \;=\; \sum_x p(x,y).
+$$
+
+Marginalizing throws away the partnership information: it tells you about $X$ as if you had never recorded
+$Y$. Once you have the marginals, $E[X]$, $E[Y]$, $\operatorname{Var}(X)$, and $\operatorname{Var}(Y)$ are
+ordinary one-variable computations from weeks 7–8.
+
+### Conditioning slices and renormalizes
+
+A **conditional** distribution answers "given that $X = x$, how is $Y$ distributed?" Fix the row $X = x$,
+then rescale that single row so its entries sum to $1$ — divide each joint cell by the row's marginal:
+
+$$
+p_{Y\mid X}(y \mid x) \;=\; \frac{p(x,y)}{p_X(x)}
+\qquad (p_X(x) > 0).
+$$
+
+This is precisely the conditional-probability definition of week 3, now applied to random-variable values.
+**Independence** is the statement that conditioning changes nothing — the conditional equals the marginal for
+every slice — which is algebraically the same as the joint factoring into the product of marginals:
+
+$$
+X \perp Y
+\quad\Longleftrightarrow\quad
+p(x,y) = p_X(x)\,p_Y(y)\ \text{for all } x,y
+\quad\Longleftrightarrow\quad
+p_{Y\mid X}(y\mid x) = p_Y(y)\ \text{for all } x,y .
+$$
+
+### Covariance, and why the identity holds
+
+Covariance summarizes the *joint* movement in one number. Center each variable at its mean and average the
+product of the centered values:
+
+$$
+\operatorname{Cov}(X,Y) \;=\; E\!\big[(X - E[X])(Y - E[Y])\big].
+$$
+
+When $X$ and $Y$ tend to sit on the same side of their means together — both high or both low — the product
+of deviations is usually positive and the covariance is positive; when one tends to be high while the other
+is low, the product is usually negative and the covariance is negative. Expanding the product and using
+linearity of expectation gives the computational form we actually use on a table:
+
+$$
+\operatorname{Cov}(X,Y)
+= E\!\big[XY - X\,E[Y] - E[X]\,Y + E[X]E[Y]\big]
+= E[XY] - E[X]E[Y] - E[X]E[Y] + E[X]E[Y],
+$$
+
+$$
+\operatorname{Cov}(X,Y) \;=\; E[XY] - E[X]\,E[Y].
+$$
+
+If $X$ and $Y$ are **independent**, then $E[XY] = E[X]E[Y]$ — the product expectation factors — so the
+covariance is forced to zero. That is the half of the relationship that always holds. The converse does
+**not**: we will build the warning around a case with $\operatorname{Cov} = 0$ and yet a clear dependence.
+
+### Correlation: covariance on a fixed scale
+
+Covariance carries the units of $X$ times the units of $Y$, so its raw size is hard to interpret — rescale a
+variable and the covariance changes even though the *relationship* did not. Dividing by the two standard
+deviations cancels the units and produces a number guaranteed to live in $[-1,1]$:
+
+$$
+\rho \;=\; \frac{\operatorname{Cov}(X,Y)}{\sigma_X\,\sigma_Y},
+\qquad -1 \le \rho \le 1 .
+$$
+
+The sign of $\rho$ is the sign of the covariance; its magnitude reports how close the cloud of points sits to
+a straight line. Endpoints $\rho = \pm 1$ mean a perfect linear relationship; $\rho = 0$ means no *linear*
+association — a qualifier we will press hard in the convention warning.
+
+## Worked example
+
+*Synthetic data; seed set where simulation appears.* We work the recurring **commuter's morning** slice
+symbolically, then numerically, then add a transfer example in a new context.
+
+### Recurring slice — the (rain, late) joint distribution
+
+Let $X = \mathbb{1}\{\text{it rains}\}$ ($1$ if rain, $0$ if not) and $Y = \mathbb{1}\{\text{Maya is late}\}$
+($1$ if late, $0$ if on time). Both are **indicator** variables — they take only the values $0$ and $1$ —
+which is what lets us read $E[X]$ straight off the chance of a $1$. The synthetic joint pmf for the week is
+
+$$
+\begin{array}{c|cc|c}
+ & Y = 0 & Y = 1 & p_X(x)\\ \hline
+X = 0 & 0.63 & 0.07 & 0.70\\
+X = 1 & 0.18 & 0.12 & 0.30\\ \hline
+p_Y(y) & 0.81 & 0.19 & 1
+\end{array}
+$$
+
+so $p(1,1) = 0.12$, $p(1,0) = 0.18$, $p(0,1) = 0.07$, $p(0,0) = 0.63$, and the four cells sum to $1$.
+
+**Symbolic — marginals, then means and variances.** Sum each row for $X$, each column for $Y$:
+
+$$
+p_X(1) = 0.12 + 0.18 = 0.30,
+\qquad
+p_Y(1) = 0.12 + 0.07 = 0.19 .
+$$
+
+Because $X$ is an indicator, $E[X] = 1\cdot p_X(1) + 0\cdot p_X(0) = p_X(1)$, and likewise $E[Y] = p_Y(1)$:
+
+$$
+E[X] = 0.30,
+\qquad
+E[Y] = 0.19 .
+$$
+
+For an indicator the variance is $p(1-p)$, since $E[X^2] = E[X] = p$ for a $0/1$ variable, giving
+$\operatorname{Var}(X) = E[X^2] - E[X]^2 = p - p^2 = p(1-p)$:
+
+$$
+\operatorname{Var}(X) = 0.30(1 - 0.30) = 0.30(0.70) = 0.21,
+\qquad
+\operatorname{Var}(Y) = 0.19(1 - 0.19) = 0.19(0.81) = 0.1539 .
+$$
+
+**Numeric — a conditional, to reconnect with weeks 3–4.** Condition on rain by rescaling the $X = 1$ row by
+its marginal $0.30$:
+
+$$
+p_{Y\mid X}(1 \mid 1) = \frac{p(1,1)}{p_X(1)} = \frac{0.12}{0.30} = 0.40,
+\qquad
+p_{Y\mid X}(1 \mid 0) = \frac{p(0,1)}{p_X(0)} = \frac{0.07}{0.70} = 0.10 .
+$$
+
+So $P(\text{late} \mid \text{rain}) = 0.40$ but $P(\text{late} \mid \text{no rain}) = 0.10$ — the conditional
+distribution of lateness **shifts** with rain. Since the conditional is not the same across slices, $X$ and
+$Y$ are **not independent**, exactly the verdict weeks 3–4 reached informally. We now quantify it.
+
+**Numeric — the product expectation $E[XY]$.** Because both variables are $0/1$, the product $XY$ is $1$
+only on the single cell where both are $1$, and $0$ everywhere else, so $E[XY]$ collapses to one term:
+
+$$
+E[XY] \;=\; \sum_{x}\sum_{y} x\,y\,p(x,y) \;=\; (1)(1)\,p(1,1) \;=\; 0.12 .
+$$
+
+**Numeric — covariance from the identity.** Subtract the product of means:
+
+$$
+\operatorname{Cov}(X,Y) \;=\; E[XY] - E[X]E[Y]
+\;=\; 0.12 - (0.30)(0.19)
+\;=\; 0.12 - 0.057
+\;=\; 0.063 .
+$$
+
+The covariance is **positive**, the quantitative echo of "rain goes with lateness."
+
+**Numeric — correlation.** Standardize by the two standard deviations
+$\sigma_X = \sqrt{0.21} \approx 0.4583$ and $\sigma_Y = \sqrt{0.1539} \approx 0.3923$, whose product is
+$\sigma_X\sigma_Y \approx 0.1798$:
+
+$$
+\rho \;=\; \frac{\operatorname{Cov}(X,Y)}{\sigma_X\,\sigma_Y}
+\;=\; \frac{0.063}{0.1798}
+\;\approx\; 0.35 .
+$$
+
+A correlation of about $0.35$ is a **moderate positive** linear association: rainy mornings and late mornings
+travel together, but loosely — $\rho$ is well short of $1$, so rain is far from a perfect predictor of being
+late. This single number now carries the "not independent" conclusion we have been circling since week 3.
+
+We can *check* the table-based covariance by simulating mornings and estimating it from samples — shown, not
+executed in this diagnostic:
+
+```{r}
+#| label: wk12-rain-late-covariance-check
+#| eval: false
+# Synthetic (rain, late) joint pmf; estimate Cov(X, Y) and rho by simulation.
+# Cells: P(0,0)=0.63, P(0,1)=0.07, P(1,0)=0.18, P(1,1)=0.12  (sums to 1).
+set.seed(35003)
+n      <- 500000
+cells  <- c("00", "01", "10", "11")
+probs  <- c(0.63, 0.07, 0.18, 0.12)
+draw   <- sample(cells, size = n, replace = TRUE, prob = probs)
+x      <- as.integer(substr(draw, 1, 1))   # rain indicator
+y      <- as.integer(substr(draw, 2, 2))   # late indicator
+cov_xy <- mean(x * y) - mean(x) * mean(y)   # compare to 0.063
+rho_xy <- cov_xy / (sd(x) * sd(y))          # compare to ~0.35
+c(cov = cov_xy, rho = rho_xy)
+```
+
+### Transfer example — study hours and a practice score
+
+Switch contexts to show the machinery is general and that $\rho$ need not be near zero. In a synthetic study
+two students compare notes; let $X$ be hours spent on a problem set (taking values $1$ or $2$) and $Y$ be the
+score on a follow-up self-check (taking values $0$ or $1$), with the joint pmf
+
+$$
+\begin{array}{c|cc|c}
+ & Y = 0 & Y = 1 & p_X(x)\\ \hline
+X = 1 & 0.30 & 0.10 & 0.40\\
+X = 2 & 0.15 & 0.45 & 0.60\\ \hline
+p_Y(y) & 0.45 & 0.55 & 1
+\end{array}
+$$
+
+The means are $E[X] = 1(0.40) + 2(0.60) = 1.60$ and $E[Y] = 0.55$. The product expectation keeps only the
+two cells where $X \cdot Y \ne 0$ (those with $Y = 1$):
+
+$$
+E[XY] = (1)(1)(0.10) + (2)(1)(0.45) = 0.10 + 0.90 = 1.00,
+$$
+
+so the covariance is
+
+$$
+\operatorname{Cov}(X,Y) = E[XY] - E[X]E[Y] = 1.00 - (1.60)(0.55) = 1.00 - 0.88 = 0.12,
+$$
+
+again positive — more study hours travel with higher self-check scores. The same three moves as the rain/late
+slice (marginals, then $E[XY]$, then subtract the product of means) deliver covariance regardless of context;
+standardizing by $\sigma_X\sigma_Y$ would, as before, land $\rho$ inside $[-1,1]$.
+
+## A convention warning
+
+**Zero covariance does not mean independence — and $\rho$ only sees *linear* association.** This is
+convention-risk #10 for the course, and it is the single most common overclaim of the week. The implication
+runs **one way only**:
+
+$$
+X \perp Y \;\Longrightarrow\; \operatorname{Cov}(X,Y) = 0,
+\qquad\text{but}\qquad
+\operatorname{Cov}(X,Y) = 0 \;\not\Longrightarrow\; X \perp Y .
+$$
+
+Here is a clean synthetic counterexample. Let $X$ take the values $-1, 0, 1$ each with probability
+$\tfrac{1}{3}$, and define $Y = X^2$ exactly (so $Y$ is $1$ when $X = \pm 1$ and $0$ when $X = 0$). Then $Y$ is
+*completely determined* by $X$ — they could not be more dependent — yet their covariance is zero. By symmetry
+$E[X] = 0$, and $E[XY] = E[X \cdot X^2] = E[X^3] = \tfrac{1}{3}(-1) + \tfrac{1}{3}(0) + \tfrac{1}{3}(1) = 0$, so
+
+$$
+\operatorname{Cov}(X,Y) = E[XY] - E[X]E[Y] = 0 - 0\cdot E[Y] = 0,
+\qquad\text{hence } \rho = 0 .
+$$
+
+Covariance and correlation are zero because the relationship is a perfect **parabola**, not a line — and
+$\rho$ is blind to anything but the linear part. Three guardrails:
+
+- **"Uncorrelated" is weaker than "independent."** A zero $\rho$ rules out a *linear* trend, not all
+  structure. Never read $\rho = 0$ as "no relationship."
+- **The converse only runs from independence to zero.** You may conclude $\operatorname{Cov} = 0$ from
+  independence, but you may **not** conclude independence from $\operatorname{Cov} = 0$.
+- **$\rho$ measures direction and tightness of a *straight-line* pattern only.** A strong curved relationship
+  can have a small or zero correlation; check a plot, not just the number.
+
+## Practice (ungraded)
+
+Self-check, no points, no submission. Use the (rain, late) joint pmf
+$p(1,1)=0.12,\ p(1,0)=0.18,\ p(0,1)=0.07,\ p(0,0)=0.63$ unless noted.
+
+1. Build both marginal pmfs from the table and confirm each sums to $1$; state $E[X]$ and $E[Y]$ and explain
+   why, for these indicators, each mean equals the chance of a $1$.
+2. Compute the conditional pmf of $X$ given $Y = 1$ (rescale the $Y = 1$ column by its marginal $0.19$).
+   Compare $p_{X\mid Y}(1\mid 1)$ to $p_X(1) = 0.30$ — what does the gap say about independence?
+3. Recompute $\operatorname{Cov}(X,Y)$ from the centered-product definition
+   $E[(X - E[X])(Y - E[Y])]$ directly on the four cells, and check it matches $0.063$ from the identity.
+4. Verify $\rho \approx 0.35$ by forming $\operatorname{Cov}/(\sigma_X\sigma_Y)$ with
+   $\sigma_X = \sqrt{0.21}$ and $\sigma_Y = \sqrt{0.1539}$, and say in one sentence what its sign and size
+   mean for Maya's mornings.
+5. For the $Y = X^2$ counterexample in the warning, confirm $\operatorname{Cov}(X,Y) = 0$ yourself, then
+   explain in words why $X$ and $Y$ are nonetheless dependent.
+
+(Worked reasoning for self-checks is not posted here; bring your attempts to office hours or a study group.)
+
+## Formula-verification status
+
+**`verified: false`.** The **math correctness gate is BLOCKED** for this page. Every formula and number above
+— the marginals $p_X(1) = 0.30$ and $p_Y(1) = 0.19$, the conditionals $0.40$ and $0.10$, the product
+expectation $E[XY] = 0.12$, the covariance $\operatorname{Cov}(X,Y) = 0.063$, the variances
+$0.21$ and $0.1539$, the correlation $\rho \approx 0.35$, the transfer-example values, and the
+$Y = X^2$ zero-covariance counterexample — is **drafted but unverified**, provisional pending human/source
+sign-off against the course's reference derivations. Render and lint passing are **not** correctness checks:
+a wrong formula can render perfectly. Treat all numeric values as provisional until the gate is signed off.
+
+## Reading and source pointer
+
+This week is grounded in **Grinstead & Snell, Chapters 6 and 7 — Expected Value and Variance, and Sums of
+Random Variables** (GNU FDL, free online), which develop variance, covariance, correlation, and the behavior
+of sums of random variables. The supporting treatment in **MIT OCW 18.05** (CC BY-NC-SA 4.0) — its material on
+joint distributions, covariance, and correlation — reinforces the joint-table picture and the linear-only
+reading of $\rho$ with a complementary emphasis. *These notes are the course's own synthesis, grounded in but
+not copied from the sources.* The (rain, late) joint table, the study-hours transfer example, the
+$Y = X^2$ counterexample, all numbers, and the prose are original to this course; data are synthetic with
+seeds set.
+
+## Public vs. graded
+
+These notes, the examples, and the practice here are **public and ungraded** — study material only. No
+graded prompts, answer keys, rubrics, point values, or due dates appear on this site. Graded checkpoints,
+quizzes, homework, labs, the midterm, the project, and the final live in **Blackboard (the LMS)**, which is
+authoritative for due dates, submissions, and grades. If this page and Blackboard ever disagree, follow
+Blackboard.
+
+## Looking ahead
+
+This week we held two random variables together and summarized their partnership with covariance and
+correlation. **Week 13** turns to what happens when we add or average **many** variables. Taking $n$
+independent commute times $C \sim \operatorname{Normal}(22, 5)$, the **law of large numbers** says the sample
+mean settles toward $22$ as $n$ grows, and the **central limit theorem** says that average is itself
+approximately $\operatorname{Normal}(22,\ 5/\sqrt{n})$. We will *see* both by simulation — the diagnostic's one
+shown-and-run-it-yourself software week — and the independence and variance ideas from this week are exactly
+the ingredients those limit theorems need.
+
+## See also
+
+- [Notation glossary](../resources/notation-glossary.qmd)
+- [Distribution reference](../resources/distribution-reference.qmd)
+- [Course syllabus](../syllabus.qmd)

@@ -1,0 +1,133 @@
+---
+title: "Syllabus (public companion)"
+subtitle: "Orientation and course shape — Blackboard is authoritative for graded specifics"
+toc: true
+---
+
+::: {.callout-important}
+This public page is an **orientation companion** to the syllabus, not the operational syllabus
+itself. It describes the *shape* of the course in qualitative terms. It carries no numeric grade
+weights, no due dates, and no submission rules. For everything that counts toward your grade — exact
+weights, deadlines, policies, and submissions — **Blackboard (the LMS) is authoritative**. If this
+page and Blackboard ever disagree, follow Blackboard.
+:::
+
+## Course description
+
+Introduction to Probability is a first course in the mathematics of uncertainty. We develop
+probability as a language for reasoning when outcomes are not known in advance: how to set up a model
+of a random situation, how to compute the probabilities of events, how to update those probabilities
+when evidence arrives, and how to describe the behavior of quantities that vary by chance. The course
+balances a classical foundation with a **Bayesian-friendly** emphasis on conditioning and updating,
+and it uses light computer simulation to check and build intuition for the theory.
+
+## Who it is for
+
+This course is aimed at students who have college algebra and at least one semester of calculus.
+Some exposure to statistics is helpful but not required, and **no programming experience is assumed**
+— the simulation work is fully scaffolded. It suits students in mathematics, the sciences, computing,
+data-related fields, and anyone who wants a principled way to reason about risk, evidence, and
+chance.
+
+## Learning outcomes
+
+By the end of the course, a successful student will be able to:
+
+- Construct sample spaces and assign probabilities, and apply the complement, addition, and
+  multiplication rules correctly.
+- Compute conditional probabilities and assess the independence of events.
+- Use Bayes' rule to update a probability from a prior and new evidence, and interpret the result.
+- Count outcomes systematically and work with discrete random variables, their probability mass
+  functions, expectations, and variances.
+- Work with continuous random variables and densities, and use the standard models — binomial,
+  geometric, Poisson, exponential, and normal.
+- Describe joint behavior, dependence, covariance, and correlation for paired random quantities.
+- State and apply the law of large numbers and the central limit theorem, and demonstrate both
+  through simulation.
+- Build, run, and interpret a small probability simulation in R and Quarto, and document it
+  reproducibly.
+
+## Weekly rhythm
+
+The course meets three days a week, and each day has a settled role:
+
+- **Monday — concept + checkpoint.** We introduce the week's central idea and close with a short,
+  low-stakes checkpoint to surface where the class stands.
+- **Wednesday — problem + simulation.** We work problems together and, on simulation weeks, run code
+  that checks the theory against generated data.
+- **Friday — quiz + application.** A short quiz consolidates the week, and we apply the idea to a
+  fresh context.
+
+This rhythm is the *plan*; the authoritative weekly schedule, including any shifts, lives in
+Blackboard.
+
+## Assessment shape (indicative — not a contract)
+
+The table below conveys the **relative emphasis** of each graded category in qualitative terms only.
+It is **not** a grading contract: it carries no percentages and no point values, and the actual
+weights live in Blackboard.
+
+| Category | Rough emphasis |
+|----------|----------------|
+| Checkpoints | small |
+| Quizzes | small |
+| Homework | the largest single category |
+| Simulation labs | small |
+| Midterm | moderate |
+| Project | small |
+| Final | moderate |
+
+Read this as a picture of *where the weight sits*: regular homework is the backbone of the grade, the
+midterm and final each carry moderate weight, and the many smaller pieces — checkpoints, quizzes,
+labs, and the project — add up around them. For the exact weighting, consult Blackboard.
+
+## Software and reproducibility
+
+We use **R** (through RStudio or Posit Cloud) and **Quarto** for the simulation strand. Simulation
+supports the probability reasoning rather than replacing it: you will use it to confirm hand
+calculations and to build intuition. Every simulation is written so it can be reproduced — a single
+Quarto file, a fixed random seed, and recorded session information — so that the same code yields the
+same result. Setup instructions are on the [R · Quarto setup](resources/r-quarto-setup.qmd) page.
+
+## AI use (summary)
+
+Generative AI tools may be used as a **study aid** — to explain a concept a second way, to help debug
+your own R code, or to quiz yourself. They are **not** a substitute for doing the reasoning yourself,
+and they are **prohibited on quizzes and exams**.
+
+When you use AI on permitted work, include a brief **AI Use Note** with three parts:
+
+| Field | What to record |
+|-------|----------------|
+| Tool | which tool you used |
+| Purpose | what you asked it to do |
+| Verification | how you checked its output yourself |
+
+The **Verification** field is load-bearing: AI output is a draft to be checked against the course
+material and your own work, never an answer to be trusted on sight. The full policy lives in
+Blackboard.
+
+## Materials
+
+You will need:
+
+- *Introduction to Probability* (Grinstead & Snell) — the free primary text, GNU FDL.
+- **MIT OpenCourseWare 18.05** — a free supplement (CC BY-NC-SA 4.0), used selectively.
+- E. T. Jaynes, *Probability Theory: The Logic of Science* — optional, cited only for orientation.
+- **Blackboard (the LMS)** — for all graded work, dates, and announcements.
+- A **scientific calculator** for in-class quizzes and the exams.
+
+## Where things live
+
+Keep the two homes of the course straight:
+
+- **Blackboard (the LMS)** is the **operational** home: graded checkpoints, quizzes, homework, labs,
+  the midterm, the project, the final, all due dates, all submissions, and all grades. It is
+  authoritative.
+- **This public site** is the **public notes** home: weekly notes, labs as study material, resources,
+  and orientation pages. It is ungraded.
+
+::: {.callout-note}
+This companion exists to orient you. Whenever a graded specific is at stake — a weight, a deadline, a
+policy — go to Blackboard, which is authoritative.
+:::

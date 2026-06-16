@@ -1,0 +1,320 @@
+---
+title: "Week 1 — Uncertainty, probability & models"
+subtitle: "What a probability statement means, and why we model uncertainty"
+page_mode: normal_week
+week_contract: public_note
+source_mode: source-informed
+readings:
+  - "Grinstead & Snell, Ch 1 — Discrete Probability Distributions — supports what a probability statement means and how a model assigns it"
+  - "MIT OCW 18.05 — orientation on probability models and interpretation — supports the frequency vs. degree-of-belief framing"
+toc: true
+---
+
+## The week question
+
+When someone says "there is an 81% chance the shuttle arrives on time," what exactly are they
+claiming — and what has to be true about the world for that number to be meaningful? This week we
+take the everyday word *probability* and turn it into something precise enough to compute with. The
+short answer we build toward is this: a probability statement is never just a number floating free.
+It is a number attached to a **model** — a description of what could happen and how we have chosen
+to weigh those possibilities. Change the model and you change the number, even when the words stay
+the same.
+
+## Why this matters
+
+Almost every decision you make under incomplete information is a probability judgment in disguise:
+whether to leave early for class, whether to trust a medical test result, whether to pack an
+umbrella. Probability is the language that lets us reason carefully when we cannot know the outcome
+in advance. In this course that language is **Bayesian-friendly**: we treat a probability as a
+considered degree of belief that we are willing to revise as evidence arrives, while keeping the
+classical machinery (counting, long-run frequency, the basic rules) as the foundation that makes
+those beliefs disciplined rather than arbitrary.
+
+Getting Week 1 right pays off for the whole semester. Sample spaces (Week 2), conditional
+probability (Week 3), independence (Week 4), and Bayes' rule (Week 5) are all moves *inside* a
+probability model. If you are fuzzy about what a probability model is, those later moves feel like
+symbol-pushing. If you are clear about it, they feel like common sense made exact.
+
+## Learning goals
+
+By the end of this week you should be able to:
+
+- State, in plain words, the two main interpretations of a probability statement — **long-run
+  frequency** and **degree of belief under incomplete information** — and explain how each reads the
+  same number.
+- Name the three ingredients of a **probability model**: a sample space, an assignment of
+  probabilities, and the assumptions that justify the assignment.
+- Recite the informal axioms — probabilities live in $[0,1]$, the whole sample space has probability
+  $1$, and probabilities of *disjoint* events add — and recognize when an assignment violates them.
+- Explain why a long sequence of simulated trials lets you *see* a probability emerge as a stable
+  relative frequency, and why this is evidence about the model rather than proof.
+- Read an everyday probability claim (a shuttle estimate, a weather forecast) and say out loud what
+  model and assumptions it quietly depends on.
+
+## Core vocabulary
+
+- **Experiment / random phenomenon** — a situation whose outcome is not known in advance (today's
+  shuttle either arrives on time or it does not).
+- **Sample space $\Omega$** — the set of all outcomes we are treating as possible. For "is the
+  shuttle on time?" we may take $\Omega = \{\text{on time}, \text{late}\}$.
+- **Event** — any subset of the sample space, e.g. the event $A = \{\text{on time}\}$. An event
+  *occurs* when the realized outcome is one of its members.
+- **Probability assignment $P(\cdot)$** — a rule that attaches a number $P(A)$ to each event,
+  obeying the axioms below.
+- **Disjoint (mutually exclusive) events** — events that cannot both occur; their outcome sets do
+  not overlap, like $\{\text{on time}\}$ and $\{\text{late}\}$.
+- **Probability model** — the package of all three: $\Omega$, the assignment $P$, and the stated
+  assumptions. The model is the thing; the number is a reading off it.
+- **Relative frequency** — over $n$ repetitions, the count of times an event occurred divided by
+  $n$. Simulation makes this visible.
+
+## Concept development
+
+### What a probability statement *means*
+
+Take a single sentence: $P(\text{shuttle on time}) = 0.81$. There are two well-worn ways to read it,
+and a careful person keeps both in mind.
+
+The **long-run frequency** reading says: if Maya could relive a great many statistically similar
+mornings — same season, same route, same weather mix — the shuttle would arrive on time on about
+$81\%$ of them. The number describes a *pattern across repetitions*. Its appeal is that it points to
+something you could, in principle, check by counting. Its limit is that "statistically similar
+mornings" is an idealization; no two mornings are truly identical, so the repetitions live partly in
+our imagination.
+
+The **degree-of-belief** reading says: given everything Maya currently knows and does not know about
+today, $0.81$ is the weight she rationally places on the shuttle being on time. The number describes
+*her state of information*, not a frequency. Its appeal is that it applies even to one-shot events
+that will never repeat. Its discipline comes from the rules of probability: a degree of belief still
+has to live in $[0,1]$, still has to be coherent across related events, and still has to update
+sensibly when new evidence arrives. This is the **Bayesian-friendly** framing this course leans on —
+probability as a careful extension of logic to situations of incomplete information (an orientation
+associated with Jaynes' "probability as extended logic"; we borrow only that one-line idea).
+
+The crucial point for Week 1: these are not two different numbers. They are two *readings* of the
+same $0.81$, and for a well-built model they agree. A degree of belief that ignored the long-run
+frequencies would be a bad belief; a frequency claim about a situation you can never repeat is
+really a belief in disguise.
+
+### A probability model = sample space + assignment + assumptions
+
+A number like $0.81$ is meaningless until you specify what it is the probability *of* and within
+*what set of possibilities*. A **probability model** has three parts:
+
+1. A **sample space** $\Omega$ — the outcomes we agree to treat as possible. Already a modeling
+   choice: by writing $\Omega = \{\text{on time}, \text{late}\}$ we have decided not to track
+   *how* late, the weather, or whether the shuttle breaks down entirely. That coarsening is fine if
+   the question is only "on time or not," and wrong if the question is "how long will Maya wait."
+2. An **assignment** $P$ that gives each event a number. Here, $P(\text{on time}) = 0.81$ and
+   $P(\text{late}) = 0.19$.
+3. The **assumptions** that justify those numbers. Where did $0.81$ come from? In our synthetic
+   world it is *built up* from finer assumptions: it rains with probability $0.30$, the shuttle is on
+   time $60\%$ of rainy mornings and $90\%$ of dry ones. We will assemble it formally in Weeks 2–3;
+   for now notice that the headline number inherits whatever those assumptions get right or wrong.
+
+Swap any one part and the meaning shifts. A different $\Omega$, a different rain probability, a
+different route — different model, possibly different $0.81$. So when you read a probability, the
+honest question is never just "is the number right?" but "what model is it the answer to?"
+
+### The informal axioms
+
+Whatever the interpretation, a usable assignment must obey three rules. We state them informally now
+and sharpen them in Week 2.
+
+First, every event's probability sits between $0$ and $1$ inclusive:
+$$
+0 \le P(A) \le 1 .
+$$
+A probability of $0$ means "we are treating this as not happening"; a probability of $1$ means "we
+are treating this as certain." Numbers outside $[0,1]$ are not probabilities at all.
+
+Second, the whole sample space is certain — *something* in $\Omega$ happens:
+$$
+P(\Omega) = 1 .
+$$
+
+Third, for **disjoint** events — events that cannot occur together — probabilities add. If $A$ and
+$B$ have no outcome in common, then
+$$
+P(A \cup B) = P(A) + P(B) .
+$$
+For the shuttle, $\{\text{on time}\}$ and $\{\text{late}\}$ are disjoint and together fill $\Omega$,
+so their probabilities must sum to $1$: $0.81 + 0.19 = 1$. This is also why the **complement** of an
+event has probability $P(A^c) = 1 - P(A)$, which is how we get $P(\text{late}) = 1 - 0.81 = 0.19$
+without any extra information.
+
+These three rules are the entire backbone. Everything later — conditional probability, independence,
+random variables, expectation — is built by combining them. If a proposed assignment ever breaks one
+of them (a "probability" of $1.2$, or two disjoint events whose chances add to more than $1$), the
+model is broken, full stop.
+
+### Simulation: seeing a probability converge
+
+A probability is a claim about a pattern we usually cannot replay in real life. **Simulation** lets
+us replay it inside the computer. If we *assume* the model is true and generate many independent
+trials from it, the relative frequency of an event should settle down near its modeled probability
+as the number of trials grows. Watching that settling is one of the most convincing ways to build
+intuition for what $0.81$ even means — it is the long-run-frequency reading made literal.
+
+Two cautions. First, simulation does not *prove* the probability; it shows what the model implies if
+the model is right. Garbage assumptions in, garbage frequencies out. Second, for any finite run the
+relative frequency wobbles; it only stabilizes as trials accumulate. The precise statement of why it
+stabilizes — the **law of large numbers** — waits until Week 13, where we run exactly this kind of
+simulation. For now, treat the converging relative frequency as a picture of the idea, not a
+substitute for it. (In this diagnostic the R below is *shown as teaching*, not executed.)
+
+```{r}
+#| label: wk01-sim-converge
+#| eval: false
+#| fig-cap: "Running relative frequency of an on-time shuttle across simulated mornings, settling toward the modeled 0.81."
+#| fig-alt: "A line that swings widely over the first few mornings then flattens out near 0.81 as the number of simulated mornings grows."
+
+set.seed(35003)
+n <- 10000                       # number of simulated mornings (synthetic; seed set)
+p_on_time <- 0.81                # the modeled probability we want to "see" emerge
+on_time <- rbinom(n, size = 1, prob = p_on_time)  # 1 = on time, 0 = late
+
+running_freq <- cumsum(on_time) / seq_len(n)      # relative frequency after each morning
+plot(running_freq, type = "l",
+     xlab = "number of mornings simulated",
+     ylab = "relative frequency on time")
+abline(h = p_on_time, lty = 2)   # the modeled value the curve should hover toward
+running_freq[n]                  # final relative frequency, near 0.81
+```
+
+The dashed line marks the modeled $0.81$; the curve starts jumpy and flattens toward it. That
+flattening *is* the long-run-frequency interpretation happening in front of you.
+
+## Worked examples
+
+### Worked example — reading P(on time) = 0.81 both ways (the commuter's morning)
+
+*Synthetic data; seed set.* Maya's morning is our recurring case. The shuttle either arrives on time
+or it is late, so the sample space is
+$$
+\Omega = \{\text{on time}, \text{late}\}, \qquad
+P(\text{on time}) = 0.81, \qquad P(\text{late}) = 0.19 .
+$$
+
+**Symbolic first.** Let $A = \{\text{on time}\}$. The two outcomes are disjoint and exhaust $\Omega$,
+so the axioms force
+$$
+P(A) + P(A^c) = P(\Omega) = 1
+\quad\Longrightarrow\quad
+P(A^c) = 1 - P(A).
+$$
+
+**Now the numbers, read two ways.**
+
+- *Long-run frequency:* across many statistically similar mornings, the shuttle is on time on about
+  $81$ of every $100$, and late on about $19$. We could, in principle, log mornings and watch the
+  on-time fraction approach $0.81$ — which is precisely what the simulation above does.
+- *Degree of belief:* for *this* morning — which happens once and never repeats — Maya rationally
+  assigns weight $0.81$ to "on time" given what she knows (the season, the route, the rain
+  forecast). The complement gets $P(A^c) = 1 - 0.81 = 0.19$, her weight on "late."
+
+Both readings land on the same pair $(0.81, 0.19)$, and both depend on the same hidden model: rain
+chance $0.30$, on-time rates $0.60$ (rainy) and $0.90$ (dry). The headline $0.81$ is an *output* of
+that model, $0.60(0.30) + 0.90(0.70) = 0.81$ — a calculation we will perform properly in Weeks 2–3.
+The lesson is the one we keep returning to: the number means what the model lets it mean.
+
+### Worked example — a weather forecast "70% chance of rain" (transfer)
+
+*Synthetic context; no real forecast data.* Move the same machinery to a new setting. A forecast says
+$P(\text{rain tomorrow}) = 0.70$. What does that claim require?
+
+**Symbolic.** Take $\Omega = \{\text{rain}, \text{no rain}\}$ for the simple question "does measurable
+rain fall somewhere in the forecast area tomorrow?" With $R = \{\text{rain}\}$,
+$$
+P(R) = 0.70, \qquad P(R^c) = 1 - 0.70 = 0.30,
+$$
+again by the complement rule, since the two outcomes are disjoint and fill $\Omega$.
+
+**Numeric / interpretive.** Notice the model is doing quiet work even here:
+
+- *Long-run frequency:* among many past days whose conditions the forecaster judged similar to
+  tomorrow's, measurable rain fell on about $70\%$. This is roughly how operational forecasts are
+  calibrated — over a long record, days tagged "$70\%$" should rain about $70\%$ of the time.
+- *Degree of belief:* given the current atmospheric information, the forecaster's rational weight on
+  rain tomorrow is $0.70$.
+
+And the assumptions matter just as much as the shuttle's. "$70\%$ chance of rain" must pin down *what
+event* and *over what region and span* — measurable rain at a fixed point? anywhere in the county? at
+any time in a $24$-hour window? Each choice is a different $\Omega$, and the same $0.70$ would mean
+something different. A forecast without that model is, strictly, an incomplete probability statement.
+This is the transferable habit: when you meet a probability in the wild, reconstruct its sample
+space, its assignment, and its assumptions before you trust the number.
+
+## A common mistake
+
+The most common Week 1 error is treating a probability as a bare fact about the world rather than a
+reading off a model. Two symptoms:
+
+- **"The number is just true."** People argue about whether $0.81$ or $0.70$ is *correct* without
+  ever asking what sample space and assumptions produced it. Two competent analysts can both be
+  right and disagree, because they built different (reasonable) models. The fix: always ask "model of
+  *what*, assuming *what*?" before debating the digits.
+- **Mixing up "probability $0$" with "impossible" (and $1$ with "certain") as facts about reality.**
+  In a model, $P(A) = 0$ means we are *treating* $A$ as not happening; it is a modeling decision,
+  not a metaphysical guarantee. If your model assigns probability $0$ to an outcome that then occurs,
+  the model was wrong — which is useful information, not a paradox.
+
+A smaller but frequent slip: **adding probabilities of events that are not disjoint.** The addition
+rule $P(A \cup B) = P(A) + P(B)$ holds *only* when $A$ and $B$ cannot co-occur. Use it on overlapping
+events and you double-count the overlap. We repair this with the general addition rule in Week 2;
+for now, before you add, check that the events truly exclude each other.
+
+## Low-stakes self-checks (ungraded)
+
+These are for your own thinking — **ungraded, self-check, no submission**. Resist peeking at your
+reasoning until you have tried each.
+
+1. In one sentence each, give the long-run-frequency reading and the degree-of-belief reading of
+   "$P(\text{the bus is full at 8 a.m.}) = 0.40$." What model would each reading assume?
+2. A friend writes $P(A) = 1.3$ for some event $A$. Which axiom does this break, and what does that
+   tell you about their model?
+3. Maya's shuttle is "on time" with probability $0.81$. Without new information, what is
+   $P(\text{late})$, and which rule did you use?
+4. Are the events $\{\text{shuttle on time}\}$ and $\{\text{it rains}\}$ disjoint? Explain why the
+   addition rule for disjoint events does *not* directly apply to them. (We unpack this in Weeks 3–4.)
+5. You run the convergence simulation with $n = 50$ mornings and the relative frequency comes out
+   $0.74$, not $0.81$. Is the model wrong? What would you change to get a more trustworthy reading?
+
+## Reading and source pointer
+
+This week tracks **Grinstead & Snell, Chapter 1 (Discrete Probability Distributions)** for the basic
+vocabulary of experiments, sample spaces, events, and probability assignments, and for the
+relative-frequency picture that simulation makes concrete. For the interpretation-and-modeling
+framing — frequency versus degree of belief, and "a probability needs a model" — the **MIT OCW 18.05**
+introductory material is a useful companion (used for orientation only; nothing is reproduced). The
+one-line idea that probability extends ordinary logic to incomplete information is drawn from Jaynes
+and cited only as orientation.
+
+*These notes are the course's own synthesis, grounded in but not copied from the sources.* All
+example data are **synthetic, with seeds set**.
+
+## Public vs. graded
+
+These notes, the examples, and the practice here are **public and ungraded** — study material only.
+No graded prompts, answer keys, rubrics, point values, or due dates appear on this site. Graded
+checkpoints, quizzes, homework, labs, the midterm, the project, and the final live in **Blackboard
+(the LMS)**, which is authoritative for due dates, submissions, and grades. If this page and
+Blackboard ever disagree, follow Blackboard.
+
+## Looking ahead
+
+Next week we open up the sample space. Instead of the single coarse outcome "on time or late," we
+build the full **shuttle × rain** sample space, define events as subsets of it, and turn this week's
+informal axioms into the working rules of probability — the complement rule and the addition rules,
+including the general one for events that overlap. That is the groundwork for conditional probability
+in Week 3, where the headline $0.81$ finally gets assembled from the rain-conditioned rates $0.60$
+and $0.90$.
+
+## See also
+
+- [Notation glossary](../resources/notation-glossary.qmd) — the fixed symbols used across the course.
+- [Distribution reference](../resources/distribution-reference.qmd) — parameterizations we will meet
+  starting with the discrete models.
+- [Course syllabus](../syllabus.qmd) — schedule, policies, and where graded work actually lives.
+
+*(Week 1 has no companion lab; the first simulation lab pairs with Week 2.)*

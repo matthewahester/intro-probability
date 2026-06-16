@@ -1,0 +1,277 @@
+---
+title: "Lab 9 — Simulating discrete models"
+subtitle: "Binomial and Poisson by simulation, checked against the formulas"
+page_mode: software_lab_week
+week_contract: software_note_lab
+source_mode: source-informed
+toc: true
+---
+
+> **Purpose.** This lab is the hands-on companion to
+> [Week 9 — Common discrete models](../notes/week-09-common-discrete-models.qmd). There you derived two
+> probabilities by hand: that a pure guesser scores eight or better on the ten-question quiz about
+> $5.5\%$ of the time, and that exactly four shuttles arrive in an hour about $20\%$ of the time. Here you
+> *generate* those situations many times in R, count what actually happens, and check that the simulated
+> answers land on the formulas. When they agree, you have two independent confirmations of the same
+> result — and a working test of whether you understood the model.
+
+## The idea
+
+The notes give you two ways to answer a probability question, and this lab is about watching them meet. The
+first way is the **formula**: write down the pmf, plug in, and compute a single exact number — for the
+quiz, $P(X \ge 8) = 56/1024 \approx 0.0547$; for the shuttle, $P(N = 4) = e^{-4}4^4/4! \approx 0.195$. The
+second way is **simulation**: build a machine that produces the random outcome — a guessed quiz, an hour of
+arrivals — run it thousands of times, and count the fraction of runs that fall in the event you care
+about. That fraction is an *estimate* of the probability.
+
+These two answers are not the same kind of thing. The formula is exact and fixed; the simulated fraction
+is random and will wobble a little each time you change the seed or the number of runs. But the wobble
+shrinks as you do more runs (that is the law of large numbers, which Week 13 makes precise), and for the
+sample sizes here the estimate should sit close to the formula. The teaching point is exactly that
+**agreement**: if your simulation and your formula give nearly the same number, each one corroborates the
+other. If they disagree badly, you have a bug — in the code, or in your understanding of the model — and
+the gap is telling you where to look. Simulation here is not a replacement for the probability; it is a
+check on it.
+
+A second, quieter idea runs underneath: a named model is a *recipe for generating data*. Saying
+"$X \sim \text{Binomial}(10, 0.5)$" is the same as saying "flip ten fair coins and count heads," and R has
+a function (`rbinom`) that does exactly that flipping for you. Once you see a distribution as a generator,
+simulation stops being mysterious — you are just running the generator and tallying.
+
+## Goal
+
+By the end of this lab you should be able to:
+
+- Generate many draws from a $\text{Binomial}(10, 0.5)$ model with `rbinom`, tabulate the empirical pmf,
+  and compare it bar-for-bar with the exact pmf from `dbinom`.
+- Estimate $P(X \ge 8)$ for the guessing quiz by simulation and confirm it lands near the formula value
+  $\approx 0.0547$.
+- Generate many draws from a $\text{Poisson}(4)$ model with `rpois` and estimate $P(N = 4)$, confirming it
+  lands near $\approx 0.195$.
+- Explain *why* the simulated fraction is close to but not exactly equal to the formula, and what would
+  make it closer.
+
+You are not turning anything in here. This is study and self-check: the value is in reading each line of
+code, predicting what it will print, and then confirming.
+
+## Setup
+
+You need R (with RStudio or Posit Cloud) and nothing beyond base R — no packages to install. If you have
+not set up your environment yet, the [R · Quarto setup](../resources/r-quarto-setup.qmd) page walks through
+it. Open a fresh script or a `.qmd` document and work through the steps in order.
+
+Three things to fix before you start, so your numbers match the discussion:
+
+- **The seed.** Every simulation chunk in this lab begins with `set.seed(35003)`. The seed makes the
+  "random" draws reproducible: you and a classmate running the same code get the same numbers. Change the
+  seed and the estimates shift slightly — that wobble is the point of the Verify section, not a mistake.
+- **The number of runs.** We use `n_sim <- 100000` (one hundred thousand) draws. More runs means a tighter
+  estimate; one hundred thousand is plenty to pin both probabilities to three decimals' worth of
+  confidence without making your laptop wait.
+- **The models, from the notes.** The quiz is $X \sim \text{Binomial}(10,\ 0.5)$ — ten true/false
+  questions, pure guessing, count the number correct. The shuttle is $N \sim \text{Poisson}(4)$ — arrivals
+  in an hour at a rate of four per hour. Both worlds and all numbers are **synthetic and fixed for the
+  course**.
+
+A reminder on the code blocks below: they are **shown for study**, written in base R with `#| eval: false`,
+so this site does not run them. You run them yourself in your own session and read the printed output
+there.
+
+## Steps
+
+### Step 1 — Simulate the guessing quiz and build the empirical pmf
+
+A single guessed quiz is ten independent fair coin flips with "correct" counted as a success. One call to
+`rbinom(n, size, prob)` draws `n` such quizzes at once: `size = 10` questions, `prob = 0.5` chance correct.
+The result is a vector of `n_sim` whole numbers, each between $0$ and $10$ — the score on one simulated
+quiz. We tabulate those scores with `table()`, divide by the number of quizzes to turn counts into
+*proportions*, and that proportion vector is the **empirical pmf**: the simulated stand-in for $p(x)$.
+
+```{r}
+#| label: sim-binom-empirical-pmf
+#| eval: false
+
+set.seed(35003)
+
+n_sim <- 100000                 # number of simulated quizzes
+n_q   <- 10                     # questions per quiz
+p     <- 0.5                    # chance of a correct guess
+
+# Draw n_sim quizzes; each value is the number correct on that quiz (0..10).
+scores <- rbinom(n_sim, size = n_q, prob = p)
+
+# Empirical pmf: the fraction of quizzes landing on each score 0..10.
+emp_counts <- table(factor(scores, levels = 0:n_q))
+emp_pmf    <- emp_counts / n_sim
+
+round(emp_pmf, 4)               # the simulated p(x), one entry per score
+```
+
+Wrapping `scores` in `factor(..., levels = 0:n_q)` forces the table to show all eleven possible scores,
+even any that happened zero times (a score of $0$ or $10$ is rare and might be missing from a smaller run).
+Read the printed vector as a probability distribution: most of the mass should pile up around $5$, the
+mean, and thin out toward the ends.
+
+### Step 2 — Overlay the exact pmf from the formula
+
+Now generate the *exact* pmf — the formula's answer — and set it beside the simulated one. The function
+`dbinom(x, size, prob)` returns $p(x) = \binom{10}{x}(0.5)^{x}(0.5)^{10-x}$ for each `x` you ask about, so
+`dbinom(0:10, 10, 0.5)` gives the whole pmf in one line. Stacking the empirical and exact vectors into a
+small table lets you compare them score by score and eyeball the gap.
+
+```{r}
+#| label: sim-binom-overlay-exact
+#| eval: false
+
+set.seed(35003)
+
+n_sim <- 100000
+n_q   <- 10
+p     <- 0.5
+
+scores  <- rbinom(n_sim, size = n_q, prob = p)
+emp_pmf <- as.numeric(table(factor(scores, levels = 0:n_q))) / n_sim
+
+# Exact pmf straight from the binomial formula.
+exact_pmf <- dbinom(0:n_q, size = n_q, prob = p)
+
+# Put them side by side and look at the difference column.
+compare <- data.frame(
+  score      = 0:n_q,
+  empirical  = round(emp_pmf,   4),
+  exact      = round(exact_pmf, 4),
+  difference = round(emp_pmf - exact_pmf, 4)
+)
+print(compare)
+```
+
+The `difference` column is where the lesson lives. Each entry should be small — a few thousandths at most —
+and the differences should scatter around zero rather than all leaning one way. That scatter is sampling
+noise: with one hundred thousand quizzes the empirical pmf tracks the formula closely but not perfectly. If
+you also want a picture, `barplot(rbind(emp_pmf, exact_pmf), beside = TRUE)` draws the two pmfs as paired
+bars so the overlay is visible at a glance.
+
+### Step 3 — Estimate the tail probability P(X ≥ 8)
+
+The headline number from the notes is $P(X \ge 8)$, the chance a pure guesser scores eight or more. You do
+*not* need the table for this — you can ask the original `scores` vector directly. The expression
+`scores >= 8` produces a vector of `TRUE`/`FALSE`, one per quiz; in R, `TRUE` counts as $1$ and `FALSE` as
+$0$, so `mean(scores >= 8)` is the *fraction* of quizzes scoring eight or better. That fraction is the
+Monte Carlo estimate of the probability.
+
+```{r}
+#| label: sim-binom-tail-prob
+#| eval: false
+
+set.seed(35003)
+
+n_sim <- 100000
+scores <- rbinom(n_sim, size = 10, prob = 0.5)
+
+# Fraction of simulated quizzes scoring 8, 9, or 10 correct.
+p_hat_tail <- mean(scores >= 8)
+
+# Exact value from the formula, for comparison.
+p_exact_tail <- sum(dbinom(8:10, size = 10, prob = 0.5))   # = pbinom(7, 10, 0.5, lower.tail = FALSE)
+
+cat("Simulated P(X >= 8):", round(p_hat_tail,   4), "\n")
+cat("Exact     P(X >= 8):", round(p_exact_tail, 4), "\n")
+```
+
+The exact value sums the top three pmf bars — $\binom{10}{8} + \binom{10}{9} + \binom{10}{10} = 45+10+1 =
+56$ orderings over $1024$ — giving $56/1024 \approx 0.0547$. Your simulated `p_hat_tail` should print
+something very near it, off only in the third or fourth decimal.
+
+### Step 4 — Simulate shuttle arrivals and estimate P(N = 4)
+
+Switch worlds to the shuttle. Arrivals in an hour follow $N \sim \text{Poisson}(4)$, and `rpois(n, lambda)`
+generates `n` such hourly counts with `lambda = 4`. To estimate $P(N = 4)$ — exactly four arrivals — count
+the fraction of simulated hours equal to four with `mean(arrivals == 4)`, the same `TRUE`-as-$1$ trick as
+before. Then compare to the formula via `dpois(4, 4)`.
+
+```{r}
+#| label: sim-pois-equals-four
+#| eval: false
+
+set.seed(35003)
+
+n_sim  <- 100000
+lambda <- 4                     # arrivals per hour
+
+# Draw n_sim hours; each value is the number of shuttles that arrived that hour.
+arrivals <- rpois(n_sim, lambda = lambda)
+
+# Estimated and exact P(N = 4).
+p_hat_four   <- mean(arrivals == 4)
+p_exact_four <- dpois(4, lambda = lambda)         # e^-4 * 4^4 / 4!
+
+cat("Simulated P(N = 4):", round(p_hat_four,   4), "\n")
+cat("Exact     P(N = 4):", round(p_exact_four, 4), "\n")
+
+# Sanity check on the model: a Poisson's mean and variance both equal lambda.
+cat("sample mean:", round(mean(arrivals), 3),
+    " sample var:", round(var(arrivals), 3), "\n")
+```
+
+The exact value is $e^{-4}4^4/4! \approx 0.195$, and `p_hat_four` should land beside it. The last two lines
+are a bonus check on the *whole* model rather than one probability: a Poisson has mean equal to variance,
+both $\lambda = 4$, so your `sample mean` and `sample var` should both come out near $4$. If they were far
+apart, that would warn you the data are not really Poisson.
+
+## Verify
+
+This is the section the whole lab points at: line up each simulated estimate against the exact value from
+the formula and confirm they agree to within sampling noise.
+
+| Quantity | Formula (exact) | Simulated estimate (seed 35003, 100k runs) | Match? |
+|---|---|---|---|
+| $P(X \ge 8)$, guessing quiz | $\dfrac{56}{1024} \approx 0.0547$ | $\approx 0.055$ | within $\sim 0.001$ |
+| $P(N = 4)$, shuttle arrivals | $e^{-4}4^4/4! \approx 0.195$ | $\approx 0.195$ | within $\sim 0.002$ |
+| binomial pmf, all scores | $\binom{10}{x}(0.5)^{10}$ | empirical $\approx$ exact | differences scatter around $0$ |
+| Poisson mean & variance | both $=\lambda = 4$ | sample mean $\approx 4$, var $\approx 4$ | both near $4$ |
+
+The exact figures above are the ones derived by hand in the Week 9 notes; treat them as the answer key the
+simulation is being checked against, not numbers the code invents. When you run the chunks, your estimates
+will not be *identical* to mine to every decimal even with the same seed and run count — different R
+versions can produce slightly different streams — but they should be close enough that the agreement is
+obvious. That closeness is the result: two independent routes, the formula and the simulation, arriving at
+the same probability is strong evidence you have the model right.
+
+Two follow-ups worth a minute. First, **change the seed** to `set.seed(2026)` and rerun: every estimate
+shifts a little, but the formula values do not move — that contrast shows you which number is random (the
+estimate) and which is fixed (the formula). Second, **shrink the runs** to `n_sim <- 1000` and watch the
+estimates get noticeably noisier; bump to `n_sim <- 1000000` and watch them tighten. That is the law of
+large numbers in miniature, the very thing Week 13 will make formal. The gap between simulation and formula
+is not error in the formula — it is the price of estimating, and it is one you can pay down with more runs.
+
+## AI use note
+
+If you used an AI assistant on this lab — to explain an `rbinom` argument, to debug a `table()` call, to
+suggest a cleaner way to count a tail — log it briefly. The honest, load-bearing column is **Verification**:
+how you confirmed the output yourself rather than trusting it. In this lab you are lucky, because you have a
+built-in check — the formula. Anything the AI helps you compute can be held against `dbinom`/`dpois` or the
+known values $0.0547$ and $0.195$.
+
+| Tool | Purpose | Verification |
+|---|---|---|
+| AI chat assistant | Explain what `size` vs `n` mean in `rbinom(n, size, prob)` | Re-read `?rbinom` in R; confirmed `size` is questions-per-quiz, `n` is number of quizzes; checked the output vector had length `n_sim` with values in $0\text{–}10$ |
+| AI chat assistant | Suggest how to count $P(X \ge 8)$ from the `scores` vector | Verified `mean(scores >= 8)` against `sum(dbinom(8:10, 10, 0.5))`; both $\approx 0.055$ |
+| AI chat assistant | Help read a `table()` that dropped a missing score | Confirmed the fix by wrapping in `factor(..., levels = 0:10)` and checking all eleven scores now appear |
+
+If you used no AI help, write one line saying so — that is a complete and honest note. The goal is a record
+you would be comfortable showing, where the verification step proves the answer is yours.
+
+## See also
+
+- [Week 9 — Common discrete models](../notes/week-09-common-discrete-models.qmd) — the companion note where
+  $P(X \ge 8) \approx 0.0547$ and $P(N = 4) \approx 0.195$ are derived by hand.
+- [Lab 2 — Monte Carlo basics](lab-02-monte-carlo-basics.qmd) — the first "estimate a probability by
+  counting" lab, which `mean(condition)` here builds on.
+- [Lab 13 — Law of large numbers and CLT](lab-13-law-of-large-numbers-and-clt.qmd) — why more runs shrink
+  the gap between simulation and formula, made precise.
+- [Distribution reference](../resources/distribution-reference.qmd) — the binomial and Poisson parameters,
+  means, and variances on one page.
+- [R · Quarto setup](../resources/r-quarto-setup.qmd) — getting R, RStudio/Posit Cloud, and Quarto running.
+
+*The graded deliverable, its rubric, and due date live in Blackboard (the LMS) — this page is study and
+practice only.*

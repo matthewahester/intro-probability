@@ -1,0 +1,278 @@
+---
+title: "Week 6 — Counting & discrete probability"
+subtitle: "Equally likely outcomes, permutations, and combinations"
+page_mode: normal_week
+week_contract: public_note
+source_mode: source-informed
+readings:
+  - "Grinstead & Snell, Ch 3 — Combinatorics — supports the multiplication principle, permutations, and combinations"
+  - "MIT OCW 18.05 — counting and sets reading — supports the equally-likely-outcomes model as a sanity check"
+toc: true
+---
+
+## The week question
+
+When every outcome of an experiment is equally likely, the probability of an event is just a ratio:
+the number of outcomes in the event divided by the total number of outcomes. That sounds easy until you
+ask the real question — **how do you count outcomes when there are too many to list?** A 10-question
+true/false quiz has $2^{10} = 1024$ possible answer keys. You are not going to write all 1024 down.
+
+So the week question is: **how do we count the outcomes that matter, quickly and without listing them,
+so that the "favorable over total" recipe actually works?** The tools are three: the multiplication
+principle, permutations, and combinations. By the end of the week you should be able to look at a
+counting problem and decide which one applies — and, crucially, whether order matters.
+
+## Why this matters
+
+Almost every discrete probability you will compute for the rest of this course rests on counting. The
+equally-likely model — flip a fair coin, roll a fair die, guess blindly on a quiz — turns probability
+into arithmetic, but only if you can count the pieces. Counting is also where most early mistakes live:
+multiplying when you should add, treating two arrangements as different when they are really the same.
+
+This week also quietly builds the bridge to the rest of the course. The **binomial coefficient**
+$\binom{n}{k}$ — the number of ways to choose $k$ things from $n$ — is the same number that will appear
+in week 9 as the heart of the binomial distribution. When we ask "how many ways can Maya get exactly 3
+of 10 quiz questions right by guessing?", the answer $\binom{10}{3} = 120$ is a *counting* fact this
+week and a *probability* fact in week 9. Learn the counting now and the distribution later will feel
+inevitable rather than mysterious.
+
+## Learning goals
+
+By the end of this week you should be able to:
+
+- State the **multiplication principle** and use it to count outcomes of a multi-stage process.
+- Compute a **permutation** count $\dfrac{n!}{(n-k)!}$ — ordered selections without replacement.
+- Compute a **combination** count $\binom{n}{k} = \dfrac{n!}{k!\,(n-k)!}$ — unordered selections.
+- Decide **whether order matters** in a problem, and pick the right tool accordingly.
+- Explain when the **equally-likely-outcomes** model is reasonable, and when it quietly fails.
+- Read $\binom{n}{k}$ as "the number of ways," setting up the binomial model in week 9.
+
+## Core vocabulary
+
+- **Multiplication principle.** If a process has $k$ independent stages, with $n_1$ choices at the first,
+  $n_2$ at the second, and so on, the whole process has $n_1 \cdot n_2 \cdots n_k$ outcomes.
+- **Factorial.** $n! = n \cdot (n-1) \cdots 2 \cdot 1$, with the convention $0! = 1$. It counts the
+  number of ways to arrange $n$ distinct objects in a row.
+- **Permutation.** An *ordered* selection of $k$ objects from $n$ distinct objects, no repeats. Count:
+  $P(n,k) = \dfrac{n!}{(n-k)!}$.
+- **Combination.** An *unordered* selection of $k$ objects from $n$. Count: $\binom{n}{k} =
+  \dfrac{n!}{k!\,(n-k)!}$, read "$n$ choose $k$."
+- **Binomial coefficient.** Another name for $\binom{n}{k}$ — it is the "number of ways" to choose $k$
+  of $n$, and it is the coefficient that appears when you expand $(a+b)^n$.
+- **Equally likely outcomes.** A model in which every outcome of a sample space has the same probability,
+  so that $P(\text{event}) = \dfrac{\#\,\text{outcomes in the event}}{\#\,\text{outcomes total}}$.
+
+## Concept development
+
+### The multiplication principle: counting in stages
+
+Most counting problems are really a sequence of independent choices. The multiplication principle says:
+multiply the number of choices at each stage. Suppose Maya's morning has three independent decisions —
+coffee (3 options), route to the shuttle stop (2 options), and which of 4 podcast episodes to start.
+The number of distinct mornings is
+
+$$
+3 \times 2 \times 4 = 24.
+$$
+
+The word *independent* is doing real work here: the number of choices at one stage must not depend on
+what you chose earlier. If picking the long route ruled out one podcast, the stages would interact and a
+plain product would overcount.
+
+A clean special case: when each of $k$ stages has the same $m$ choices, you get $m^k$ outcomes. A
+10-question true/false quiz is exactly this — 10 stages, 2 choices each:
+
+$$
+\underbrace{2 \times 2 \times \cdots \times 2}_{10 \text{ times}} = 2^{10} = 1024.
+$$
+
+That 1024 is the **total number of outcomes** in the quiz sample space, and it will be the denominator
+for every quiz probability this week. (Synthetic example; seed set where simulated.)
+
+### Permutations: when order matters
+
+Sometimes a selection is *ordered* — first, second, third are genuinely different roles. Arranging all
+$n$ distinct objects in a row gives $n!$ orderings, because there are $n$ choices for the first slot,
+$n-1$ for the second, and so on down to 1. If you only fill $k$ of the slots, you stop early:
+
+$$
+P(n,k) = n \cdot (n-1) \cdots (n-k+1) = \frac{n!}{(n-k)!}.
+$$
+
+Example: from a club of 8 members, choosing a *president, then a vice-president, then a treasurer* is an
+ordered choice of 3 from 8, so $P(8,3) = \dfrac{8!}{5!} = 8 \cdot 7 \cdot 6 = 336$. The roles are
+distinct, so president-Maya / VP-Jon is a different outcome from president-Jon / VP-Maya.
+
+### Combinations: when order does not matter
+
+Now suppose the three club members are just a *committee* — no titles, no ranking. The outcome
+{Maya, Jon, Lee} is the same committee no matter what order you named them in. Each unordered committee
+of 3 was counted $3! = 6$ times among the ordered selections (the $3!$ ways to arrange those same 3
+people). So we divide the permutation count by $k!$:
+
+$$
+\binom{n}{k} = \frac{P(n,k)}{k!} = \frac{n!}{k!\,(n-k)!}.
+$$
+
+For the committee, $\binom{8}{3} = \dfrac{336}{6} = 56$. The single question "does order matter?"
+separates the two tools: **yes** → permutation, **no** → combination. Two useful sanity facts:
+$\binom{n}{0} = \binom{n}{n} = 1$ (one way to choose nothing, one way to choose everything), and the
+symmetry $\binom{n}{k} = \binom{n}{n-k}$ (choosing which $k$ to include is the same as choosing which
+$n-k$ to leave out).
+
+### When equally-likely outcomes is a reasonable model
+
+The "favorable over total" recipe is only valid when the outcomes really are equally likely. That is a
+*modeling assumption*, not a mathematical guarantee. It is reasonable for a fair coin, a fair die, a
+well-shuffled deck, or blind guessing on a true/false quiz — situations with a physical or logical
+symmetry. It is **not** reasonable for things like "will the shuttle be on time?" — there, outcomes are
+not symmetric (we already fixed $P(\text{on time}) = 0.81$ in week 1, not $0.5$). When symmetry fails,
+counting still tells you the *size* of an event, but you must weight outcomes by their actual
+probabilities rather than treat them as equal. Counting and the equally-likely model are partners, not
+the same thing.
+
+## Worked examples
+
+### Worked example — the quiz, symbolically then numerically
+
+**Setup (the recurring slice).** Maya guesses blindly on a 10-question true/false quiz. Each question is
+an independent fair-coin guess. Let the experiment's outcome be the full answer pattern (which questions
+she got right). We want the number of patterns with **exactly $k$ correct**, and the probability of that
+event under blind guessing.
+
+**Symbolic.** There are $2^{10} = 1024$ equally likely answer patterns (each question right or wrong).
+The number of patterns with exactly $k$ correct is the number of ways to *choose which $k$ of the 10
+questions* are the correct ones — order does not matter, so it is a combination:
+
+$$
+\#\{\text{exactly } k \text{ correct}\} = \binom{10}{k}, \qquad
+P(\text{exactly } k \text{ correct}) = \frac{\binom{10}{k}}{2^{10}} = \frac{\binom{10}{k}}{1024}.
+$$
+
+**Numeric.** Take $k = 3$:
+
+$$
+\binom{10}{3} = \frac{10!}{3!\,7!} = \frac{10 \cdot 9 \cdot 8}{3 \cdot 2 \cdot 1}
+= \frac{720}{6} = 120.
+$$
+
+So there are **120 ways** to get exactly 3 of 10 right, and
+
+$$
+P(\text{exactly } 3 \text{ correct}) = \frac{120}{1024} \approx 0.117.
+$$
+
+A quick consistency check: the counts $\binom{10}{k}$ for $k = 0,1,\dots,10$ are
+$1, 10, 45, 120, 210, 252, 210, 120, 45, 10, 1$, and they sum to $1024 = 2^{10}$ — every answer pattern
+falls into exactly one "$k$ correct" bucket. This table of "number of ways" is *exactly* the shape of
+the binomial distribution we will meet in week 9; there we will simply divide each count by 1024 to read
+it as a probability.
+
+You can compute these counts in R (shown, not run here):
+
+```{r}
+#| label: quiz-counts
+#| eval: false
+
+# Number of ways to get exactly k correct on a 10-question T/F quiz.
+# Synthetic teaching example; no randomness needed, but seed set by convention.
+set.seed(35003)
+
+n <- 10
+k <- 0:n
+ways  <- choose(n, k)          # C(10,k): 1 10 45 120 210 252 210 120 45 10 1
+total <- 2^n                   # 1024
+probs <- ways / total          # P(exactly k correct) under blind guessing
+
+data.frame(k = k, ways = ways, prob = round(probs, 4))
+sum(ways)                      # 1024, confirms the buckets partition all outcomes
+```
+
+### Worked example — the transfer: a club committee
+
+**Setup (new context).** A campus club has 12 members. Two different selection tasks come up at the same
+meeting, and the difference between them is the whole lesson.
+
+**Task A — an ordered slate (permutation).** The club needs a *president, secretary, and treasurer*,
+three distinct offices, filled from the 12 members (no one holds two offices). Order matters because the
+offices are different roles:
+
+$$
+P(12,3) = \frac{12!}{(12-3)!} = \frac{12!}{9!} = 12 \cdot 11 \cdot 10 = 1320.
+$$
+
+**Task B — an unordered committee (combination).** The club also needs a 3-person *social committee* —
+no titles, just three members. Order does not matter, so we divide by $3!$:
+
+$$
+\binom{12}{3} = \frac{12!}{3!\,9!} = \frac{12 \cdot 11 \cdot 10}{3 \cdot 2 \cdot 1}
+= \frac{1320}{6} = 220.
+$$
+
+The same pool of people, the same size of selection — but 1320 ordered slates collapse to 220 unordered
+committees, precisely because each committee can be arranged in $3! = 6$ orders. If the 12 members were
+equally likely to be picked and you wanted the probability that a *specific* trio forms the committee,
+it would be $\dfrac{1}{220}$. Notice the parallel to the quiz: "choose which 3 of 12" is the same kind of
+count as "choose which 3 of 10 questions are right" — both are $\binom{n}{k}$.
+
+## A common mistake
+
+The most common mistake is **using a permutation when order does not matter** (or the reverse). If you
+count the committee with $P(12,3) = 1320$ instead of $\binom{12}{3} = 220$, you have counted each
+committee 6 times — once per ordering — and your probabilities will be off by exactly that factor.
+
+The fix is a single habit: **before you compute anything, ask "does order matter?"** If swapping two of
+the chosen items gives a genuinely different outcome (different offices, different finishing positions),
+order matters → permutation. If swapping them gives the *same* outcome (same committee, same set of
+correct questions), order does not matter → combination. A close cousin of this error is forgetting that
+the equally-likely recipe only applies when outcomes really are symmetric — counting "favorable over
+total" for the shuttle being on time would be wrong, because on-time and late are not equally likely.
+
+## Low-stakes self-checks (ungraded)
+
+These are for your own practice — ungraded, no submission, no key posted here.
+
+- A lunch special offers 4 mains, 3 sides, and 2 drinks. How many distinct meals are there? Which
+  principle did you use?
+- Compute $\binom{6}{2}$ and $\binom{6}{4}$. Why are they equal? Name the property.
+- On the 10-question quiz, how many answer patterns give exactly **2** correct? What is that probability
+  out of 1024?
+- A relay team of 4 runners will run in a fixed order. From 9 athletes, how many ordered lineups are
+  possible — permutation or combination, and why?
+- Explain in one sentence why $\binom{n}{0} = 1$ makes sense in words ("how many ways to choose
+  nothing?").
+- True or false: rolling a fair die is a fair candidate for the equally-likely model, but "the bus is on
+  time" is not. Say why.
+
+## Reading and source pointer
+
+This week is grounded in **Grinstead & Snell, *Introduction to Probability*, Chapter 3 (Combinatorics)**,
+which develops the multiplication principle, permutations, and combinations and connects $\binom{n}{k}$
+to the binomial coefficient. For the "equally likely outcomes" framing and a counting refresher, the
+**MIT OCW 18.05** counting/sets reading is a useful cross-check. *These notes are the course's own
+synthesis, grounded in but not copied from the sources.* All examples and data here are synthetic, with
+seeds set in any code chunk.
+
+## Public vs. graded
+
+These notes, the examples, and the practice here are **public and ungraded** — study material only. No
+graded prompts, answer keys, rubrics, point values, or due dates appear on this site. Graded
+checkpoints, quizzes, homework, labs, the midterm, the project, and the final live in **Blackboard
+(the LMS)**, which is authoritative for due dates, submissions, and grades. If this page and Blackboard
+ever disagree, follow Blackboard.
+
+## Looking ahead
+
+Next week we turn these "number of ways" counts into a **random variable**: $X = $ the number of quiz
+questions Maya gets right. The function $p(x) = P(X = x)$ — the probability mass function — is built
+directly from this week's $\binom{10}{x}/1024$. In week 8 we attach an expectation and variance to it,
+and in week 9 we name the whole pattern: $X \sim \text{Binomial}(10, 0.5)$. Every one of those steps
+starts from the counting you did this week, so the binomial coefficient is worth getting fluent with now.
+
+## See also
+
+- [Notation glossary](../resources/notation-glossary.qmd) — symbols for $\binom{n}{k}$, $n!$, and
+  permutations used throughout the course.
+- [Distribution reference](../resources/distribution-reference.qmd) — where this week's counts reappear
+  as the binomial distribution.
+- [Course syllabus](../syllabus.qmd) — schedule, policies, and where graded work actually lives.

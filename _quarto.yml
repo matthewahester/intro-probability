@@ -1,0 +1,140 @@
+# Introduction to Probability — public Quarto course site (assembled undergraduate course materials).
+# Sibling of matthewhester.com; intended to live at /intro-probability/ under that domain.
+# Layout/theme aligned to the matthewhester.com course family (cosmo + styles.css, dark navbar,
+# floating sidebar, right-side TOC, MathML math). site-url set for the combined deploy; this
+# repo does not self-deploy (no CI here — the hub workflow assembles the courses).
+# Boundary: this is the PUBLIC surface. Private build state (_state/), source governance
+# (source_text/), assessment shadows (assessment_shadow/), run reports (run_reports/), and
+# accessibility evidence (accessibility/) are NOT rendered.
+project:
+  type: website
+  output-dir: _site
+  # RENDER ALLOW-LIST (docs/08 §2 boundary hazard; docs/26 §6). Fails safe — only the public
+  # sections below render into _site/. Every private dir (_state/ underscore-skipped, plus
+  # source_text/, assessment_shadow/, run_reports/, accessibility/) is excluded.
+  # NOTE: a bare "*.qmd" matches RECURSIVELY in Quarto 1.8.26 and could leak nested private .qmd.
+  # List the three public root pages explicitly instead, and negate private dirs as
+  # belt-and-suspenders (docs/08 §2, docs/26 §6).
+  render:
+    - index.qmd
+    - syllabus.qmd
+    - schedule.qmd
+    - notes/*.qmd
+    - labs/*.qmd
+    - resources/*.qmd
+    - "!source_text/"
+    - "!assessment_shadow/"
+    - "!run_reports/"
+    - "!accessibility/"
+
+website:
+  title: "Introduction to Probability"
+  site-url: https://matthewhester.com/intro-probability/
+  description: |
+    Public-facing course materials for Introduction to Probability — an
+    assembled undergraduate course site (notes, labs, and resources)
+    curated by Matt Hester.
+  open-graph: true
+  navbar:
+    pinned: true
+    background: dark            # black top bar — the family signature
+    logo: assets/icon.png
+    logo-alt: "Introduction to Probability — an opal crystal course mark"
+    left:
+      - href: index.qmd
+        text: Home
+      - href: syllabus.qmd
+        text: Syllabus
+      - href: schedule.qmd
+        text: Schedule
+  sidebar:
+    style: floating
+    collapse-level: 2
+    contents:
+      - section: "Notes"
+        href: notes/index.qmd
+        contents:
+          - href: notes/index.qmd
+            text: "Notes overview"
+          - section: "Part I — Foundations of uncertainty (Wk 1–2)"
+            contents:
+              - href: notes/week-01-uncertainty-probability-models.qmd
+                text: "1 — Uncertainty, probability & models"
+              - href: notes/week-02-sample-spaces-events-rules.qmd
+                text: "2 — Sample spaces, events & rules"
+          - section: "Part II — Conditioning & Bayesian reasoning (Wk 3–5)"
+            contents:
+              - href: notes/week-03-conditional-probability.qmd
+                text: "3 — Conditional probability"
+              - href: notes/week-04-independence-and-information.qmd
+                text: "4 — Independence & information"
+              - href: notes/week-05-bayes-rule-and-updating.qmd
+                text: "5 — Bayes' rule & updating"
+          - section: "Part III — Counting & discrete random variables (Wk 6–9)"
+            contents:
+              - href: notes/week-06-counting-and-discrete-probability.qmd
+                text: "6 — Counting & discrete probability"
+              - href: notes/week-07-discrete-random-variables.qmd
+                text: "7 — Discrete random variables (midterm)"
+              - href: notes/week-08-expectation-and-variance.qmd
+                text: "8 — Expectation & variance"
+              - href: notes/week-09-common-discrete-models.qmd
+                text: "9 — Common discrete models"
+          - section: "Part IV — Continuous variables & joint behavior (Wk 10–12)"
+            contents:
+              - href: notes/week-10-continuous-random-variables.qmd
+                text: "10 — Continuous random variables"
+              - href: notes/week-11-common-continuous-models.qmd
+                text: "11 — Common continuous models"
+              - href: notes/week-12-joint-distributions-and-dependence.qmd
+                text: "12 — Joint distributions & dependence"
+          - section: "Part V — Limits, simulation & synthesis (Wk 13–15)"
+            contents:
+              - href: notes/week-13-sums-simulation-limit-behavior.qmd
+                text: "13 — Sums, simulation & limit behavior"
+              - href: notes/week-14-probability-modeling-project.qmd
+                text: "14 — Probability modeling project"
+              - href: notes/week-15-final-review-synthesis.qmd
+                text: "15 — Final review & synthesis"
+      - section: "Labs"
+        href: labs/index.qmd
+        contents:
+          - href: labs/index.qmd
+            text: "Labs overview"
+          - href: labs/lab-02-monte-carlo-basics.qmd
+            text: "Lab 2 — Monte Carlo basics"
+          - href: labs/lab-05-bayes-by-simulation.qmd
+            text: "Lab 5 — Bayes by simulation"
+          - href: labs/lab-09-simulating-discrete-models.qmd
+            text: "Lab 9 — Simulating discrete models"
+          - href: labs/lab-13-law-of-large-numbers-and-clt.qmd
+            text: "Lab 13 — LLN & CLT"
+      - section: "Resources"
+        href: resources/index.qmd
+        contents:
+          - href: resources/index.qmd
+            text: "Resources overview"
+          - href: resources/notation-glossary.qmd
+            text: "Notation glossary"
+          - href: resources/distribution-reference.qmd
+            text: "Distribution reference"
+          - href: resources/r-quarto-setup.qmd
+            text: "R · Quarto setup"
+  page-footer:
+    left: "© 2026 Matt Hester · Introduction to Probability"
+    center: "[Matt Hester · matthewhester.com](https://matthewhester.com/)"
+    right: "Built with [Quarto](https://quarto.org)"
+
+format:
+  html:
+    theme: cosmo
+    css: styles.css
+    toc: true
+    toc-location: right
+    anchor-sections: true
+    smooth-scroll: true
+    link-external-newwindow: true
+    fontsize: 1.05em
+    mainfont: "Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif"
+    monofont: "JetBrains Mono, Consolas, Menlo, monospace"
+# Math renders as MathML/MathJax (accessible text), never as images (docs/05 P7; docs/08 §4).

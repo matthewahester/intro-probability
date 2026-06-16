@@ -1,0 +1,314 @@
+---
+title: "Lab 2 — Monte Carlo basics"
+subtitle: "Estimating a probability by simulating it"
+page_mode: software_lab_week
+week_contract: software_note_lab
+source_mode: source-informed
+toc: true
+---
+
+> **Purpose.** This lab is the hands-on companion to
+> [Week 2 — Sample spaces, events & rules](../notes/week-02-sample-spaces-events-rules.qmd). There you
+> built the shuttle×rain sample space and computed $P(\text{on time}) = 0.81$ by hand using the addition
+> and complement rules. Here you will reach the *same* number a completely different way: by simulating
+> Maya's morning thousands of times and counting how often the shuttle is on time. When the hand
+> calculation and the simulation agree, you trust both more — and you get a first, concrete taste of the
+> **law of large numbers**.
+
+## The idea
+
+A probability is a long-run proportion. When we say $P(\text{on time}) = 0.81$, one honest reading is:
+"if Maya took this commute on a very large number of independent mornings, the fraction of mornings the
+shuttle arrived on time would settle near $0.81$." That sentence is not just an interpretation — it is a
+recipe. If we can *act out* one morning at random on the computer, we can act out ten thousand mornings,
+tally the on-time ones, and divide. The resulting fraction is a **Monte Carlo estimate** of the
+probability.
+
+Monte Carlo is the name for this whole family of methods: use a stream of random numbers to imitate a
+random process, then read an answer off the imitation. It is powerful precisely when the hand
+calculation is hard or impossible. The shuttle problem is *not* hard — we already know the exact answer
+is $0.81$ — and that is exactly why it makes a good first lab. We can check the simulation against the
+truth and learn to trust the technique before we point it at problems we cannot solve by hand.
+
+The world we are simulating is the same locked synthetic world from the week note. Each morning:
+
+- It rains with probability $P(\text{rain}) = 0.30$.
+- If it rains, the shuttle is on time with probability $P(\text{on time}\mid\text{rain}) = 0.60$.
+- If it does not rain, the shuttle is on time with probability $P(\text{on time}\mid\text{no rain}) = 0.90$.
+
+Averaging over the weather gives the marginal probability you derived by hand:
+
+$$
+P(\text{on time}) = 0.60 \times 0.30 + 0.90 \times 0.70 = 0.81,
+\qquad
+P(\text{late}) = 1 - 0.81 = 0.19.
+$$
+
+All numbers here are **synthetic; seed set.** Nothing depends on real weather or a real shuttle.
+
+## Goal
+
+By the end of this lab you should be able to:
+
+- Translate a two-stage random process (weather, then shuttle) into a short base-R simulation.
+- Estimate $P(\text{on time})$ and $P(\text{late})$ as the mean of a $0/1$ indicator over many
+  simulated mornings.
+- Compare your simulated estimate to the exact value $0.81$ and judge whether the gap is "small."
+- Watch the running estimate **settle** toward $0.81$ as the number of replications grows — the law of
+  large numbers in action.
+- Change the inputs (the rain and on-time probabilities) and re-estimate, confirming the simulation
+  tracks whatever world you specify.
+
+This is self-check, ungraded practice. There is nothing to submit here; work the steps, predict each
+result before you imagine running the chunk, and notice where your prediction and the logic agree.
+
+## Setup
+
+You need R and the ability to open a Quarto (`.qmd`) or plain R script — RStudio or Posit Cloud both
+work. No add-on packages are required: everything below is **base R**. The functions we lean on are
+small and worth knowing by name:
+
+- `set.seed()` — fixes the random-number stream so the "random" results are reproducible. Every chunk
+  that draws randomness in this lab starts with `set.seed(35003)` (the course seed) so your numbers match
+  the discussion.
+- `rbinom(n, size, prob)` — draws `n` values, each the count of successes in `size` independent trials
+  with success probability `prob`. With `size = 1` it is a coin flip returning `0` or `1`, which is
+  exactly what we want for a yes/no event like "did it rain?"
+- `ifelse(test, yes, no)` — a vectorized choice: wherever `test` is `TRUE` it returns `yes`, elsewhere
+  `no`. We use it to give each morning the right on-time probability depending on whether it rained.
+- `mean()` — of a vector of `0`s and `1`s, this is just the proportion of `1`s, i.e. our estimated
+  probability.
+
+::: {.callout-note}
+In this diagnostic the code is **shown, not run**. Each chunk is marked `#| eval: false`, so the page
+renders the code as teaching without executing it. To actually see the numbers, copy a chunk into your
+own R session. The chunks are written so that, when executed, the seed makes them reproducible.
+:::
+
+## Steps
+
+We build the simulation in pieces: first generate the weather, then the shuttle outcome conditional on
+the weather, then collapse everything to a single estimate, and finally watch that estimate stabilize.
+
+### Step 1 — Simulate the weather for many mornings
+
+Pick a number of mornings to simulate — call it `n_morn`. Start large enough that the estimate is stable
+(ten thousand is plenty here) but small enough to run instantly. Each morning, rain is a single yes/no
+trial with probability $0.30$, so `rbinom(n_morn, size = 1, prob = 0.30)` gives us a vector of `n_morn`
+values, each `1` for rain and `0` for no rain. The mean of that vector should land near $0.30$, a tiny
+first check that the draw did what we asked.
+
+```{r}
+#| label: step1-simulate-rain
+#| eval: false
+
+set.seed(35003)            # reproducible: course seed
+
+n_morn <- 10000            # number of simulated mornings
+p_rain <- 0.30             # P(rain), locked synthetic value
+
+# Draw rain for each morning: 1 = rain, 0 = no rain
+rain <- rbinom(n_morn, size = 1, prob = p_rain)
+
+# Sanity check: fraction of rainy mornings should sit near 0.30
+mean(rain)
+```
+
+The object `rain` is now a length-`10000` vector of `0`s and `1`s. We have *not* touched the shuttle
+yet — we have only rolled the weather. Keeping the two stages separate mirrors exactly how you built the
+sample space by hand: branch on the weather first, then on the shuttle.
+
+### Step 2 — Simulate the shuttle, conditional on the weather
+
+The shuttle's on-time probability is **not** the same every morning; it depends on whether it rained.
+This conditional structure is the whole point of the week, so the code makes it explicit. For each
+morning we want the success probability to be $0.60$ on rainy mornings and $0.90$ on dry ones. The
+`ifelse()` function builds exactly that vector of per-morning probabilities, and then a single call to
+`rbinom()` with a *vector* of probabilities draws one shuttle outcome per morning, each with its own
+correct probability.
+
+```{r}
+#| label: step2-simulate-ontime
+#| eval: false
+
+# Per-morning on-time probability depends on rain:
+#   rain == 1  -> 0.60
+#   rain == 0  -> 0.90
+p_ontime <- ifelse(rain == 1, 0.60, 0.90)
+
+# One shuttle outcome per morning: 1 = on time, 0 = late
+on_time <- rbinom(n_morn, size = 1, prob = p_ontime)
+
+# Peek at the first few mornings (rain, its on-time prob, the outcome)
+head(data.frame(rain, p_ontime, on_time))
+```
+
+Read that `head()` output as a tiny logbook of Maya's first six simulated mornings: the weather, the
+probability the shuttle "rolled against," and whether it actually made it on time. Notice that even on a
+rainy morning the shuttle can be on time, and even on a dry morning it can be late — the randomness lives
+in the `rbinom` draw, not in a hard rule.
+
+### Step 3 — Estimate P(on time) and P(late)
+
+Now collapse the whole simulation to a number. The vector `on_time` holds a `1` for every on-time
+morning and a `0` for every late one, so its **mean is the proportion of on-time mornings** — our Monte
+Carlo estimate of $P(\text{on time})$. The estimate of $P(\text{late})$ is one minus that, or
+equivalently the mean of the late indicator. Treating an event's $0/1$ indicator and then averaging is
+the core move of the whole lab; everything else is bookkeeping.
+
+```{r}
+#| label: step3-estimate-prob
+#| eval: false
+
+# Estimated P(on time): proportion of mornings the shuttle was on time
+p_ontime_hat <- mean(on_time)
+
+# Estimated P(late): the complement (mean of the late indicator)
+p_late_hat <- mean(on_time == 0)
+
+p_ontime_hat
+p_late_hat
+p_ontime_hat + p_late_hat   # should be exactly 1: the two events partition every morning
+```
+
+With the course seed and `n_morn <- 10000`, you should get an on-time estimate close to (but not exactly
+equal to) $0.81$ — typically within about a percentage point. The last line is a structural check, not a
+random one: on-time and late are complementary events, so their estimates must sum to exactly $1$ no
+matter what the simulation produced.
+
+### Step 4 — Watch the estimate settle (a first look at the LLN)
+
+A single estimate from ten thousand mornings is reassuring, but the deeper lesson is *how* the estimate
+behaves as the number of mornings grows. The **law of large numbers** says the running proportion of
+on-time mornings converges to the true probability $0.81$ as we accumulate more and more mornings. We can
+see this directly: form the **running mean** of `on_time` — the estimate using just the first morning,
+then the first two, then the first three, and so on — using `cumsum()` divided by the running count.
+Early on the running estimate lurches around; as the morning count climbs it tightens toward $0.81$.
+
+```{r}
+#| label: step4-running-estimate-lln
+#| eval: false
+#| fig-cap: "Running Monte Carlo estimate of P(shuttle on time) settling toward the exact value 0.81 as more mornings are simulated."
+#| fig-alt: "A line that swings widely for the first few mornings then flattens out near a dashed reference line at 0.81 as the number of simulated mornings grows."
+
+set.seed(35003)            # re-seed so this block stands alone
+
+n_morn <- 10000
+rain    <- rbinom(n_morn, size = 1, prob = 0.30)
+on_time <- rbinom(n_morn, size = 1, prob = ifelse(rain == 1, 0.60, 0.90))
+
+# Running estimate of P(on time) after 1, 2, 3, ... mornings
+running_est <- cumsum(on_time) / seq_len(n_morn)
+
+# Compare the estimate at a few checkpoints to the exact value 0.81
+checkpoints <- c(10, 100, 1000, 10000)
+data.frame(mornings = checkpoints,
+           estimate = round(running_est[checkpoints], 3),
+           exact    = 0.81)
+
+# A simple base-R picture of the settling behavior
+plot(running_est, type = "l",
+     xlab = "number of simulated mornings",
+     ylab = "running estimate of P(on time)",
+     main = "Estimate settling toward 0.81")
+abline(h = 0.81, lty = 2)   # the exact value, for reference
+```
+
+The data frame makes the settling concrete: at 10 mornings the estimate can be far off, but by 1,000 and
+especially 10,000 mornings it hugs $0.81$. The plot tells the same story as a picture — a jagged curve
+early, flattening toward the dashed line at $0.81$. That convergence *is* the law of large numbers, and
+it is the reason a long simulation can stand in for an exact probability when no exact answer is at hand.
+
+### Step 5 — Change the world and re-estimate (hands-on)
+
+The simulation tracks whatever world you specify, not just the locked one. Change the inputs and the
+estimate moves to match. Suppose you wanted to explore a rainier town where the shuttle is also a bit
+worse in the rain: raise $P(\text{rain})$ to $0.50$ and drop $P(\text{on time}\mid\text{rain})$ to
+$0.50$, keeping the dry-day on-time probability at $0.90$. Before running it, predict the new marginal by
+hand — $0.50 \times 0.50 + 0.90 \times 0.50 = 0.70$ — then let the simulation confirm it.
+
+```{r}
+#| label: step5-change-the-world
+#| eval: false
+
+set.seed(35003)
+
+n_morn <- 10000
+
+# New, made-up world (synthetic): rainier, worse shuttle in the rain
+p_rain_new        <- 0.50
+p_ontime_rain_new <- 0.50
+p_ontime_dry_new  <- 0.90
+
+rain_new    <- rbinom(n_morn, size = 1, prob = p_rain_new)
+on_time_new <- rbinom(n_morn, size = 1,
+                      prob = ifelse(rain_new == 1, p_ontime_rain_new, p_ontime_dry_new))
+
+p_ontime_hat_new <- mean(on_time_new)
+
+# Hand-computed marginal for this new world, to compare against
+exact_new <- p_ontime_rain_new * p_rain_new + p_ontime_dry_new * (1 - p_rain_new)
+
+c(estimate = round(p_ontime_hat_new, 3), exact = exact_new)
+```
+
+The simulated estimate should land near $0.70$, matching your hand calculation for the new world. The
+takeaway: the *machinery* is identical — draw the weather, draw the shuttle conditional on the weather,
+average the indicator. Only the inputs changed. That is what makes Monte Carlo reusable.
+
+## Verify
+
+Verification means asking, deliberately, whether the simulation agrees with something you already trust.
+
+1. **Compare to the exact value.** For the locked world, the hand answer from Week 2 is
+   $P(\text{on time}) = 0.81$. Your Step 3 estimate from ten thousand mornings should differ from $0.81$
+   by only a small amount — on the order of a percentage point or less. If it were off by, say, $0.10$,
+   something is wrong: re-check that the conditional probabilities are wired to the *right* weather
+   (`0.60` for rain, `0.90` for no rain, not swapped).
+2. **Check the complement.** $\hat P(\text{on time}) + \hat P(\text{late})$ must equal exactly $1$. This
+   is structural, so it is a check on your code rather than on the randomness.
+3. **Check the weather draw.** `mean(rain)` should sit near $0.30$. If it does not, the rain probability
+   is misspecified and every later number inherits the error.
+4. **Read the settling.** In Step 4, the estimate at $10{,}000$ mornings should be visibly closer to
+   $0.81$ than the estimate at $10$ mornings. If the running curve is *not* tightening toward the dashed
+   line, suspect that the seed or the draw is being reset inside the loop.
+5. **Re-derive the changed world.** In Step 5, the simulation estimate and the hand-computed `exact_new`
+   should agree to within simulation noise. Agreement across a *different* set of inputs is stronger
+   evidence the method is right than a single matching number.
+
+A simulated estimate is never expected to hit the exact value *precisely* — that small leftover gap is
+ordinary sampling variability, and it shrinks as you simulate more mornings. The goal is agreement
+"within noise," not to the last decimal.
+
+## AI use note
+
+An AI assistant can help you learn the base-R idioms in this lab, but it cannot certify that your
+simulation is correct — only comparison against the exact value $0.81$ and your own hand calculations can
+do that. Use AI to get unstuck, then verify independently. Disclose any AI help per the course policy.
+
+| Tool | Purpose | Verification |
+|------|---------|--------------|
+| Chat assistant (e.g. an LLM) | Explain what `rbinom(n, size = 1, prob)` returns and why `size = 1` gives a yes/no draw | Re-read R's `?rbinom`; confirm `mean(rain)` is near $0.30$ |
+| Chat assistant | Suggest the `ifelse()` pattern for per-morning conditional probabilities | Inspect the `head()` logbook: rainy rows must show prob `0.60`, dry rows `0.90` |
+| Chat assistant | Help read a base-R error message or fix a typo in a chunk | Run the corrected chunk; check the estimate lands near $0.81$ |
+| Code completion tool | Draft the running-mean / `cumsum()` line in Step 4 | Confirm the curve settles toward the dashed line at $0.81$ |
+
+The non-negotiable rule: whatever an AI tool writes, you still verify the answer against the exact
+probability and the complement check. The simulation is a witness, not an authority — the hand-derived
+$0.81$ is the standard it must meet.
+
+## See also
+
+- [Week 2 — Sample spaces, events & rules](../notes/week-02-sample-spaces-events-rules.qmd) — the hand
+  derivation of $P(\text{on time}) = 0.81$ this lab reproduces by simulation.
+- [Week 1 — Uncertainty, probability & models](../notes/week-01-uncertainty-probability-models.qmd) —
+  what the number $0.81$ *means* as a long-run proportion.
+- [Week 13 — Sums, simulation & limit behavior](../notes/week-13-sums-simulation-limit-behavior.qmd) —
+  the law of large numbers and the central limit theorem, where the settling you saw in Step 4 becomes
+  the headline.
+- [Lab 5 — Bayes by simulation](lab-05-bayes-by-simulation.qmd) — the next simulation lab, reversing the
+  conditioning to estimate $P(\text{rain}\mid\text{late})$.
+- [Notation glossary](../resources/notation-glossary.qmd) — symbols and parameterizations used above.
+
+*The graded deliverable, its rubric, and due date live in Blackboard (the LMS) — this page is study and
+practice only.*

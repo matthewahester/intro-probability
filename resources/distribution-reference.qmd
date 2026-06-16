@@ -1,0 +1,132 @@
+---
+title: "Distribution reference"
+subtitle: "A one-page card of the common probability models"
+page-type: reference
+toc: true
+---
+
+This card collects the probability models you meet across the course in one place. It is a **pointer**,
+not a derivation: each row names a model, gives its mass or density, its mean and variance, and a short
+cue for *when the model fits*. Use it the way you would use a multiplication table — to recognize a
+shape quickly, then go back to the relevant week note for the reasoning behind it. The numbers in the
+"when it fits" column are matched to the recurring **commuter's-morning** world (Maya, her shuttle, her
+quiz) so the abstractions stay attached to something concrete.
+
+Symbols here follow the course ledger exactly. If a symbol looks unfamiliar — for instance, why
+$f(x)$ is a **density** and not a probability, or why Exponential is written as a **rate** — see the
+companion [notation glossary](notation-glossary.qmd). All data referenced are **synthetic; seeds set.**
+
+## Discrete models
+
+A discrete model puts probability on a list of separate values. Its **probability mass function** (pmf)
+$p(x) = P(X = x)$ gives the actual probability of each value, and the masses sum to $1$.
+
+| Model | pmf $p(x)$ | Mean $E[X]$ | Variance $\operatorname{Var}(X)$ | When it fits |
+|---|---|---|---|---|
+| **Bernoulli$(p)$** | $p^x (1-p)^{1-x}$, $x\in\{0,1\}$ | $p$ | $p(1-p)$ | One yes/no trial: rain today ($p=0.30$); a single coin flip. |
+| **Binomial$(n,p)$** | $\binom{n}{x} p^x (1-p)^{n-x}$, $x\in\{0,\dots,n\}$ | $np$ | $np(1-p)$ | Count of successes in $n$ independent same-$p$ trials: correct answers on the 10-question guessing quiz, $n=10$, $p=0.5$. |
+| **Geometric$(p)$** | $(1-p)^{x-1} p$, $x\in\{1,2,\dots\}$ | $\dfrac{1}{p}$ | $\dfrac{1-p}{p^2}$ | Number of trials up to and **including** the first success: how many mornings until the first late shuttle. |
+| **Poisson$(\lambda)$** | $\dfrac{e^{-\lambda}\,\lambda^{x}}{x!}$, $x\in\{0,1,2,\dots\}$ | $\lambda$ | $\lambda$ | Count of events in a fixed window when events are rare and independent: shuttle arrivals in an hour, $\lambda = 4$. |
+
+Two cues to keep:
+
+- A **Bernoulli** is just a **Binomial$(1,p)$** — one trial. A **Binomial** is a sum of $n$ independent
+  Bernoulli$(p)$ trials. That is why the binomial mean $np$ is $n$ copies of the Bernoulli mean $p$.
+- For **Poisson** the mean and variance are equal, both $\lambda$. If a count's spread looks much larger
+  than its average, a plain Poisson may not fit.
+
+## Continuous models
+
+A continuous model spreads probability over an interval of the real line. Its **density** $f(x)$ is
+**not** a probability — single points have probability $0$. Probability is **area under the density**:
+$$
+P(a \le X \le b) = \int_a^b f(x)\,dx,
+\qquad
+\int_{-\infty}^{\infty} f(x)\,dx = 1.
+$$
+
+| Model | density $f(x)$ | Mean $E[X]$ | Variance $\operatorname{Var}(X)$ | When it fits |
+|---|---|---|---|---|
+| **Uniform$(a,b)$** | $\dfrac{1}{b-a}$ for $a \le x \le b$, else $0$ | $\dfrac{a+b}{2}$ | $\dfrac{(b-a)^2}{12}$ | Every value in a range equally plausible: a "uniform on $[0,1]$" draw, the engine of simulation. |
+| **Exponential$(\lambda)$** | $\lambda e^{-\lambda x}$ for $x \ge 0$, else $0$ | $\dfrac{1}{\lambda}$ | $\dfrac{1}{\lambda^2}$ | Waiting time until the next event when events arrive at a constant rate: wait for the next shuttle, $\lambda = 4$/hr, mean $15$ min. |
+| **Normal$(\mu,\sigma)$** | $\dfrac{1}{\sigma\sqrt{2\pi}}\exp\!\left(-\dfrac{(x-\mu)^2}{2\sigma^2}\right)$ | $\mu$ | $\sigma^2$ | A symmetric bell around a center, totals and averages of many small effects: commute time $C \sim \text{Normal}(\mu = 22,\ \sigma = 5)$ minutes. |
+
+Two cues to keep:
+
+- **Exponential** is the continuous partner of **Poisson**: if events occur Poisson with rate $\lambda$,
+  the gaps **between** events are Exponential$(\lambda)$. That is why both use the same $\lambda$.
+- **Normal** is written here with the **standard deviation** $\sigma$, not the variance, matching the
+  course parameterization. So $\text{Normal}(22, 5)$ has $\sigma = 5$ minutes and $\sigma^2 = 25$.
+
+## Reading the table
+
+The skill this card trains is **recognition**: read a situation, match its assumptions to a row, then
+borrow that row's formulas. Work from the assumptions, not from the answer you want.
+
+Ask, in order:
+
+1. **Discrete or continuous?** Are the outcomes a separated list you could count (heads, correct
+   answers, arrivals), or a measurement that can land anywhere in a range (a time, a length)? Counts
+   point you to the top table; measurements to the bottom one.
+2. **What is being modeled — a count, a wait, or a magnitude?** A single yes/no is **Bernoulli**; a
+   count of yes/no successes in a fixed number of trials is **Binomial**; a count of events in a fixed
+   window is **Poisson**; a wait *to* the first discrete success is **Geometric**; a continuous wait to
+   the next event is **Exponential**; a bell-shaped magnitude is **Normal**.
+3. **Do the model's assumptions actually hold?** Binomial wants a *fixed* $n$ and the *same* $p$ on each
+   independent trial. Poisson wants rare, independent events at a steady rate. Independence is the most
+   common assumption to lose — recall that for Maya, "on time" and "rain" are **not** independent, so a
+   model that assumes independence across her mornings would misfit.
+
+A worked match: "shuttle arrivals in one hour, rate $4$ per hour." Outcomes are a count ($0,1,2,\dots$),
+the window is fixed (one hour), arrivals are roughly independent and rare per minute — that is the
+**Poisson$(\lambda = 4)$** row. From the table, $E[N] = \lambda = 4$ and $\operatorname{Var}(N) = 4$,
+with no extra algebra needed.
+
+## In R
+
+R names its distribution tools with a one-letter prefix plus the model's short name. The four prefixes
+are the same for every model, which is the whole point of learning them once:
+
+- `d…` — **density / mass** at a value: `dbinom`, `dnorm`.
+- `p…` — **cumulative** probability $F(x) = P(X \le x)$: `pbinom`, `pnorm`.
+- `q…` — **quantile**, the inverse of `p…`: `qbinom`, `qnorm`.
+- `r…` — **random** draws from the model: `rbinom`, `rnorm`.
+
+The chunk below is a **pointer only** — it is shown, not run, and lists the function family per model so
+you can look up the right call. (R chunks in this diagnostic carry `#| eval: false`.)
+
+```{r}
+#| label: distribution-reference-functions
+#| eval: false
+
+set.seed(35003)  # set so any draws below are reproducible when later executed
+
+# Discrete models: d = mass, p = cdf, q = quantile, r = random draws
+dbinom; pbinom; qbinom; rbinom   # Binomial(n, p)  -- also Bernoulli via size = 1
+dgeom;  pgeom;  qgeom;  rgeom    # Geometric(p)    -- NOTE: R counts FAILURES before
+                                 #   the first success (support 0, 1, 2, ...), so it is
+                                 #   shifted by one from the course's trials-to-success form
+dpois;  ppois;  qpois;  rpois    # Poisson(lambda)
+
+# Continuous models: d = density, p = cdf, q = quantile, r = random draws
+dunif;  punif;  qunif;  runif    # Uniform(a = min, b = max)
+dexp;   pexp;   qexp;   rexp     # Exponential(rate = lambda)
+dnorm;  pnorm;  qnorm;  rnorm    # Normal(mean = mu, sd = sigma)  -- R takes sd, not variance
+```
+
+Two pointers worth flagging before you use these:
+
+- `dexp` and friends take `rate = lambda`, matching the course's **rate** parameterization, and `rnorm`
+  takes `sd = sigma`, matching the **standard-deviation** parameterization. Read the help page (`?rexp`,
+  `?rnorm`) before trusting an argument.
+- R's `*geom` family counts the number of **failures before** the first success (support starting at
+  $0$), while this course defines Geometric as the number of **trials** up to and including the first
+  success (support starting at $1$). The two differ by exactly one — convert deliberately.
+
+## Public vs. graded
+
+These notes, the examples, and the practice here are **public and ungraded** — study material only. No
+graded prompts, answer keys, rubrics, point values, or due dates appear on this site. Graded
+checkpoints, quizzes, homework, labs, the midterm, the project, and the final live in **Blackboard
+(the LMS)**, which is authoritative for due dates, submissions, and grades. If this page and Blackboard
+ever disagree, follow Blackboard.

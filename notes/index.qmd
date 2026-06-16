@@ -1,0 +1,81 @@
+---
+title: "Notes"
+subtitle: "The weekly instructional spine"
+page-type: orientation
+toc: true
+---
+
+The notes are the backbone of the course. There is one note per week, and reading the current week's
+note before class — and again after — is the single most reliable way to keep up. Every note follows
+the same shape, so once you learn to read one, you can read them all.
+
+## How to read a week
+
+Each weekly note is built from the same parts, in the same order. Knowing the anatomy lets you skim
+for what you need and study with intent:
+
+- **The week question.** A single question that the week exists to answer. Hold it in mind as you
+  read; everything else is in service of it.
+- **Concept development.** The core ideas, built up in a few short sections from intuition toward
+  precise statements. This is the part to read slowly.
+- **Worked examples.** Each idea is worked twice — once symbolically, once with numbers — including a
+  slice of the recurring **commuter's-morning** case (Maya, the shuttle, the weather, the quiz) plus
+  one *transfer* example in a fresh context, so you see the idea move.
+- **A common mistake.** The error students most often make on this topic, named plainly so you can
+  watch for it in your own work.
+- **Ungraded self-checks.** A few low-stakes practice prompts to test yourself. These are
+  *self-check only* — no points, no submission.
+- **Reading pointer.** Where to read more: the relevant Grinstead & Snell chapter and, where useful,
+  the MIT 18.05 page, with the reminder that these notes are the course's own synthesis.
+- **Looking ahead.** A sentence or two connecting this week to the next, so the arc stays visible.
+
+Keep the [notation glossary](../resources/notation-glossary.qmd) and the
+[distribution reference](../resources/distribution-reference.qmd) open alongside the notes.
+
+## The five parts
+
+The fifteen weeks fall into five parts. Each part has a job, and the weeks within it build on one
+another.
+
+**Part I — Foundations of uncertainty.** What a probability is, how to model a random situation, and
+the rules for combining events.
+
+1. [Week 1 — Uncertainty, probability & models](week-01-uncertainty-probability-models.qmd)
+2. [Week 2 — Sample spaces, events & rules](week-02-sample-spaces-events-rules.qmd)
+
+**Part II — Conditioning & Bayesian reasoning.** How a probability changes once you learn something,
+and how to invert that reasoning to update a belief.
+
+1. [Week 3 — Conditional probability](week-03-conditional-probability.qmd)
+2. [Week 4 — Independence & information](week-04-independence-and-information.qmd)
+3. [Week 5 — Bayes' rule & updating](week-05-bayes-rule-and-updating.qmd)
+
+**Part III — Counting & discrete random variables.** Counting outcomes, then packaging randomness
+into discrete random variables and their standard models.
+
+1. [Week 6 — Counting & discrete probability](week-06-counting-and-discrete-probability.qmd)
+2. [Week 7 — Discrete random variables](week-07-discrete-random-variables.qmd)
+3. [Week 8 — Expectation & variance](week-08-expectation-and-variance.qmd)
+4. [Week 9 — Common discrete models](week-09-common-discrete-models.qmd)
+
+**Part IV — Continuous variables & joint behavior.** Moving from counts to measurements, where
+probability is area under a density, and then to pairs of quantities that vary together.
+
+1. [Week 10 — Continuous random variables](week-10-continuous-random-variables.qmd)
+2. [Week 11 — Common continuous models](week-11-common-continuous-models.qmd)
+3. [Week 12 — Joint distributions & dependence](week-12-joint-distributions-and-dependence.qmd)
+
+**Part V — Limits, simulation & synthesis.** How averages and sums behave in the large, then a
+modeling project and a synthesis of the whole arc.
+
+1. [Week 13 — Sums, simulation & limit behavior](week-13-sums-simulation-limit-behavior.qmd)
+2. [Week 14 — Probability modeling project](week-14-probability-modeling-project.qmd)
+3. [Week 15 — Final review & synthesis](week-15-final-review-synthesis.qmd)
+
+## Public vs. graded
+
+These notes and the practice in them are **public and ungraded** — study material only. No graded
+prompts, answer keys, rubrics, point values, or due dates appear on this site. Graded checkpoints,
+quizzes, homework, labs, the midterm, the project, and the final live in **Blackboard (the LMS)**,
+which is authoritative for due dates, submissions, and grades. If this page and Blackboard ever
+disagree, follow Blackboard.

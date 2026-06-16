@@ -1,0 +1,319 @@
+---
+title: "Week 14 — Probability modeling project"
+subtitle: "Modeling a question with simulation and theory — a workshop orientation"
+page_mode: overview_review_week
+week_contract: public_note
+source_mode: source-informed
+depth_rationale: "Project workshop week — this public note orients the modeling process; it is lighter than a concept week by design and carries no graded contract."
+readings:
+  - "Grinstead & Snell, course-original (no single chapter) — supports the modeling process synthesized across the semester's chapters"
+  - "MIT OCW 18.05 — simulation and model-checking themes — supports comparing simulated to theoretical results"
+toc: true
+---
+
+## The week question
+
+By now you have built quite a toolkit. You can lay out a sample space, condition on information, update
+with Bayes' rule, name a discrete or continuous model, summarize it with a mean and variance, and watch
+averages settle down by simulation. The project week asks a different kind of question — not "can you apply
+the right formula?" but **"given a question you care about, can you build a probability model for it,
+reason with it honestly, and report what it does and does not tell you?"**
+
+This is a workshop, not a new chapter. There is no fresh distribution to memorize. The content this week
+*is the modeling process itself*: how to take a vague real question, turn it into something a probability
+model can answer, check the model against a simulation, and communicate the conclusion together with its
+uncertainty and its assumptions. The skill you are practicing is the one that outlasts any single formula —
+the move from a messy question to a defensible, clearly-stated answer.
+
+## Why this matters
+
+Every formula you have learned this semester answers a question someone first had to *pose* as a
+probability question. That posing step — deciding what the random thing is, what counts as the sample
+space, which assumptions you are willing to make — is where most of the real reasoning happens, and it is
+exactly the part a textbook problem usually does for you. The project hands that part back to you.
+
+It matters because the honest version of any quantitative answer is never just a number; it is a number
+*plus the assumptions that produced it*. A model that says "about a 24% chance" is only as trustworthy as
+the assumptions underneath it, and a careful modeler names those assumptions out loud so that a reader can
+judge them. Learning to say "here is my estimate, here is how I got it, and here is where it might be
+wrong" is the most transferable thing in this course. It is what separates a calculation from a
+conclusion.
+
+The process also travels far beyond probability. The same loop — pose, assume, model, check, communicate —
+is how questions get answered in public health, engineering, finance, and research. You are practicing a
+general way of thinking that happens to use the probability machinery you already built.
+
+## Learning goals
+
+By the end of this week you should be able to:
+
+- Take an informal question and **frame it as a precise probabilistic question**, naming the random
+  variable and the event you actually want the probability of.
+- **State the sample space and the modeling assumptions** explicitly, including the simplifications you are
+  knowingly making.
+- Build either a **probability model** (a named distribution or an explicit pmf/density) **or a
+  simulation** that estimates the same quantity — and ideally both.
+- **Compare a simulated estimate to a theoretical value** where one is available, and explain why they
+  should agree.
+- **Communicate a conclusion with its uncertainty and its assumptions**, naming at least one limitation of
+  the model in plain language.
+
+## Core vocabulary
+
+- **Probabilistic question** — a question phrased so that its answer is a probability, an expectation, or a
+  distribution: "what is $P(\text{at least two late days})$?", not "is Maya often late?"
+- **Modeling assumption** — a claim you adopt to make the model tractable (independence, a constant rate, a
+  particular distribution). Assumptions are not facts; they are choices you are responsible for naming.
+- **Simplification** — an assumption you know is not exactly true but adopt anyway because it makes the
+  problem solvable and is "close enough" for the question. The honest move is to *flag* it, not hide it.
+- **Theoretical result** — a probability obtained by reasoning from the model's structure (a pmf, a
+  formula).
+- **Simulated estimate** — a probability obtained by generating many synthetic outcomes and counting the
+  fraction in which the event occurs. It approximates the theoretical value and improves with more draws
+  (the Week 13 law of large numbers).
+- **Limitation** — a specific, named way the model could be wrong or could mislead, stated so a reader can
+  weigh it.
+
+## Concept development
+
+### Step one — pose a precise question and name the sample space
+
+The hardest and most important step comes first: turning a vague question into a precise one. "How often is
+Maya late?" is not yet answerable, because "often" is undefined and the time frame is unstated. A
+modeler sharpens it into something a model can answer — for instance, **"Over a five-day school week, what
+is the probability she is late on at least two of the days?"** Now there is a clear random quantity (the
+number of late days in a week, $0$ through $5$) and a clear event of interest ($\{\text{late days} \ge 2\}$).
+
+With the question sharp, the sample space follows. Here an outcome is a five-day record of late/on-time —
+something like (late, on time, on time, late, on time) — and the number of late days is a count from $0$ to
+$5$. Naming the sample space forces you to decide what an "outcome" even is, which in turn surfaces the
+assumptions you are about to make. Skipping this step is how people end up computing the right formula for
+the wrong question.
+
+### Step two — choose a model: theory, simulation, or both
+
+Once the question and sample space are fixed, you build something that produces probabilities. You have two
+routes, and a strong project uses both as a cross-check.
+
+The **theoretical route** asks: does a named model fit? If the five days are independent and each has the
+same probability $p$ of a late arrival, then the number of late days is a *count of successes in a fixed
+number of independent yes/no trials* — exactly the binomial recognition from Week 9. That gives a pmf you
+can compute directly.
+
+The **simulation route** asks: can I generate many synthetic weeks and just count? You draw, say, ten
+thousand five-day weeks under the same assumptions, count how often at least two days are late, and report
+that fraction. No closed form is required; the law of large numbers (Week 13) says the fraction converges
+to the true probability as the number of simulated weeks grows.
+
+When both routes are available, run both. If the simulated fraction lands close to the theoretical
+probability, that agreement is strong evidence you implemented both correctly. If they disagree, you have
+found a bug in one of them — which is itself a useful result.
+
+### Step three — compare, then communicate with uncertainty and assumptions
+
+A number alone is not a conclusion. The final step is to put the result in words a reader can act on, and to
+attach to it the things that could change it.
+
+Communicating *uncertainty* means acknowledging that a simulated estimate is itself approximate (a
+different seed gives a slightly different fraction) and that the underlying probability is a modeled
+quantity, not a measured one. Communicating *assumptions* means stating, in plain language, what you
+assumed and where it might fail. The single most valuable sentence in a probability project is often the
+one that begins "this answer assumes that..." — because it tells the reader exactly how much to trust the
+number and under what conditions it would break.
+
+That habit — answer, then caveat — is what we practice in the worked examples below. The project on
+Blackboard asks you to carry the same loop through on a question of your own.
+
+## Worked examples
+
+### Worked example — Maya's late days, theory then simulation (recurring slice)
+
+Take the sharpened question: **over a five-day week, what is the probability Maya is late on at least two
+days?** We model it two ways.
+
+**Theory.** Suppose — and this is an assumption we will scrutinize in a moment — that the five days are
+independent and each has the same late probability $p = 0.19$, the marginal $P(\text{late})$ from our
+recurring shuttle case. Then the number of late days $L$ is a count of "successes" (late = success here) in
+$n = 5$ independent, identical yes/no trials, which is binomial:
+
+$$
+L \sim \text{Binomial}(5,\ 0.19), \qquad p(k) = \binom{5}{k}\,(0.19)^{k}\,(0.81)^{5-k},
+\quad k = 0, 1, 2, 3, 4, 5.
+$$
+
+The event "at least two late days" is easiest by the complement — subtract the chances of zero or one late
+day from $1$:
+
+$$
+P(L \ge 2) = 1 - P(L = 0) - P(L = 1).
+$$
+
+Compute the two small terms:
+
+$$
+P(L = 0) = (0.81)^{5} \approx 0.3487, \qquad
+P(L = 1) = \binom{5}{1}(0.19)(0.81)^{4} = 5(0.19)(0.4305) \approx 0.4090.
+$$
+
+So
+
+$$
+P(L \ge 2) = 1 - 0.3487 - 0.4090 \approx 0.24.
+$$
+
+About a **24%** chance — roughly one week in four — that Maya is late on two or more days, *under the
+independence assumption*. (Synthetic scenario; numbers fixed for the course.)
+
+**Simulation.** We can estimate the same probability without the pmf by generating many synthetic weeks and
+counting. The chunk below is shown as teaching, not run in this diagnostic; when executed it draws ten
+thousand five-day weeks and reports the fraction with at least two late days, which should land near
+$0.24$.
+
+```{r}
+#| label: wk14-sim-late-days
+#| eval: false
+
+set.seed(35003)
+weeks <- 10000                  # number of synthetic 5-day weeks (synthetic; seed set)
+p_late <- 0.19                  # modeled P(late) per day, from the recurring shuttle case
+
+# each row is a week; rbinom counts late days in 5 independent trials with prob p_late
+late_days <- rbinom(weeks, size = 5, prob = p_late)
+
+# fraction of weeks with at least two late days — the simulated estimate of P(L >= 2)
+est <- mean(late_days >= 2)
+est                             # should be near the theoretical 0.24
+
+# theoretical value for comparison, via the complement on the binomial pmf
+theory <- 1 - dbinom(0, 5, p_late) - dbinom(1, 5, p_late)
+theory                          # ~0.2423; compare to est above
+```
+
+The point of running it both ways is the comparison. Theory gives $\approx 0.24$ exactly from the model;
+the simulation gives an estimate that wobbles slightly with the seed but lands close. Agreement is the
+cross-check that says both the formula and the code encode the *same* model.
+
+**Now the limitation — and this is the key teaching point of the week.** The whole calculation rests on the
+assumption that the five days are **independent** with the **same** $p = 0.19$. But back in Weeks 3 and 4
+we established that lateness in our world is *not* independent of rain: $P(\text{late} \mid \text{rain}) =
+0.40$ while $P(\text{late} \mid \text{no rain}) = 0.10$, and rain itself tends to come in multi-day
+stretches. If it rains Monday it is more likely to rain Tuesday, so late days will **cluster** rather than
+fall independently. Treating the days as independent is therefore a **modeling simplification**, not a fact
+about the world. Naming it changes how we report the answer: rather than "the probability is 24%," the
+honest statement is *"under the simplifying assumption that days are independent with a constant 19% late
+rate, the model gives about 24%; because rain makes late days cluster, the true chance of two-or-more late
+days in a rainy stretch is probably somewhat higher than this figure suggests."* That caveat is not a
+weakness in the project — it is the project. A reader who knows the assumption can judge the number; a
+reader who does not is being misled by a tidy-looking 24%.
+
+### Worked example — a help-desk staffing question (transfer)
+
+Now carry the same loop to a new context. A small IT help desk wants to know: **on a given morning, what is
+the probability that more than six support requests arrive in the first hour?** We frame and model it.
+
+*Pose.* The random quantity is the number of requests in one hour; the event is $\{\text{count} > 6\}$.
+
+*Sample space and assumptions.* An outcome is a count $0, 1, 2, \dots$. We assume requests arrive at a
+steady average rate and do not coordinate with one another — the Poisson assumptions from Week 9 — with a
+historical average of $\lambda = 5$ per hour. Then the count $N \sim \text{Poisson}(5)$.
+
+*Theory.* "More than six" is again cleanest by the complement, $P(N > 6) = 1 - P(N \le 6)$, summing the
+Poisson pmf from $0$ through $6$:
+
+$$
+P(N > 6) = 1 - \sum_{k=0}^{6} \frac{e^{-5}\,5^{k}}{k!} \approx 1 - 0.762 = 0.238.
+$$
+
+So about a **24%** chance of a busier-than-usual first hour. (The numerical resemblance to Maya's answer is
+a coincidence of the chosen numbers — synthetic scenario, numbers fixed for the course.)
+
+*Simulation.* Drawing many synthetic hours from `rpois(hours, lambda = 5)` and counting the fraction above
+six would estimate the same $0.238$, converging as the number of simulated hours grows — the same
+theory-versus-simulation cross-check as before.
+
+*Communicate, with the limitation.* The honest report names the assumption: *"assuming requests arrive at a
+steady rate of 5 per hour and independently, roughly one morning in four sees more than six in the first
+hour."* And the limitation is real — if requests spike right after a system outage or at the start of a
+semester, the rate is **not** constant, the Poisson model understates the busy mornings, and staffing
+planned on the 24% figure would be caught short. Same loop, new question: pose, assume, model, check,
+communicate the number *with* its caveat.
+
+## A common mistake
+
+The most common mistake this week is **reporting the number and stopping** — handing over "24%" as if it
+were a measured fact rather than a modeled estimate that depends on assumptions you chose. The fix is a
+discipline: every probability answer in this project should be followed by a sentence that names at least
+one assumption and one way the model could be wrong. A close cousin of this mistake is **hiding a
+simplification** — quietly assuming independence (as in Maya's late days) without telling the reader, which
+makes the answer look more solid than it is.
+
+A second, more technical slip is **treating a simulated estimate as exact**. The simulation gives an
+approximation that depends on the seed and the number of draws; running it again with a different seed
+gives a slightly different fraction. That is not a flaw — it is the law of large numbers in action — but it
+means you should describe the simulated result as "about" a value, not as the value, and lean on the
+theoretical computation when one is available. The two routes are partners: theory gives the exact answer
+*for the model*, and simulation confirms you built the model correctly.
+
+## Low-stakes self-checks (ungraded)
+
+These are for your own practice — ungraded, no submission, just a way to rehearse the modeling moves before
+you take them into a project of your own.
+
+1. Rewrite the vague question "is the bus usually crowded?" as a precise probabilistic question. (One good
+   version: "on a weekday afternoon, what is $P(\text{more than 40 riders})$?" — it names a random
+   quantity and an event.)
+2. In Maya's late-days model, we used the complement to get $P(L \ge 2)$. Why is the complement easier than
+   adding $P(L=2) + P(L=3) + P(L=4) + P(L=5)$? (Only two small terms, $P(L=0)$ and $P(L=1)$, versus four.)
+3. Name one assumption in the help-desk Poisson model and one realistic situation that would break it.
+   (Constant rate; a post-outage spike or a first-day-of-class rush makes the rate non-constant.)
+4. If your simulation of Maya's weeks returned $0.241$ and your theory gave $0.2423$, is that a problem?
+   (No — the simulated estimate is expected to wobble near the theoretical value; close agreement is the
+   cross-check working.)
+5. State, in one sentence, the conclusion of Maya's late-days model *with* its main limitation. (For
+   example: "about a 24% chance of two-or-more late days, assuming days are independent — likely an
+   underestimate during rainy stretches when late days cluster.")
+
+You can rehearse the simulation half of this loop in the Week 13 simulation lab, [Lab 13 — Law of large
+numbers and the CLT](../labs/lab-13-law-of-large-numbers-and-clt.qmd), where the same draw-many-and-count
+pattern appears.
+
+## Reading and source pointer
+
+This workshop week does not track a single Grinstead & Snell chapter; it is **course-original**, weaving
+together the modeling ideas spread across the semester's reading — sample spaces (Ch 1), independence and
+conditioning (Ch 4), the named discrete models (Ch 5), and the law of large numbers (Ch 8) that justifies
+estimating a probability by simulation. The "build a model, then check it against a simulation" posture is
+supported by the simulation and model-checking themes in **MIT OCW 18.05**. *These notes are the course's
+own synthesis, grounded in but not copied from the sources.* All scenario data are synthetic, with the seed
+`set.seed(35003)` fixed in the shown simulation.
+
+## Public vs. graded
+
+These notes, the examples, and the practice here are **public and ungraded** — study material only. No
+graded prompts, answer keys, rubrics, point values, or due dates appear on this site. Graded checkpoints,
+quizzes, homework, labs, the midterm, the project, and the final live in **Blackboard (the LMS)**, which is
+authoritative for due dates, submissions, and grades. If this page and Blackboard ever disagree, follow
+Blackboard.
+
+This page describes the modeling *process* and what a thoughtful project looks like, in qualitative terms
+only. The actual project — its specific deliverable, expectations, and timeline — lives in Blackboard, which
+is the authoritative source for everything graded.
+
+## Looking ahead
+
+Next week is the final synthesis. Week 15 steps back across the whole semester and follows the recurring
+commuter's-morning thread from end to end — from "what does $P(\text{on time}) = 0.81$ mean?" in Week 1,
+through conditioning and Bayes, the discrete and continuous models, joint dependence, and the limit
+behavior — to see how the pieces fit into one coherent way of reasoning under uncertainty. The modeling loop
+you practiced this week — pose, assume, model, check, communicate — is the frame that holds all of it
+together.
+
+## See also
+
+- [Notation glossary](../resources/notation-glossary.qmd) — the symbols, from $p(x)$ to $\lambda$, used
+  across the modeling examples here.
+- [Distribution reference](../resources/distribution-reference.qmd) — a one-page summary of the binomial,
+  Poisson, and other models you might reach for in a project.
+- [Lab 13 — Law of large numbers and the CLT](../labs/lab-13-law-of-large-numbers-and-clt.qmd) — the
+  simulation pattern (draw many, count) that the project's simulation route reuses.
+- [Syllabus](../syllabus.qmd) — course structure, calendar, and where graded work actually lives.

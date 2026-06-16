@@ -1,0 +1,86 @@
+---
+title: "Schedule (topic flow)"
+subtitle: "A 15-week pacing plan — Blackboard is authoritative for dates and deadlines"
+toc: true
+---
+
+::: {.callout-important}
+This is a **pacing plan, not a calendar**. It shows the order in which topics unfold and roughly when,
+so you can read ahead and see where you are headed. It is **not** the authoritative calendar: exact
+dates, deadlines, and any mid-term adjustments live in **Blackboard (the LMS)**, which is
+authoritative. A few fixed semester dates are noted below for orientation only — confirm everything
+against Blackboard.
+:::
+
+The course runs fifteen weeks in five parts. Each part below lists its weeks, the theme for each
+week, and the throughline — the question that carries the week. The **theme** links to that week's
+note.
+
+## Part I — Foundations of uncertainty (Weeks 1–2)
+
+We lay the groundwork: what a probability *is*, how to model a random situation, and the basic rules
+that let you combine events.
+
+| Week | Theme | The throughline |
+|------|-------|-----------------|
+| 1 | [Uncertainty, probability & models](notes/week-01-uncertainty-probability-models.qmd) | What does it actually *mean* that the shuttle is on time with probability 0.81? |
+| 2 | [Sample spaces, events & rules](notes/week-02-sample-spaces-events-rules.qmd) | How do we list outcomes and combine events with the complement and addition rules? |
+
+## Part II — Conditioning & Bayesian reasoning (Weeks 3–5)
+
+The heart of the course: how a probability changes once you learn something, and how to invert that
+reasoning to update a belief.
+
+| Week | Theme | The throughline |
+|------|-------|-----------------|
+| 3 | [Conditional probability](notes/week-03-conditional-probability.qmd) | Why is being on time given rain (0.60) different from being on time overall (0.81)? |
+| 4 | [Independence & information](notes/week-04-independence-and-information.qmd) | When does knowing one event tell you nothing about another — and when does it tell you a lot? |
+| 5 | [Bayes' rule & updating](notes/week-05-bayes-rule-and-updating.qmd) | Given a positive screening test, how likely is the disease really? |
+
+*Note: **Labor Day (Mon, Sep 7)** falls in Week 3 — no class that Monday, so the week is compressed to
+Wednesday and Friday.*
+
+## Part III — Counting & discrete random variables (Weeks 6–9)
+
+We learn to count outcomes systematically, then package randomness into discrete random variables and
+their standard models.
+
+| Week | Theme | The throughline |
+|------|-------|-----------------|
+| 6 | [Counting & discrete probability](notes/week-06-counting-and-discrete-probability.qmd) | In how many ways can a 10-question true/false quiz come out, and what does that tell us? |
+| 7 | [Discrete random variables](notes/week-07-discrete-random-variables.qmd) | How do we turn "number correct on the quiz" into a random variable with a distribution? |
+| 8 | [Expectation & variance](notes/week-08-expectation-and-variance.qmd) | On average, how many do you get right by guessing, and how much does that vary? |
+| 9 | [Common discrete models](notes/week-09-common-discrete-models.qmd) | Which named models — binomial, Poisson — fit the quiz and the arriving shuttles? |
+
+*Note: the **midterm is Friday, Oct 9** (in class), during Week 7. No graded content appears on this
+public site — see Blackboard.*
+
+## Part IV — Continuous variables & joint behavior (Weeks 10–12)
+
+We move from counts to measurements, where probability becomes area under a density, and then to pairs
+of random quantities that vary together.
+
+| Week | Theme | The throughline |
+|------|-------|-----------------|
+| 10 | [Continuous random variables](notes/week-10-continuous-random-variables.qmd) | How long until the next shuttle — and why is probability now an *area*, not a sum? |
+| 11 | [Common continuous models](notes/week-11-common-continuous-models.qmd) | How do the exponential and normal models describe waiting and commute times? |
+| 12 | [Joint distributions & dependence](notes/week-12-joint-distributions-and-dependence.qmd) | How do rain and lateness vary together, and what do covariance and correlation measure? |
+
+## Part V — Limits, simulation & synthesis (Weeks 13–15)
+
+We close with what happens in the large: how averages settle down and sums become bell-shaped, then a
+modeling project and a synthesis of the whole arc.
+
+| Week | Theme | The throughline |
+|------|-------|-----------------|
+| 13 | [Sums, simulation & limit behavior](notes/week-13-sums-simulation-limit-behavior.qmd) | Why does the average commute time converge, and why does it become normal? |
+| 14 | [Probability modeling project](notes/week-14-probability-modeling-project.qmd) | Can you build and defend a model of "at least 2 late days in a 5-day week"? |
+| 15 | [Final review & synthesis](notes/week-15-final-review-synthesis.qmd) | How does the whole commuter's-morning thread fit together as one picture? |
+
+*Note: **fall break is Nov 22–28** (no classes). The **last class is Mon, Dec 7**, and the
+**final-exam window is Dec 9–15** (exact block via Blackboard).*
+
+::: {.callout-note}
+Again: this page is a pacing plan to help you read ahead. For the real calendar — every date, every
+deadline, and any adjustment during the term — **Blackboard (the LMS) is authoritative**.
+:::

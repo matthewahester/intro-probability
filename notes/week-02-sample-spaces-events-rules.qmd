@@ -1,0 +1,338 @@
+---
+title: "Week 2 — Sample spaces, events & probability rules"
+subtitle: "Outcomes, events as sets, and the complement / addition rules"
+page_mode: normal_week
+week_contract: public_note
+source_mode: source-informed
+readings:
+  - "Grinstead & Snell, Ch 1 — Discrete Probability Distributions — supports sample spaces, events, and the basic probability rules"
+  - "MIT OCW 18.05 — Reading on counting and sets — supports the equally-likely model and events as subsets"
+toc: true
+---
+
+## The week question
+
+Last week we agreed on what a probability *means*: a number between 0 and 1 that grades how strongly
+we expect a thing to happen. This week the question is sharper and more practical:
+
+> Once we have written down every way a situation could turn out, how do we describe the particular
+> things we care about — and how do we compute their probabilities by combining the things we already
+> know?
+
+The answer is to treat outcomes as a list, events as **subsets** of that list, and probability as a
+rule that respects how those subsets fit together. Two of those rules — the **complement rule** and
+the **addition rule** — do most of the everyday work, and we build them carefully here.
+
+## Why this matters
+
+Almost every probability you will ever compute is really a question about a *set* of outcomes. "Will
+the shuttle be late?" is a question about which morning-outcomes count as late. "Will it rain *or* the
+shuttle run late?" is a question about combining two such sets. If you can name the outcomes, draw the
+events as regions, and keep track of where they overlap, then the arithmetic follows almost
+mechanically — and you stop guessing.
+
+The payoff is also conceptual. Conditional probability (Week 3), independence (Week 4), and Bayes'
+rule (Week 5) are all built on top of this set-based picture. The addition rule you learn this week
+is the first of a small family of "combining" rules; getting it exactly right now — especially the
+correction for double-counting — saves you from a recurring error later. This is the grammar of the
+language; the rest of the course is sentences.
+
+## Learning goals
+
+By the end of the week you should be able to:
+
+- Write down a **sample space** $\Omega$ for a small situation, listing or describing every outcome.
+- Express an **event** as a subset of $\Omega$ and read its probability as the chance that the
+  realized outcome lands in that subset.
+- Use the **complement rule** $P(A^c) = 1 - P(A)$ to compute the probability of "not $A$."
+- Form **unions** $A \cup B$ and **intersections** $A \cap B$, and say in words what each one means.
+- Apply the **addition rule** $P(A \cup B) = P(A) + P(B) - P(A \cap B)$, and recognize when the
+  $P(A \cap B)$ correction vanishes because the events are **mutually exclusive**.
+- Use the **equally-likely model** $P(A) = |A| / |\Omega|$ when — and only when — every outcome is
+  genuinely equally likely.
+
+## Core vocabulary
+
+- **Outcome.** A single, complete way the situation could turn out. Exactly one outcome happens.
+- **Sample space $\Omega$.** The set of *all* possible outcomes. Writing it down is usually the first
+  and most clarifying step.
+- **Event.** Any subset $A \subseteq \Omega$ — a collection of outcomes we have grouped together
+  because we care about them as a unit. The event "happens" when the realized outcome is one of its
+  members.
+- **Complement $A^c$.** The event that $A$ does *not* happen: every outcome in $\Omega$ that is not in
+  $A$. (You may also see $\bar{A}$ or $A'$ elsewhere; this course writes $A^c$.)
+- **Union $A \cup B$.** The event "$A$ or $B$ (or both)" — outcomes in $A$, in $B$, or in both.
+- **Intersection $A \cap B$.** The event "$A$ and $B$" — outcomes in *both* $A$ and $B$.
+- **Mutually exclusive (disjoint).** Two events with no outcome in common: $A \cap B = \varnothing$.
+  They cannot both happen on the same trial.
+- **Equally-likely model.** A modeling assumption that every outcome in a *finite* $\Omega$ carries
+  the same probability $1/|\Omega|$.
+
+## Concept development
+
+### Outcomes and the sample space $\Omega$
+
+Start by asking: what are the distinct, complete results this situation could produce? Each such
+result is an **outcome**, and the collection of all of them is the **sample space**, written $\Omega$.
+The discipline is that the list must be *exhaustive* (every possibility is in it) and the outcomes
+*mutually exclusive* (exactly one of them occurs on a given trial). Get those two properties right and
+everything downstream is well defined.
+
+For a single fair coin, $\Omega = \{H, T\}$. For one roll of a six-sided die,
+$\Omega = \{1, 2, 3, 4, 5, 6\}$. The art is in choosing a sample space that is detailed enough to
+answer the questions you care about but no more detailed than that. If you only care whether a die
+shows an even number, you could in principle use $\Omega = \{\text{even}, \text{odd}\}$ — but a finer
+space is often safer, because it keeps the equally-likely assumption honest, as we will see.
+
+When a situation has two parts, the natural sample space is the set of **ordered pairs** of their
+results. If the first part has outcomes in a set $S_1$ and the second has outcomes in $S_2$, then
+
+$$
+\Omega = S_1 \times S_2 = \{(s_1, s_2) : s_1 \in S_1,\ s_2 \in S_2\}.
+$$
+
+This "product" construction is exactly what we use for the commuter's-morning slice below, where one
+part is the weather and the other is whether the shuttle runs on time.
+
+### Events as subsets, and the complement rule
+
+An **event** is just a subset $A \subseteq \Omega$. We bundle outcomes together and give the bundle a
+name because we care about it as a whole: "the die shows an even number" is the event
+$A = \{2, 4, 6\}$. The probability of an event is the chance that the realized outcome is one of its
+members. Because every outcome carries some probability and the probabilities over all of $\Omega$ sum
+to 1, two boundary facts hold for any model:
+
+$$
+P(\Omega) = 1, \qquad P(\varnothing) = 0.
+$$
+
+The **complement** of $A$, written $A^c$, is the event that $A$ does *not* happen — all the outcomes
+left over when you remove $A$ from $\Omega$. Since each outcome is either in $A$ or in $A^c$ but never
+both, their probabilities must account for the whole sample space:
+
+$$
+P(A) + P(A^c) = 1 \qquad \Longrightarrow \qquad P(A^c) = 1 - P(A).
+$$
+
+This is the **complement rule**, and it is the single most useful shortcut in the course. Whenever the
+event you want is awkward but its *opposite* is easy, compute the opposite and subtract. "At least
+one" problems are the classic case: "at least one head in ten flips" is messy head-on, but its
+complement, "no heads at all," is a single clean outcome.
+
+### Unions, intersections, and the addition rule
+
+Most interesting events are built from simpler ones with the words *or* and *and*. In set language:
+
+- **Union** $A \cup B$ is the event "$A$ **or** $B$," meaning at least one of them — outcomes in $A$,
+  in $B$, or in both.
+- **Intersection** $A \cap B$ is the event "$A$ **and** $B$," meaning both at once — outcomes that
+  belong to each.
+
+To get $P(A \cup B)$ you might be tempted to add $P(A)$ and $P(B)$. But if the two events overlap,
+every outcome in the overlap $A \cap B$ has been counted *twice* — once inside $A$, once inside $B$.
+The fix is to subtract that overlap back out exactly once. This is the **addition rule** (also called
+inclusion–exclusion for two events):
+
+$$
+P(A \cup B) = P(A) + P(B) - P(A \cap B).
+$$
+
+Picture two overlapping circles inside a rectangle (the rectangle is $\Omega$). The union is the total
+shaded area; adding the two circles' areas counts the lens-shaped overlap twice, so you subtract it
+once to get the true total. Two special cases are worth holding onto. When $A$ and $B$ are **mutually
+exclusive** — no shared outcome, so $A \cap B = \varnothing$ and $P(A \cap B) = 0$ — the rule collapses
+to the simpler
+
+$$
+P(A \cup B) = P(A) + P(B) \qquad \text{(mutually exclusive only)}.
+$$
+
+And $A$ and $A^c$ are always mutually exclusive with union $\Omega$, which is just the complement rule
+in disguise: $P(A) + P(A^c) = P(\Omega) = 1$.
+
+### The equally-likely model $P(A) = |A| / |\Omega|$
+
+When the sample space is finite and we have a good reason to believe *every outcome is equally
+likely* — a fair coin, a fair die, a well-shuffled deck — probability reduces to counting. If
+$|\Omega|$ is the number of outcomes in the whole space and $|A|$ is the number in the event $A$, then
+
+$$
+P(A) = \frac{|A|}{|\Omega|} = \frac{\text{number of favorable outcomes}}{\text{number of possible outcomes}}.
+$$
+
+This is the **classical** or **equally-likely** model. It is powerful and it is the engine behind the
+counting techniques in Week 6 — but it carries a load-bearing assumption. The formula is *only* valid
+when the outcomes really are equally likely. A loaded die, or a sample space that lumps unequal
+possibilities together, breaks it. The commuter's-morning case below is a deliberate example of a space
+that is **not** equally likely: rainy and dry mornings do not occur with equal frequency, so we cannot
+just count cells — we have to carry the actual probabilities. Knowing when the counting shortcut
+applies is as important as knowing the shortcut.
+
+## Worked examples
+
+### Worked example — the commuter's morning, as a 2×2 sample space
+
+*Synthetic scenario; seed set for any simulation. Numbers are fixed for the whole course.*
+
+Maya's morning has two moving parts: the **weather** and the **shuttle**. Let the weather outcome be
+either $r$ (rain) or $\bar r$ (no rain), and the shuttle outcome be either $\text{ot}$ (on time) or
+$\text{lt}$ (late). The natural sample space is the product of the two — a $2 \times 2$ grid of four
+joint outcomes:
+
+$$
+\Omega = \{\text{on time}, \text{late}\} \times \{\text{rain}, \text{no rain}\}
+       = \{(\text{ot}, r),\ (\text{ot}, \bar r),\ (\text{lt}, r),\ (\text{lt}, \bar r)\}.
+$$
+
+**Symbolically.** Define the events we care about as subsets of $\Omega$:
+
+- $L = \{(\text{lt}, r),\ (\text{lt}, \bar r)\}$ — the shuttle is **late** (either weather).
+- $R = \{(\text{ot}, r),\ (\text{lt}, r)\}$ — it is **raining** (either shuttle result).
+
+The on-time event is the complement of late, $L^c$, so the complement rule gives
+$P(L) = 1 - P(L^c)$ — that is, $P(\text{late}) = 1 - P(\text{on time})$.
+
+**Numerically.** From the course case (Week 1), the marginal chance the shuttle is on time is
+$P(\text{on time}) = 0.81$. The four joint-cell probabilities, which we will derive properly in
+Week 3, are fixed as:
+
+| weather \\ shuttle | on time | late | row total |
+|---|---|---|---|
+| **rain** | $0.18$ | $0.12$ | $0.30$ |
+| **no rain** | $0.63$ | $0.07$ | $0.70$ |
+| **column total** | $0.81$ | $0.19$ | $1.00$ |
+
+Notice the four cells sum to $1$ — they are a valid probability over $\Omega$ — but they are **not all
+equal**, so this is *not* an equally-likely model; we read probabilities off the table, not by counting
+cells. Now the complement rule does its job cleanly:
+
+$$
+P(\text{late}) = P(L) = 1 - P(\text{on time}) = 1 - 0.81 = 0.19.
+$$
+
+That matches the $P(\text{late}) = 0.19$ we locked in last week — arrived at here purely from the
+complement rule, with no new information.
+
+**An addition-rule example on the same grid.** What is the chance the morning is "rough" in the sense
+that it is *raining* **or** the shuttle is *late* (or both)? That is the union $R \cup L$. Reading the
+marginals and the overlap straight from the table:
+
+$$
+P(R) = 0.30, \qquad P(L) = 0.19, \qquad P(R \cap L) = 0.12,
+$$
+
+where $P(R \cap L) = 0.12$ is the single "rain **and** late" cell. The addition rule gives:
+
+$$
+P(R \cup L) = P(R) + P(L) - P(R \cap L) = 0.30 + 0.19 - 0.12 = 0.37.
+$$
+
+Had we forgotten the overlap and simply added $0.30 + 0.19 = 0.49$, we would have double-counted the
+rainy-and-late mornings and overstated the risk by $0.12$. The subtraction is the whole point of the
+rule. Note too that $R$ and $L$ are **not** mutually exclusive — they share the $(\text{lt}, r)$
+outcome — which is exactly why the correction term is nonzero here.
+
+### Worked example — a transfer: drawing a single card
+
+*Synthetic scenario in a fresh context; here the equally-likely model genuinely applies.*
+
+Now move to a standard, well-shuffled $52$-card deck and draw one card. Because a fair shuffle makes
+every card equally likely, the equally-likely model is justified and we may count: $|\Omega| = 52$.
+
+**Symbolically.** Let $H$ be the event "the card is a heart" and $F$ be the event "the card is a face
+card" (Jack, Queen, or King). Then $H \cup F$ is "a heart **or** a face card," and $H \cap F$ is "a
+heart **and** a face card" — the face cards that are also hearts. The addition rule reads
+$P(H \cup F) = P(H) + P(F) - P(H \cap F)$, with each piece computed by counting.
+
+**Numerically.** Count the favorable outcomes:
+
+- Hearts: $|H| = 13$, so $P(H) = 13/52$.
+- Face cards: $3$ in each of $4$ suits, so $|F| = 12$ and $P(F) = 12/52$.
+- Hearts that are also face cards (Jack, Queen, King of hearts): $|H \cap F| = 3$, so
+  $P(H \cap F) = 3/52$.
+
+Apply the addition rule:
+
+$$
+P(H \cup F) = \frac{13}{52} + \frac{12}{52} - \frac{3}{52} = \frac{22}{52} = \frac{11}{26} \approx 0.423.
+$$
+
+And the complement rule answers "not a heart" in one line:
+
+$$
+P(H^c) = 1 - P(H) = 1 - \frac{13}{52} = \frac{39}{52} = \frac{3}{4} = 0.75.
+$$
+
+Compare the two worked cases: the card draw is equally likely, so we *counted* with
+$P(A) = |A|/|\Omega|$; the commuter's morning is *not* equally likely, so we *read the probabilities
+off the table*. Same two rules, two different ways of getting the inputs.
+
+## A common mistake
+
+The signature Week 2 error is **forgetting the overlap in the addition rule** — writing
+$P(A \cup B) = P(A) + P(B)$ when $A$ and $B$ can both happen. That shortcut is valid *only* for
+mutually exclusive events; whenever the two events can co-occur, you are double-counting the
+intersection and your answer is too large. In the card example, "heart or face card" is $0.423$, not
+$13/52 + 12/52 = 25/52 \approx 0.481$; the missing $-3/52$ is the three cards counted twice. The fix is
+a habit: before adding, ask "can both events happen at once?" If yes, find $P(A \cap B)$ and subtract
+it. If genuinely no, then $P(A \cap B) = 0$ and the correction is harmless. A close cousin of this
+mistake is leaning on $P(A) = |A|/|\Omega|$ when the outcomes are **not** equally likely — which is
+why we never count cells in the commuter's-morning grid.
+
+## Low-stakes self-checks (ungraded)
+
+Work these for yourself — they are **practice only**, with no points and nothing to submit. Sketch a
+Venn diagram or a small table before reaching for a formula.
+
+1. Write out the sample space $\Omega$ for flipping a fair coin twice as ordered pairs. How many
+   outcomes are there? List the event "exactly one head" as a subset.
+2. For Maya's $2 \times 2$ grid, use the complement rule to find $P(\text{no rain})$ from
+   $P(\text{rain}) = 0.30$. Then identify which single cell is $P(\text{on time} \cap \text{rain})$.
+3. On the grid, compute $P(\text{on time} \cup \text{no rain})$ with the addition rule. Which cell is
+   the overlap you must subtract?
+4. Draw one card from a standard deck. Find $P(\text{red} \cup \text{king})$ using the addition rule,
+   being careful about the two red kings. Then find $P(\text{not a king})$ by the complement rule.
+5. Give an example of two events from the card draw that are **mutually exclusive**, and explain why
+   their addition rule has no subtraction term.
+
+## Reading and source pointer
+
+This week corresponds to **Grinstead & Snell, Chapter 1 — Discrete Probability Distributions**, which
+introduces sample spaces, events, and the basic rules for combining their probabilities; the
+equally-likely model and the set operations are also covered cleanly in the **MIT OCW 18.05** reading
+on counting and sets. Read those for additional examples and a second voice on the same ideas. *These
+notes are the course's own synthesis, grounded in but not copied from the sources.* All scenario data
+are synthetic, with seeds set in any accompanying simulation so results are reproducible.
+
+The companion **[Lab 2 — Monte Carlo basics](../labs/lab-02-monte-carlo-basics.qmd)** turns these rules
+into code: you will simulate the commuter's-morning grid many times and watch the *long-run frequency*
+of an event approach the probability the addition and complement rules predict — your first concrete
+look at the link between probability and simulation.
+
+## Public vs. graded
+
+These notes, the examples, and the practice here are **public and ungraded** — study material only. No
+graded prompts, answer keys, rubrics, point values, or due dates appear on this site. Graded
+checkpoints, quizzes, homework, labs, the midterm, the project, and the final live in **Blackboard
+(the LMS)**, which is authoritative for due dates, submissions, and grades. If this page and Blackboard
+ever disagree, follow Blackboard.
+
+## Looking ahead
+
+Next week we condition. We have been computing probabilities of events over the *whole* sample space;
+in **Week 3 — Conditional probability** we ask what happens to those probabilities once we learn that
+*part* of the situation has already turned out a certain way — for example, that it is raining. The
+$2 \times 2$ grid you built here is exactly the object we will slice: $P(\text{on time} \mid
+\text{rain}) = 0.60$ lives inside the same table, and seeing why it differs from the marginal
+$P(\text{on time}) = 0.81$ is the doorway to independence (Week 4) and Bayes' rule (Week 5).
+
+## See also
+
+- [Notation glossary](../resources/notation-glossary.qmd) — the symbols $\Omega$, $A^c$, $\cup$,
+  $\cap$, and $P(\cdot)$ used here.
+- [Distribution reference](../resources/distribution-reference.qmd) — for the named models built on
+  these foundations later in the course.
+- [Lab 2 — Monte Carlo basics](../labs/lab-02-monte-carlo-basics.qmd) — the companion simulation lab
+  for this week.
+- [Syllabus](../syllabus.qmd) — calendar, grading categories, and the Blackboard-is-authoritative
+  policy.

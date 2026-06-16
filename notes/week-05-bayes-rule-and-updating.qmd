@@ -1,0 +1,284 @@
+---
+title: "Week 5 — Bayes' rule & updating"
+subtitle: "Reversing the conditioning: prior, likelihood, posterior"
+page_mode: math_derivation_week
+week_contract: math_derivation
+source_mode: source-informed
+readings:
+  - "Grinstead & Snell, Ch 4 — Conditional Probability (Bayes formula) — supports the derivation of Bayes' rule from the definition of conditional probability and the law of total probability"
+  - "MIT OCW 18.05 — Bayes' theorem and base rates — supports the screening-test framing and the base-rate intuition"
+toc: true
+---
+
+## Mathematical goal
+
+Last week you learned to *condition forward*: given a cause, what is the chance of an effect? This week
+you learn to *condition backward*. You observe an effect — a positive test, a late shuttle — and you ask
+which cause most likely produced it. That reversal is **Bayes' rule**, and the goal of this note is to
+build it from parts you already own.
+
+Concretely, by the end you should be able to:
+
+- derive Bayes' rule from the **definition of conditional probability** alone, in two short lines;
+- expand the denominator with the **law of total probability** over a partition of causes;
+- name each piece of the formula — **prior**, **likelihood**, **evidence**, **posterior** — and say what
+  job it does;
+- carry the formula symbolically first, then drop in numbers, and read the answer back as a probability.
+
+Nothing here is new machinery. Bayes' rule is the definition of conditional probability, rearranged, with
+the denominator computed honestly. The surprise is not in the algebra — it is in how strongly the answer
+can clash with intuition. Data here are **synthetic; seeds set.**
+
+## The week question
+
+> You see the effect. What is the probability of the cause?
+
+Maya's shuttle is late this morning. Does that mean it is probably raining? A patient's screening test
+comes back positive. Does that mean the patient probably has the disease? Both questions ask you to run
+the conditioning *backward* — from observed evidence to an unobserved cause — and both have answers that
+many people guess wrong by a wide margin.
+
+## Notation
+
+Fix a single cause–effect vocabulary and hold it for the whole week. Let $H$ be a **hypothesis** (a cause
+or state of the world) and $E$ the **evidence** (the thing you actually observe).
+
+| Symbol | Name | Meaning |
+|--------|------|---------|
+| $P(H)$ | prior | probability of the hypothesis **before** seeing the evidence |
+| $P(E \mid H)$ | likelihood | probability the evidence would appear **if** $H$ were true |
+| $P(E)$ | evidence (marginal) | total probability of the evidence, across all hypotheses |
+| $P(H \mid E)$ | posterior | probability of the hypothesis **after** seeing the evidence |
+| $H_1,\dots,H_n$ | partition | mutually exclusive, exhaustive hypotheses (exactly one holds) |
+| $H^c$ | complement | "not $H$"; the two-hypothesis partition is $\{H, H^c\}$ |
+
+Read the formula left to right as a sentence: the **posterior** is the **prior** reweighted by how well
+the hypothesis predicted the **evidence**, then normalized by the total **evidence**. Updating is just
+that reweighting.
+
+## Conceptual setup
+
+Two facts from earlier weeks do all the work. Both should already feel familiar.
+
+**First, the definition of conditional probability.** For any events with $P(B) > 0$,
+
+$$
+P(A \mid B) = \frac{P(A \cap B)}{P(B)}.
+$$
+
+This is not a theorem to prove; it is the *definition* of what the bar means. Rearranged, it gives the
+multiplication rule $P(A \cap B) = P(A \mid B)\,P(B)$. Crucially, the joint event $A \cap B$ is symmetric
+— "$A$ and $B$" is the same event as "$B$ and $A$" — so we can split it two different ways:
+
+$$
+P(H \cap E) = P(H \mid E)\,P(E) = P(E \mid H)\,P(H).
+$$
+
+Setting the last two expressions equal and dividing by $P(E)$ (assuming $P(E) > 0$) gives **Bayes' rule**
+in its bare form:
+
+$$
+P(H \mid E) = \frac{P(E \mid H)\,P(H)}{P(E)}.
+$$
+
+That is the entire derivation — two lines from a definition. Notice what it accomplishes: it trades the
+quantity you *want* but cannot directly observe, $P(H \mid E)$, for quantities you usually *can* pin down
+— the prior $P(H)$ and the likelihood $P(E \mid H)$.
+
+**Second, the law of total probability.** The denominator $P(E)$ is rarely handed to you; you have to
+build it. Suppose the hypotheses $H_1, \dots, H_n$ form a **partition**: exactly one of them is true, and
+together they cover every possibility. Then every occurrence of the evidence $E$ happens *alongside*
+exactly one $H_i$, so $E$ splits into disjoint slices $E \cap H_i$:
+
+$$
+P(E) = \sum_{i=1}^{n} P(E \cap H_i) = \sum_{i=1}^{n} P(E \mid H_i)\,P(H_i).
+$$
+
+In words: the total probability of the evidence is the sum, over each possible cause, of "how likely that
+cause is" times "how likely it makes the evidence." Substituting this denominator into Bayes' rule gives
+the form you will actually compute with:
+
+$$
+P(H_k \mid E) = \frac{P(E \mid H_k)\,P(H_k)}{\displaystyle\sum_{i=1}^{n} P(E \mid H_i)\,P(H_i)}.
+$$
+
+For the common two-hypothesis case — $H$ versus its complement $H^c$ — the partition has just two cells,
+and the denominator is a single sum of two products:
+
+$$
+P(H \mid E) = \frac{P(E \mid H)\,P(H)}{P(E \mid H)\,P(H) + P(E \mid H^c)\,P(H^c)}.
+$$
+
+The numerator is one slice; the denominator is *all* the slices. The posterior is literally the share of
+the total evidence that came from your hypothesis. That framing — numerator over denominator-of-slices —
+is the picture to carry into every problem below.
+
+## Worked example
+
+We do this twice. First the **health-screening test** — the headline example, where Bayes contradicts
+intuition hardest — and then a **transfer** back to the shuttle, reversing a conditioning you met in
+Week 3. Each is worked symbolically and then numerically.
+
+### Worked example — the screening test (symbolic, then numeric)
+
+A screening test for a disease is applied to someone drawn from a population. Let $D$ be the hypothesis
+"the person has the disease," with complement $D^c$. The evidence is $+$, "the test reads positive."
+Three numbers describe the situation, and each is a probability you could in principle measure:
+
+- the **prevalence** $\pi = P(D)$ — the prior, how common the disease is in the population;
+- the **sensitivity** $P(+ \mid D)$ — the likelihood of a positive *given* disease (a true-positive rate);
+- the **specificity** $P(- \mid D^c)$ — the chance of a correct negative given *no* disease.
+
+From specificity you recover the false-positive likelihood by complement: $P(+ \mid D^c) = 1 - P(- \mid D^c)$.
+We want the **posterior** $P(D \mid +)$: given a positive test, how likely is disease? Symbolically, Bayes
+over the two-cell partition $\{D, D^c\}$ gives
+
+$$
+P(D \mid +) = \frac{P(+ \mid D)\,P(D)}{P(+ \mid D)\,P(D) + P(+ \mid D^c)\,P(D^c)}.
+$$
+
+Now put in the course's locked numbers (**synthetic; seed set**): prevalence $\pi = 0.02$, sensitivity
+$P(+ \mid D) = 0.95$, specificity $P(- \mid D^c) = 0.90$ so that $P(+ \mid D^c) = 0.10$, and
+$P(D^c) = 1 - 0.02 = 0.98$.
+
+First build the **evidence** $P(+)$ with the law of total probability:
+
+$$
+P(+) = P(+ \mid D)\,P(D) + P(+ \mid D^c)\,P(D^c) = (0.95)(0.02) + (0.10)(0.98) = 0.019 + 0.098 = 0.117.
+$$
+
+So a positive result has total probability $0.117$. Of that, only the slice $0.019$ comes from people who
+truly have the disease; the larger slice $0.098$ comes from healthy people who tested positive by error.
+The posterior is the disease slice over the whole:
+
+$$
+P(D \mid +) = \frac{0.019}{0.117} \approx 0.162.
+$$
+
+A positive test moves the probability of disease from $0.02$ up to about $0.162$ — a real, eight-fold
+jump — yet it is still **only about one chance in six.** The test is informative, but the answer is far
+below the $95\%$ that the sensitivity might tempt you to read off. Why? Because the disease is rare. With
+only $2$ in $100$ sick, even a small $10\%$ false-positive rate applied to the $98$ healthy people
+generates *more* positives than the disease itself does. The prior dominates. This gap between the
+likelihood ($0.95$) and the posterior ($0.162$) is the **base-rate surprise**, and it is the single most
+important lesson of the week.
+
+### Worked example — the late shuttle (the commuter's-morning slice)
+
+Now the transfer, in Maya's world. In Week 3 you conditioned *forward*: given the weather, how likely is
+the shuttle to be late? This week we reverse it — Maya sees the shuttle is late and wants to know whether
+it is raining. Let $R$ be "rain" (prior $P(R) = 0.30$, so $P(R^c) = 0.70$) and let $L$ be "the shuttle is
+late." The forward likelihoods are locked: $P(L \mid R) = 0.40$ and $P(L \mid R^c) = 0.10$. The target is
+the **posterior** $P(R \mid L)$.
+
+Symbolically it is the same machine, with $\{R, R^c\}$ as the partition and $L$ as the evidence:
+
+$$
+P(R \mid L) = \frac{P(L \mid R)\,P(R)}{P(L \mid R)\,P(R) + P(L \mid R^c)\,P(R^c)}.
+$$
+
+Build the evidence — the marginal probability of a late shuttle — first:
+
+$$
+P(L) = (0.40)(0.30) + (0.10)(0.70) = 0.12 + 0.07 = 0.19.
+$$
+
+This matches the marginal $P(\text{late}) = 0.19$ you have carried since Week 1 — a good consistency check.
+Then the posterior is the rain slice over the total:
+
+$$
+P(R \mid L) = \frac{0.12}{0.19} \approx 0.632.
+$$
+
+So a late shuttle pushes the chance of rain from its prior $0.30$ up to about $0.632$ — lateness more
+than doubles the odds of rain, and now rain is the *more likely* explanation. Compare the two reversals
+side by side: in the screening test the evidence barely dented a rare prior ($0.02 \to 0.162$, still
+unlikely), while here the evidence flipped a minority prior into a majority ($0.30 \to 0.632$). Same
+formula, opposite verdicts — and the difference is driven entirely by the **prior** and by how sharply
+the likelihoods separate the hypotheses. Updating is not a fixed dial; it is the data arguing against the
+prior, and sometimes the prior wins.
+
+## A convention warning
+
+Three traps recur every time someone runs Bayes for the first time. Name them now so you can catch them.
+
+**The posterior is not the likelihood.** $P(H \mid E)$ and $P(E \mid H)$ are different conditional
+probabilities, and confusing them is the central error. In the screening test the likelihood is
+$P(+ \mid D) = 0.95$, but the posterior is $P(D \mid +) \approx 0.162$. Reversing the bar reverses the
+conditioning — that is the whole point of the week, and it is *also* the thing people forget under
+pressure. Whenever you read "the test is $95\%$ accurate," ask: $95\%$ of *whom* — the sick, or the
+positives? They are not the same group.
+
+**Base-rate neglect.** The most common way to get the wrong number is to ignore the prior $P(H)$
+altogether and quote the likelihood as if it were the answer. A rare cause needs strong evidence to
+become probable, because the denominator $P(E)$ is swamped by false alarms from the large complement.
+Always build $P(E)$ with the full law of total probability — every cell of the partition — before you
+divide. The prior is not optional decoration; it is half the formula.
+
+**The denominator is the *whole* evidence, not one piece.** It is tempting to write the numerator twice or
+to forget the $H^c$ term. The denominator must be the *sum over the entire partition*: every way the
+evidence could have happened, weighted by how probable each cause is. If your "posterior" comes out above
+$1$, or if it equals the likelihood exactly, you almost certainly dropped a term.
+
+## Practice (ungraded)
+
+Work these for yourself — they are **self-check practice only**, with no points, no submission, and no
+answer key on this site. Use the two-hypothesis form and always build $P(E)$ first.
+
+1. **Read the formula back.** In one sentence each, say what $P(H)$, $P(E \mid H)$, $P(E)$, and
+   $P(H \mid E)$ mean for the screening test, without using the word "probability" more than once.
+2. **Re-derive it.** Starting only from $P(H \cap E) = P(H \mid E)\,P(E) = P(E \mid H)\,P(H)$, reproduce
+   Bayes' rule. Then expand $P(E)$ with the law of total probability over $\{H, H^c\}$.
+3. **Negative evidence.** For the shuttle, compute $P(R \mid L^c)$ — the chance of rain *given the shuttle
+   was on time*. Build $P(L^c) = 1 - 0.19 = 0.81$ first, then take the rain-and-on-time slice over it. Is
+   it above or below the prior $0.30$? Why does that direction make sense?
+4. **Move the prior.** Redo the screening test with prevalence $\pi = 0.20$ instead of $0.02$ (everything
+   else fixed). Does the posterior rise above one-half? This shows how much of the "surprise" was really
+   about rarity.
+5. **Spot the swap.** A friend says, "The test is $95\%$ accurate, so a positive means a $95\%$ chance of
+   disease." Name the convention warning they have stepped on, and quote the correct posterior.
+
+A simulation companion that *checks* these numbers by counting outcomes — building the same posteriors
+from a synthetic population rather than algebra — lives in the **Week 5 lab**, linked below.
+
+## Formula-verification status
+
+> **verified: false.** The math gate for this build is **BLOCKED**. Every formula, derivation, and
+> numeric result on this page is **provisional, pending human sign-off**. The locked case numbers are
+> internally consistent and reproduce the course's recurring values (screening posterior $\approx 0.162$;
+> $P(\text{rain} \mid \text{late}) \approx 0.632$), but no independent verification gate has cleared them.
+> Treat the derivations as a working draft, not a checked reference, until that gate is released.
+
+## Reading and source pointer
+
+For the parallel treatment in the primary text, read **Grinstead & Snell, Chapter 4 — Conditional
+Probability**, specifically the development of the *Bayes formula* from conditional probability and the
+law of total probability. For the screening-test framing and the base-rate intuition, the **MIT OCW
+18.05** materials on Bayes' theorem are a useful selective supplement. These notes are the course's own
+synthesis, grounded in but not copied from the sources; all example data are synthetic with seeds set.
+
+## Public vs. graded
+
+These notes, the examples, and the practice here are **public and ungraded** — study material only. No
+graded prompts, answer keys, rubrics, point values, or due dates appear on this site. Graded
+checkpoints, quizzes, homework, labs, the midterm, the project, and the final live in **Blackboard
+(the LMS)**, which is authoritative for due dates, submissions, and grades. If this page and Blackboard
+ever disagree, follow Blackboard.
+
+## Looking ahead
+
+Bayes' rule closes the conditioning arc: Week 3 conditioned forward, Week 4 asked when conditioning
+changes nothing (independence), and this week reversed the conditioning entirely. Next we change subject
+from *events* to *counting* — Week 6 asks how many outcomes a situation has in the first place, which is
+the raw material that probabilities like $C(10,k)/2^{10}$ are built from. From there we package randomness
+into random variables and watch the same conditioning ideas reappear in a new costume.
+
+## See also
+
+- [Notation glossary](../resources/notation-glossary.qmd) — the fixed symbols, including the prior /
+  likelihood / posterior / evidence vocabulary used above.
+- [Distribution reference](../resources/distribution-reference.qmd) — for the models that arrive once we
+  move from events to random variables.
+- [Lab 05 — Bayes by simulation](../labs/lab-05-bayes-by-simulation.qmd) — the companion lab that rebuilds
+  this week's posteriors by counting a synthetic population.
+- [Syllabus](../syllabus.qmd) — course policies, the calendar, and where graded work actually lives.

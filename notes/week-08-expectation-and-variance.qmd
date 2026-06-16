@@ -1,0 +1,406 @@
+---
+title: "Week 8 — Expectation & variance"
+subtitle: "Long-run average and spread of a random variable"
+page_mode: math_derivation_week
+week_contract: math_derivation
+source_mode: source-informed
+readings:
+  - "Grinstead & Snell, Ch 6 — Expected Value and Variance — supports the definitions of E[X] and Var(X), the computational shortcut, and the linearity rules"
+  - "MIT OCW 18.05 — supports the framing of expectation as a long-run average and the preview of the law of large numbers"
+toc: true
+---
+
+## Mathematical goal
+
+By the end of this week you should be able to write down, compute, and reason with the two summary
+numbers that describe a random variable: its **expectation** $E[X]$ and its **variance** $\mathrm{Var}(X)$
+(together with the standard deviation $\sigma$). Concretely, the targets are:
+
+- **Define** $E[X]$ as a probability-weighted average of the values $X$ can take, and $\mathrm{Var}(X)$ as
+  the expected squared distance of $X$ from its own mean.
+- **Compute** all three numbers — $E[X]$, $\mathrm{Var}(X)$, and $\sigma$ — for a discrete random
+  variable from its pmf.
+- **Prove** the computational shortcut $\mathrm{Var}(X) = E[X^2] - (E[X])^2$ and use it in place of the
+  raw definition.
+- **Prove and apply** the linearity rules $E[aX + b] = a\,E[X] + b$ and
+  $\mathrm{Var}(aX + b) = a^2\,\mathrm{Var}(X)$ for constants $a$ and $b$.
+
+These are the first genuinely *quantitative* summaries of a random variable in the course. Up to now we
+described a random variable by its whole pmf (Week 7); this week we compress that pmf into a center and a
+spread, the same way a list of numbers gets summarized by a mean and a standard deviation.
+
+## The week question
+
+A random variable, like the number correct on a guessed quiz, does not return one number — it returns a
+*distribution* of possible numbers, each with a probability. So the natural question is:
+
+> If we could repeat the experiment over and over, what number would the outcomes **average out to**, and
+> how **far from that average** do individual outcomes typically land?
+
+The first half of that question is answered by the expectation; the second half by the variance and its
+square root, the standard deviation. This week makes both precise, proves the two algebraic facts that
+make them easy to work with, and connects "average out to" to the law of large numbers we will prove by
+simulation later in the course.
+
+## Notation
+
+| Symbol | Meaning |
+|--------|---------|
+| $X$ | a random variable (this week, discrete) |
+| $p(x) = P(X = x)$ | the probability mass function (pmf) of $X$ |
+| $E[X]$ | the expectation (mean) of $X$; also written $\mu$ |
+| $E[g(X)]$ | the expectation of a function $g$ of $X$ |
+| $E[X^2]$ | the expectation of $X^2$ — the "second moment" |
+| $\mathrm{Var}(X) = \sigma^2$ | the variance of $X$ — average squared distance from the mean |
+| $\sigma = \mathrm{sd}(X)$ | the standard deviation, $\sigma = \sqrt{\mathrm{Var}(X)}$ |
+| $a, b$ | fixed constants used in a linear rescaling $aX + b$ |
+
+All sums below run over the support of $X$ — the values $x$ with $p(x) > 0$.
+
+## Conceptual setup
+
+**Expectation is a long-run average.** Suppose $X$ takes values $x_1, x_2, \dots$ with probabilities
+$p(x_1), p(x_2), \dots$. If you ran the experiment a huge number of times, the value $x_i$ would appear in
+roughly a fraction $p(x_i)$ of the trials. The ordinary average of all those outcomes is therefore
+approximately
+
+$$
+\text{average of outcomes} \;\approx\; \sum_i x_i \, p(x_i).
+$$
+
+That weighted sum is exactly the definition of the expectation:
+
+$$
+E[X] = \sum_x x \, p(x).
+$$
+
+So $E[X]$ is not a value you expect to *see* on any single trial — the quiz score $5$ is the mean of a
+true/false guess, but $5.0$ is one of many possible scores, not a special "typical" one. Rather, $E[X]$
+is the number the **running average of outcomes settles toward** as the number of trials grows. That
+settling-down is the content of the **law of large numbers**, which we will state precisely and watch
+happen by simulation in Week 13. For now, hold onto the slogan: *expectation is what you average to in the
+long run.*
+
+**Variance is spread.** The expectation says nothing about how tightly the outcomes cluster. Two random
+variables can share the same mean and behave completely differently — one nearly constant, the other
+wildly variable. To measure spread we look at the distance of $X$ from its own mean, $X - \mu$, where
+$\mu = E[X]$. We cannot just average $X - \mu$, because positive and negative deviations cancel: by
+linearity (proved below) $E[X - \mu] = \mu - \mu = 0$ always. So we **square** the deviation first, which
+makes every term non-negative, and then average:
+
+$$
+\mathrm{Var}(X) = E\!\left[(X - \mu)^2\right] = \sum_x (x - \mu)^2 \, p(x).
+$$
+
+A larger variance means outcomes typically land farther from the mean. Because the squaring changes the
+units, we usually report the **standard deviation** $\sigma = \sqrt{\mathrm{Var}(X)}$, which is back in the
+original units of $X$ and is directly comparable to the mean.
+
+**The expectation of a function.** We will repeatedly need the average of some transformed value, such as
+$X^2$. The rule is the natural one — weight each transformed value by the probability of the original
+outcome:
+
+$$
+E[g(X)] = \sum_x g(x)\, p(x).
+$$
+
+In particular $E[X^2] = \sum_x x^2\, p(x)$. With this in hand we can prove the two facts that make the rest
+of the week mechanical.
+
+**The variance shortcut (proof).** Expand the squared deviation and push the sum through term by term.
+Writing $\mu = E[X]$ and using $\sum_x p(x) = 1$:
+
+$$
+\begin{aligned}
+\mathrm{Var}(X)
+&= \sum_x (x - \mu)^2 \, p(x) \\
+&= \sum_x \left(x^2 - 2\mu x + \mu^2\right) p(x) \\
+&= \sum_x x^2\, p(x) \;-\; 2\mu \sum_x x\, p(x) \;+\; \mu^2 \sum_x p(x) \\
+&= E[X^2] \;-\; 2\mu\,\mu \;+\; \mu^2 \cdot 1 \\
+&= E[X^2] - \mu^2.
+\end{aligned}
+$$
+
+That is the **shortcut** we will use constantly:
+
+$$
+\mathrm{Var}(X) = E[X^2] - (E[X])^2.
+$$
+
+It is almost always less work than the raw definition, because you compute $E[X^2]$ and $E[X]$ once each
+and subtract, instead of forming every deviation.
+
+**Linearity (proof).** Let $a$ and $b$ be constants and consider the rescaled variable $aX + b$. Using
+$E[g(X)] = \sum_x g(x)\,p(x)$ with $g(x) = ax + b$:
+
+$$
+\begin{aligned}
+E[aX + b]
+&= \sum_x (ax + b)\, p(x) \\
+&= a \sum_x x\, p(x) \;+\; b \sum_x p(x) \\
+&= a\,E[X] + b.
+\end{aligned}
+$$
+
+For the variance, first note that adding the constant $b$ shifts every value and the mean by the same
+amount, so deviations $X - \mu$ are unchanged; only the $a$ stretches them. Formally, the mean of $aX + b$
+is $a\mu + b$, so the deviation is $(aX + b) - (a\mu + b) = a(X - \mu)$, and
+
+$$
+\begin{aligned}
+\mathrm{Var}(aX + b)
+&= E\!\left[\big((aX + b) - (a\mu + b)\big)^2\right] \\
+&= E\!\left[a^2 (X - \mu)^2\right] \\
+&= a^2 \, E\!\left[(X - \mu)^2\right] \\
+&= a^2 \, \mathrm{Var}(X).
+\end{aligned}
+$$
+
+Two readings to keep: adding a constant $b$ **moves the center but not the spread** (no $b$ on the right),
+and multiplying by $a$ scales the **standard deviation by $|a|$** because $\sigma$ picks up
+$\sqrt{a^2} = |a|$.
+
+## Worked example
+
+We work the recurring case symbolically and then numerically, then transfer the same machinery to a new
+context. Both data sets are *synthetic; seed set.*
+
+### Worked example — the commuter's quiz (recurring slice)
+
+Maya faces the same $10$-question true/false quiz from Weeks 6 and 7, guessing each answer with probability
+$p = 0.5$. Let $X$ be the number she gets correct, so $X$ is a count over $n = 10$ independent guesses with
+pmf $p(x) = \binom{10}{x}(0.5)^{10}$ on the support $\{0, 1, \dots, 10\}$.
+
+**Symbolic.** For this kind of count (a sum of $n$ independent yes/no trials, each correct with probability
+$p$), the two summaries have closed forms we will justify fully when we name the binomial model in Week 9.
+The expectation is
+
+$$
+E[X] = np,
+$$
+
+because each of the $n$ trials contributes an average of $p$ correct answers and expectations add. The
+variance is
+
+$$
+\mathrm{Var}(X) = np(1 - p),
+$$
+
+and the standard deviation is $\sigma = \sqrt{np(1-p)}$.
+
+**Numeric, two ways.** First by the formulas, with $n = 10$ and $p = 0.5$:
+
+$$
+E[X] = np = 10 \times 0.5 = 5,
+$$
+
+$$
+\mathrm{Var}(X) = np(1-p) = 10 \times 0.5 \times 0.5 = 2.5,
+\qquad
+\sigma = \sqrt{2.5} \approx 1.58.
+$$
+
+Now confirm the variance the *other* way, through the shortcut, to see that the moments agree. For a
+symmetric guess the mean is $E[X] = 5$, and the shortcut says
+
+$$
+\mathrm{Var}(X) = E[X^2] - (E[X])^2 = E[X^2] - 25.
+$$
+
+Solving for the second moment, $E[X^2] = \mathrm{Var}(X) + 25 = 2.5 + 25 = 27.5$. So whether you reach
+$\mathrm{Var}(X) = 2.5$ through $np(1-p)$ or through $E[X^2] - (E[X])^2$, the answer is the same — the
+shortcut is just bookkeeping, not a new fact.
+
+**Reading the numbers.** On a guessed quiz Maya's long-run average score is $5$ out of $10$ — exactly what
+"a coin flip per question" should give. The standard deviation $\sigma \approx 1.58$ says individual scores
+typically land within about a point and a half of $5$, i.e. mostly in the range $3$ to $7$ or so. The
+variance $2.5$ is in **squared questions** and is not directly interpretable as a score; that is the
+distinction the convention warning below makes precise.
+
+**Linearity in action.** Suppose the quiz is rescored so that each correct answer is worth $2$ points and
+there is a $1$-point participation bonus, giving a graded score $G = 2X + 1$ (here $a = 2$, $b = 1$). Then
+
+$$
+E[G] = E[2X + 1] = 2\,E[X] + 1 = 2(5) + 1 = 11,
+$$
+
+$$
+\mathrm{Var}(G) = \mathrm{Var}(2X + 1) = 2^2 \,\mathrm{Var}(X) = 4 \times 2.5 = 10,
+\qquad
+\mathrm{sd}(G) = \sqrt{10} \approx 3.16.
+$$
+
+Notice the $+1$ bonus shifted the mean from $5$ to $11$ but left the spread alone, while the $\times 2$
+doubled the standard deviation (from $1.58$ to $3.16$) and quadrupled the variance — exactly what the rules
+predict.
+
+You can confirm both numbers directly from the pmf rather than the formulas. The chunk below is **shown,
+not executed** in this diagnostic.
+
+```{r}
+#| label: wk08-quiz-moments
+#| eval: false
+
+set.seed(35003)
+
+# Quiz X: number correct out of n = 10 true/false guesses, p = 0.5
+n <- 10
+p <- 0.5
+x <- 0:n
+px <- choose(n, x) * p^x * (1 - p)^(n - x)   # pmf, sums to 1
+
+# Expectation and variance straight from the definitions
+EX  <- sum(x * px)            # E[X]  = sum x p(x)
+EX2 <- sum(x^2 * px)          # E[X^2] = sum x^2 p(x)
+VarX <- EX2 - EX^2            # shortcut: E[X^2] - (E[X])^2
+sdX  <- sqrt(VarX)
+
+c(EX = EX, EX2 = EX2, VarX = VarX, sdX = sdX)
+# Expect: EX = 5, VarX = 2.5, sdX ~ 1.58  (matches np and np(1-p))
+
+# Linear rescaling G = 2X + 1
+a <- 2; b <- 1
+EG   <- a * EX + b            # 11
+VarG <- a^2 * VarX           # 10
+c(EG = EG, VarG = VarG, sdG = sqrt(VarG))
+```
+
+### Worked example — a transfer case: a small lottery payout
+
+To show the machinery is not tied to the quiz, transfer it to a different context with an *asymmetric* pmf,
+where $E[X] = np$ does **not** apply and you must use the definitions directly. A campus club sells a
+$\$1$ raffle ticket. Let $W$ be the **net payout** to a buyer in dollars, with this pmf (*synthetic; seed
+set*):
+
+| $w$ (net dollars) | $-1$ | $4$ | $9$ |
+|---|---|---|---|
+| $p(w)$ | $0.90$ | $0.08$ | $0.02$ |
+
+The values are net of the $\$1$ ticket: most buyers lose their dollar ($w = -1$), a few win a small prize,
+and a rare buyer wins the big one. The probabilities sum to $0.90 + 0.08 + 0.02 = 1$, so this is a valid
+pmf.
+
+**Symbolic, then numeric — expectation.**
+
+$$
+E[W] = \sum_w w\, p(w) = (-1)(0.90) + (4)(0.08) + (9)(0.02).
+$$
+
+$$
+E[W] = -0.90 + 0.32 + 0.18 = -0.40.
+$$
+
+So a buyer's long-run average net result is $-\$0.40$ per ticket: on average you lose $40$ cents each time,
+even though any single ticket might win. This is the sense in which expectation summarizes a gamble.
+
+**Variance via the shortcut.** First the second moment,
+
+$$
+E[W^2] = \sum_w w^2 \, p(w) = (1)(0.90) + (16)(0.08) + (81)(0.02),
+$$
+
+$$
+E[W^2] = 0.90 + 1.28 + 1.62 = 3.80,
+$$
+
+and then the shortcut,
+
+$$
+\mathrm{Var}(W) = E[W^2] - (E[W])^2 = 3.80 - (-0.40)^2 = 3.80 - 0.16 = 3.64,
+$$
+
+$$
+\sigma = \sqrt{3.64} \approx 1.91.
+$$
+
+The standard deviation $\approx \$1.91$ dwarfs the mean of $-\$0.40$ — the outcome is dominated by the rare
+big win, so the typical result swings far from the average. That large spread, not the modest negative
+mean, is what makes a raffle feel exciting.
+
+**Linearity transfer.** If the club doubled every prize and the ticket price together so the net payout
+became $V = 3W$ (a pure scaling, $a = 3$, $b = 0$), then $E[V] = 3(-0.40) = -1.20$ and
+$\mathrm{Var}(V) = 9 \times 3.64 = 32.76$, with $\mathrm{sd}(V) = 3 \times 1.91 \approx 5.73$ — the spread
+scales by the factor $3$, the variance by $9$.
+
+## A convention warning
+
+**Variance lives in squared units; use the standard deviation for interpretation.** This is the single
+most common interpretation slip with these summaries.
+
+- For the quiz, $\mathrm{Var}(X) = 2.5$ has units of **questions-squared**, which is not a meaningful scale
+  for a score. The interpretable spread is $\sigma = \sqrt{2.5} \approx 1.58$ **questions** — that is the
+  number you compare to the mean of $5$ to say "scores typically fall within about $1.58$ of $5$."
+- For the raffle, $\mathrm{Var}(W) = 3.64$ is in **dollars-squared**; the sentence you can actually say to
+  a buyer uses $\sigma \approx \$1.91$, in dollars.
+
+Two related cautions. First, **never compare a variance directly to a mean** — they are in different units;
+always move to the standard deviation first. Second, **the shortcut is a subtraction, so keep precision**:
+$\mathrm{Var}(X) = E[X^2] - (E[X])^2$ subtracts two often-similar numbers, and rounding $E[X]$ early can
+swamp the small difference. Carry full precision through $E[X]$ and $E[X^2]$, then subtract once at the
+end. Finally, the shortcut can only ever produce a non-negative number; if you compute a *negative*
+variance, you have an arithmetic error (most often a dropped $p(x)$ or a sign), because $\mathrm{Var}(X)$
+is an average of squares and cannot be negative.
+
+## Practice (ungraded)
+
+These are **ungraded self-checks** — work them with paper, or by adapting the shown R chunk, and confirm
+your reasoning against the definitions above. No answers, points, or due dates appear here.
+
+1. **Read the definition.** In your own words, explain why $E[X - \mu] = 0$ for every random variable, and
+   why that forces us to *square* the deviation before averaging to measure spread.
+2. **Single die.** Let $D$ be the value of one fair six-sided die, with $p(d) = 1/6$ for $d \in \{1, \dots,
+   6\}$. Compute $E[D]$ and then $E[D^2]$, and use the shortcut to find $\mathrm{Var}(D)$ and $\sigma$.
+   Confirm $E[D] = 3.5$.
+3. **Shortcut vs. definition.** For the quiz $X$, recover $\mathrm{Var}(X) = 2.5$ a *third* way — by
+   summing $(x - 5)^2\, p(x)$ directly across $x = 0, \dots, 10$ — and check it matches both $np(1-p)$ and
+   $E[X^2] - 25$.
+4. **Linearity by hand.** Take the raffle $W$ and the rescoring $U = 5W + 2$. Predict $E[U]$ and
+   $\mathrm{Var}(U)$ with the linearity rules, then verify by recomputing $E[U]$ and $E[U^2]$ from a pmf of
+   $U$.
+5. **Spread without a mean shift.** Construct (on paper) two random variables on $\{-2, 0, 2\}$ that have
+   the same mean $0$ but different variances, and say which is "more spread out" and why $\sigma$, not
+   $\mathrm{Var}$, is the number you would quote.
+
+## Formula-verification status
+
+**verified: false.** The formulas and derivations on this page — the definitions of $E[X]$ and
+$\mathrm{Var}(X)$, the shortcut $\mathrm{Var}(X) = E[X^2] - (E[X])^2$, the linearity rules
+$E[aX+b] = aE[X] + b$ and $\mathrm{Var}(aX+b) = a^2\,\mathrm{Var}(X)$, and the numeric results
+($E[X] = 5$, $\mathrm{Var}(X) = 2.5$, $\sigma \approx 1.58$, and the raffle's $E[W] = -0.40$,
+$\mathrm{Var}(W) = 3.64$) — are **drafted but not yet independently checked**. The course **math gate is
+BLOCKED**: every derivation and computed value here is **provisional, pending human sign-off**. Do not
+treat these results as confirmed reference values until that review is complete.
+
+## Reading and source pointer
+
+This week tracks **Grinstead & Snell, Chapter 6 — Expected Value and Variance**, which is where this course
+takes the definitions of expectation and variance, the discrete-case formulas, the computational shortcut,
+and the linearity properties. For the framing of expectation as a long-run average and the way it
+foreshadows the law of large numbers, **MIT OCW 18.05** is a useful parallel pointer. *These notes are the
+course's own synthesis, grounded in but not copied from the sources.* All example data are synthetic with
+seeds set.
+
+## Public vs. graded
+
+These notes, the examples, and the practice here are **public and ungraded** — study material only. No
+graded prompts, answer keys, rubrics, point values, or due dates appear on this site. Graded checkpoints,
+quizzes, homework, labs, the midterm, the project, and the final live in **Blackboard (the LMS)**, which is
+authoritative for due dates, submissions, and grades. If this page and Blackboard ever disagree, follow
+Blackboard.
+
+## Looking ahead
+
+Next week (Week 9) we name the standard discrete models — the **binomial** and the **Poisson** — and the
+formulas $E[X] = np$ and $\mathrm{Var}(X) = np(1-p)$ we *used* this week get *derived* as properties of the
+binomial model, while the shuttle-arrivals count gets its own mean and variance ($\lambda$ for both) under
+the Poisson. The expectation-and-variance machinery built here is exactly what we will hang on each named
+distribution, and it returns in full force in Week 13, where the law of large numbers turns "$E[X]$ is the
+long-run average" from a slogan into a theorem we watch by simulation.
+
+## See also
+
+- [Notation glossary](../resources/notation-glossary.qmd) — the symbols used above, including $E[X]$,
+  $\mathrm{Var}(X) = \sigma^2$, and $\sigma$.
+- [Distribution reference](../resources/distribution-reference.qmd) — the means and variances of the
+  standard models, including the binomial $E[X] = np$, $\mathrm{Var}(X) = np(1-p)$ used here.
+- [Course syllabus](../syllabus.qmd) — schedule, policies, and where graded work lives.

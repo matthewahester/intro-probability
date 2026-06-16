@@ -1,0 +1,271 @@
+---
+title: "Lab 5 — Bayes by simulation"
+subtitle: "Checking the screening-test posterior by simulating a population"
+page_mode: software_lab_week
+week_contract: software_note_lab
+source_mode: source-informed
+toc: true
+---
+
+> **Purpose.** In the [Week 5 note](../notes/week-05-bayes-rule-and-updating.qmd) you derived Bayes'
+> rule and used it to find a posterior probability that surprises almost everyone: a person who tests
+> positive on a screening test for a rare disease still probably does *not* have it. This lab puts that
+> claim to the test. Instead of trusting the algebra, you build a synthetic population of one hundred
+> thousand people, run them all through the screening test, and then simply *count* — among everyone who
+> tested positive, what fraction actually has the disease? If the algebra is right, the count should land
+> near the same number. The point is not to replace the derivation but to *see* it confirmed.
+
+## The idea
+
+The Week 5 note answered a backward question. You knew the *forward* facts — how the test behaves given
+disease status — and you wanted the *reverse*: given a positive test, the chance of disease. Bayes' rule
+gave the bridge, and the law of total probability filled in the denominator. The headline answer for the
+screening thread was
+
+$$
+P(D \mid +) = \frac{P(+ \mid D)\,\pi}{P(+ \mid D)\,\pi + P(+ \mid \lnot D)\,(1 - \pi)} \approx 0.162 .
+$$
+
+That number is small enough to feel wrong. The test is *good* — it catches 95% of true cases and clears
+90% of healthy people — yet a positive result still leaves better than a five-in-six chance the person is
+healthy. The reason is the **base rate**: the disease is rare ($\pi = 0.02$), so the large healthy
+majority produces a flood of false positives that swamps the true positives. The algebra says this; the
+algebra can also feel like a trick. So we will check it the most concrete way there is.
+
+Simulation reframes a probability as a long-run frequency. Rather than manipulate symbols, you create a
+*population* in which the rules hold by construction — each person is diseased with probability $\pi$, and
+each person's test obeys the right sensitivity and specificity — and then you let the computer enact those
+rules a hundred thousand times. The posterior $P(D \mid +)$ is, by definition, a conditional proportion:
+of the people who test positive, the share who are truly diseased. Build the population, restrict to the
+test-positives, take that share. If it matches $0.162$, the surprise was real and the algebra was honest.
+
+This is the same Monte Carlo move you met in [Lab 2](lab-02-monte-carlo-basics.qmd): estimate a
+probability by generating many trials and counting the ones that satisfy a condition. What is new here is
+the *conditioning*. We do not count among everyone — we count only among the subset that tested positive.
+That restriction is what turns a raw frequency into a conditional probability, and it is exactly the
+operation Bayes' rule performs in symbols. Data here are **synthetic; seed set** (`set.seed(35003)`).
+
+## Goal
+
+By the end of this lab you should be able to:
+
+- generate a synthetic population whose disease prevalence and test behavior match the Week 5 numbers;
+- simulate test results that depend on (are conditional on) each person's true disease status;
+- estimate a posterior probability as a **conditional proportion** — the fraction diseased *among* the
+  test-positives — and explain why restricting to that subset is the key step;
+- compare the simulated estimate to the exact value $0.162$ and reason about why they are close but not
+  identical (Monte Carlo error), and what would shrink the gap.
+
+The deliverable in your own session is a single reproducible `.qmd` that runs top to bottom from a fixed
+seed and lands near the target. The reasoning — *why* the count confirms the algebra — matters more than
+the digits.
+
+## Setup
+
+You need only base R; no packages. Open a fresh script or `.qmd` and fix the situation in plain
+quantities first, so the code reads as a translation of the Week 5 facts rather than a pile of magic
+numbers. The screening thread locks these values:
+
+- prevalence $\pi = P(D) = 0.02$ — the disease is rare;
+- sensitivity $P(+ \mid D) = 0.95$ — the test catches most true cases;
+- specificity $P(- \mid \lnot D) = 0.90$, so the false-positive rate is $P(+ \mid \lnot D) = 0.10$.
+
+We will simulate a population of $N = 100{,}000$ people. That size is large enough to pin the estimate to
+roughly the third decimal place but small enough to run in a blink. The fixed seed `set.seed(35003)` makes
+the run reproducible: you and a classmate executing the same code get the same draws, so any disagreement
+is a real difference in the code, not in the dice.
+
+```{r}
+#| eval: false
+#| label: setup-constants
+
+set.seed(35003)
+
+# Locked Week 5 screening-thread numbers (synthetic).
+prevalence  <- 0.02   # P(D): the disease is rare
+sensitivity <- 0.95   # P(+ | D): true-positive rate
+specificity <- 0.90   # P(- | not D), so false-positive rate is 1 - specificity = 0.10
+fpr         <- 1 - specificity   # P(+ | not D) = 0.10
+
+N <- 100000           # size of the synthetic population
+```
+
+A word on what we are *not* doing. We are not telling the computer the answer $0.162$ and asking it to
+reproduce that. The simulation never sees the posterior. It only ever uses the *forward* facts —
+prevalence, sensitivity, specificity — exactly as the note did before applying Bayes' rule. The posterior
+emerges from counting. That is what makes the check meaningful: if we had fed in the answer, recovering it
+would prove nothing.
+
+## Steps
+
+### Step 1 — Simulate true disease status
+
+First, decide who is actually diseased. Each of the $N$ people is diseased independently with probability
+$\pi = 0.02$. The cleanest base-R way to flip $N$ independent biased coins at once is `rbinom` with one
+trial each (`size = 1`): it returns a vector of $N$ zeros and ones, where `1` means diseased. Code `1`
+for disease and `0` for healthy throughout, so the indicator doubles as something you can sum and average.
+
+```{r}
+#| eval: false
+#| label: simulate-disease
+
+set.seed(35003)
+
+# disease[i] = 1 if person i truly has the disease, else 0.
+# rbinom with size = 1 gives N independent Bernoulli(prevalence) draws.
+disease <- rbinom(N, size = 1, prob = prevalence)
+
+# Sanity check: the observed prevalence should sit near 0.02.
+mean(disease)          # roughly 0.02
+sum(disease)           # roughly 2000 diseased people out of 100,000
+table(disease)         # counts of 0s and 1s
+```
+
+Because the draws are random, you will not get exactly 2,000 diseased people — you will get something
+close, perhaps a few dozen either side. That wobble is the simulation's honesty showing: a finite sample
+only *approximates* the true prevalence. `mean(disease)` is your first reality check; if it came back near
+$0.20$ or $0.002$ you would know the probability was mistyped before going any further.
+
+### Step 2 — Simulate the test result conditional on disease status
+
+Now run everyone through the test. The crucial word is *conditional*: a person's chance of a positive
+result depends on whether they are actually diseased. Diseased people test positive with probability
+`sensitivity` $= 0.95$; healthy people test positive with probability `fpr` $= 0.10$. So each person's
+positive-probability is not a single number — it is one of two numbers, picked by their disease status.
+
+The vectorized trick is to build a per-person probability vector with `ifelse`, then hand that whole
+vector to `rbinom`. When `prob` is a vector, `rbinom` draws each person against their own probability —
+exactly the conditioning we want.
+
+```{r}
+#| eval: false
+#| label: simulate-test
+
+set.seed(35003)
+disease <- rbinom(N, size = 1, prob = prevalence)   # regenerate so this chunk stands alone
+
+# Each person's probability of testing positive depends on disease status:
+#   diseased  -> sensitivity (0.95)
+#   healthy   -> false-positive rate (0.10)
+p_positive <- ifelse(disease == 1, sensitivity, fpr)
+
+# test[i] = 1 if person i tests positive, else 0 — drawn against their own probability.
+test <- rbinom(N, size = 1, prob = p_positive)
+
+# Sanity check: overall positivity should sit near P(+) = 0.117 from the note.
+mean(test)             # roughly 0.117
+```
+
+Look at that last line against the note. The Week 5 derivation computed the marginal
+$P(+) = 0.95(0.02) + 0.10(0.98) = 0.117$ on the way to the posterior. Here `mean(test)` should land near
+$0.117$ with no Bayes' rule in sight — it falls straight out of counting positives in a population built
+from the forward facts. Seeing the *denominator* of Bayes' rule appear on its own is a good sign the
+machinery is wired correctly before you ask the harder question.
+
+### Step 3 — Estimate the posterior as a conditional proportion
+
+Here is the move that turns this into a Bayes check. The posterior $P(D \mid +)$ is, by definition, the
+fraction of the test-positive group who are truly diseased. So you do not average over everyone — you
+*restrict* to the people whose `test == 1`, and within that subset you take the mean of `disease`. Because
+`disease` is coded `1`/`0`, its mean over any group is exactly the proportion of `1`s in that group.
+
+```{r}
+#| eval: false
+#| label: estimate-posterior
+
+set.seed(35003)
+disease    <- rbinom(N, size = 1, prob = prevalence)
+p_positive <- ifelse(disease == 1, sensitivity, fpr)
+test       <- rbinom(N, size = 1, prob = p_positive)
+
+# Restrict to the test-positives, then take the share who are truly diseased.
+positives        <- disease[test == 1]   # disease status of everyone who tested positive
+n_positive       <- length(positives)    # how many tested positive
+n_true_positive  <- sum(positives)       # of those, how many are truly diseased
+post_estimate    <- mean(positives)      # P(D | +) estimated as a conditional proportion
+
+n_positive        # size of the conditioning group (the "+" people)
+n_true_positive   # the true positives among them
+post_estimate     # the simulated posterior — compare to 0.162
+```
+
+Read the three numbers as a story. Out of 100,000 people, roughly $11{,}700$ test positive
+(`n_positive`). Of those, only about $1{,}900$ are genuinely diseased (`n_true_positive`) — the rest are
+false positives drawn from the large healthy majority. The ratio of the two, `post_estimate`, is your
+estimate of $P(D \mid +)$. Restricting to `test == 1` *is* the conditioning bar in $P(D \mid +)$; taking
+the mean of `disease` inside that group *is* the proportion. Nothing about Bayes' rule was invoked — yet
+the next section shows the number it produced.
+
+## Verify
+
+Now compare. The exact value from the Week 5 note is
+
+$$
+P(D \mid +) = \frac{0.95 \times 0.02}{0.95 \times 0.02 + 0.10 \times 0.98}
+            = \frac{0.019}{0.117} \approx 0.162 .
+$$
+
+Put the exact value next to the estimate in code so the comparison is explicit rather than eyeballed:
+
+```{r}
+#| eval: false
+#| label: verify
+
+# Exact posterior computed directly from Bayes' rule (the note's number).
+post_exact <- (sensitivity * prevalence) /
+              (sensitivity * prevalence + fpr * (1 - prevalence))
+
+post_exact        # 0.1623932...  -> about 0.162
+post_estimate     # the simulated conditional proportion from Step 3
+
+abs(post_estimate - post_exact)   # the Monte Carlo gap: small, a few thousandths
+```
+
+With the seed set to `35003` and $N = 100{,}000$, `post_estimate` lands within a few thousandths of
+$0.162$ — close enough to confirm the algebra, not so exact that you would suspect the answer was planted.
+The leftover gap is **Monte Carlo error**: a finite population only approximates the underlying
+probabilities, and the conditioning group here is itself just the $\approx 11{,}700$ test-positives, so the
+estimate rests on a smaller sample than the full $N$. Two reliable ways to shrink the gap: raise $N$ (more
+people, steadier proportions — error falls like $1/\sqrt{N}$), or average the estimate across several
+seeds and report the mean. Either way the estimate hovers around the same value; it does not drift toward
+some other number.
+
+The teaching point is the one the note promised: **the base-rate surprise is real**, and simulation
+confirms the algebra rather than overturning it. A genuinely good test, applied to a genuinely rare
+condition, still yields a positive result that is *probably* a false alarm — because the healthy majority,
+each member only 10% likely to test positive, vastly outnumbers the diseased few. You did not have to take
+Bayes' word for it. You built a hundred thousand people, ran them through the test, counted the diseased
+among the positives, and watched the count walk right up to $0.162$. When the algebra and the count agree,
+you can trust both.
+
+## AI use note
+
+If you used an AI assistant anywhere in this lab — to explain `rbinom`, to debug a vectorized `prob`
+argument, or to suggest a sanity check — record it briefly. The load-bearing column is **Verification**:
+how *you* confirmed the output was right, independent of the tool. AI is a study aid here, never a
+substitute for checking your own work against the note.
+
+| Tool | Purpose | Verification |
+|------|---------|--------------|
+| AI assistant (e.g. a chat LLM) | Explain why `ifelse` lets `rbinom` use a per-person probability vector | Confirmed against `?rbinom` that a vector `prob` is drawn element-wise; checked `mean(test)` landed near the note's $P(+) = 0.117$ |
+| AI assistant | Suggest sanity checks for the simulated population | Ran each suggested check (`mean(disease)` near $0.02$, `n_positive` near $11{,}700$) and matched every value to the Week 5 numbers myself |
+| AI assistant | Draft a one-line comment explaining the conditioning step | Re-derived the meaning by hand — `disease[test == 1]` is the "+" group, its mean is $P(D \mid +)$ — and confirmed the comment matched before keeping it |
+
+If you used no AI for this lab, write a single line saying so. An honest empty note is a complete note.
+
+## See also
+
+- [Week 5 note — Bayes' rule & updating](../notes/week-05-bayes-rule-and-updating.qmd) — the derivation
+  this lab checks, including the screening posterior $0.162$ and the $P(\text{rain} \mid \text{late})
+  \approx 0.632$ companion result.
+- [Lab 2 — Monte Carlo basics](lab-02-monte-carlo-basics.qmd) — the estimate-a-probability-by-counting
+  move this lab extends to *conditional* counting.
+- [Week 4 note — Independence & information](../notes/week-04-independence-and-information.qmd) — why a
+  positive test and true disease status are *dependent*, which is what makes the update worth doing.
+- [R · Quarto setup](../resources/r-quarto-setup.qmd) — how to get a reproducible `.qmd` running in your
+  own session.
+- [Notation glossary](../resources/notation-glossary.qmd) — the symbols $P(D \mid +)$, $\pi$, sensitivity,
+  and specificity, in one place.
+
+*The graded deliverable, its rubric, and due date live in Blackboard (the LMS) — this page is study and
+practice only.*
