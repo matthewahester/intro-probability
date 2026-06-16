@@ -235,7 +235,7 @@ doubled the standard deviation (from $1.58$ to $3.16$) and quadrupled the varian
 predict.
 
 You can confirm both numbers directly from the pmf rather than the formulas. The chunk below is **shown,
-not executed** in this diagnostic.
+not executed** here.
 
 ```{r}
 #| label: wk08-quiz-moments

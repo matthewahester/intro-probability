@@ -161,7 +161,7 @@ the model is right. Garbage assumptions in, garbage frequencies out. Second, for
 relative frequency wobbles; it only stabilizes as trials accumulate. The precise statement of why it
 stabilizes — the **law of large numbers** — waits until Week 13, where we run exactly this kind of
 simulation. For now, treat the converging relative frequency as a picture of the idea, not a
-substitute for it. (In this diagnostic the R below is *shown as teaching*, not executed.)
+substitute for it. (Here the R below is *shown as teaching*, not executed.)
 
 ```{r}
 #| label: wk01-sim-converge

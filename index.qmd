@@ -62,7 +62,7 @@ We use **R** (via RStudio or Posit Cloud) together with **Quarto** for the simul
 software is a *support* for probability reasoning, not the center of the course: simulation lets you
 check an answer you derived by hand, and build intuition for results that are hard to picture. No
 prior coding experience is assumed — every lab is scaffolded, and the code is explained as it goes.
-In the notes and labs on this diagnostic site, R chunks are **shown as teaching examples** and are
+In the notes and labs here, R chunks are **shown as teaching examples** and are
 not executed in place; you run them in your own session.
 
 ## Source and attribution
@@ -89,9 +89,9 @@ and submissions — lives in **Blackboard (the LMS)**, which is authoritative. I
 Blackboard ever disagree, follow Blackboard.
 
 ::: {.callout-note}
-## Diagnostic build
+## Draft course site
 
-This site is a course-material **diagnostic build**, not a finished release. Some pages are drafts,
+This site is a **draft course site**, not a finished release. Some pages are drafts,
 formulas are provisional pending review, and no accessibility-compliance claim is made. Treat it as a
 work in progress rather than the final word.
 :::

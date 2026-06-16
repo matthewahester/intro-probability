@@ -93,7 +93,7 @@ are the same for every model, which is the whole point of learning them once:
 - `r…` — **random** draws from the model: `rbinom`, `rnorm`.
 
 The chunk below is a **pointer only** — it is shown, not run, and lists the function family per model so
-you can look up the right call. (R chunks in this diagnostic carry `#| eval: false`.)
+you can look up the right call. (R chunks here carry `#| eval: false`.)
 
 ```{r}
 #| label: distribution-reference-functions

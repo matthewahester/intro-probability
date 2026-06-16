@@ -210,7 +210,7 @@ $$
 Finally, the "exact value" point we keep stressing: $P(T = 10) = F(10) - F(10) = 0$, so it makes no
 difference whether we wrote $\le$ or $<$ above.
 
-We can *check* an area by simulating the wait and counting — shown, not executed in this diagnostic:
+We can *check* an area by simulating the wait and counting — shown, not executed here:
 
 ```{r}
 #| label: wk10-triangular-wait-area-check

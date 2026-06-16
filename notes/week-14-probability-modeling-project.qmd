@@ -165,7 +165,7 @@ About a **24%** chance — roughly one week in four — that Maya is late on two
 independence assumption*. (Synthetic scenario; numbers fixed for the course.)
 
 **Simulation.** We can estimate the same probability without the pmf by generating many synthetic weeks and
-counting. The chunk below is shown as teaching, not run in this diagnostic; when executed it draws ten
+counting. The chunk below is shown as teaching, not run here; when executed it draws ten
 thousand five-day weeks and reports the fraction with at least two late days, which should land near
 $0.24$.
 

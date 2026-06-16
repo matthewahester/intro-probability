@@ -262,8 +262,7 @@ hardware instead of buses. *(Synthetic scenario; numbers fixed for the course.)*
 ### Seeing it in software (shown, not run)
 
 Software returns all of these probabilities directly. Below, R's `p*` functions give cdf values
-$P(X \le x)$ and `d*` functions give density heights $f(x)$. The code is **shown to read**, not executed in
-this diagnostic.
+$P(X \le x)$ and `d*` functions give density heights $f(x)$. The code is **shown to read**, not executed here.
 
 ```{r}
 #| label: continuous-models-cdf

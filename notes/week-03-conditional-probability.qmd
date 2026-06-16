@@ -227,8 +227,8 @@ $(4/52)^2 = 1/169 \approx 0.0059$, larger because it ignores that one ace has al
 without replacement makes the second draw depend on the first, and the multiplication rule with its
 *conditional* second factor is what records that dependence.
 
-You can confirm the figure by simulation. The chunk below is shown as teaching, not executed in this
-diagnostic; running it later (with the seed set) will land near $1/221$.
+You can confirm the figure by simulation. The chunk below is shown as teaching, not executed
+here; running it later (with the seed set) will land near $1/221$.
 
 ```{r}
 #| label: two-aces-without-replacement

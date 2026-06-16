@@ -199,7 +199,7 @@ And the cdf at $7$ is the complementary accumulation, $F(7) = P(X \le 7) = 1 - P
 0.945$. We could equally have summed $p(0)$ through $p(7)$; the running total reaches the same place.
 
 You can display this pmf with base R without doing any new probability by hand. The chunk below is shown
-as teaching, not executed in this diagnostic.
+as teaching, not executed here.
 
 ```{r}
 #| label: quiz-pmf-table

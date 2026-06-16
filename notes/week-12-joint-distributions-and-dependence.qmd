@@ -266,7 +266,7 @@ travel together, but loosely — $\rho$ is well short of $1$, so rain is far fro
 late. This single number now carries the "not independent" conclusion we have been circling since week 3.
 
 We can *check* the table-based covariance by simulating mornings and estimating it from samples — shown, not
-executed in this diagnostic:
+executed here:
 
 ```{r}
 #| label: wk12-rain-late-covariance-check
@@ -403,7 +403,7 @@ This week we held two random variables together and summarized their partnership
 correlation. **Week 13** turns to what happens when we add or average **many** variables. Taking $n$
 independent commute times $C \sim \operatorname{Normal}(22, 5)$, the **law of large numbers** says the sample
 mean settles toward $22$ as $n$ grows, and the **central limit theorem** says that average is itself
-approximately $\operatorname{Normal}(22,\ 5/\sqrt{n})$. We will *see* both by simulation — the diagnostic's one
+approximately $\operatorname{Normal}(22,\ 5/\sqrt{n})$. We will *see* both by simulation — the one
 shown-and-run-it-yourself software week — and the independence and variance ideas from this week are exactly
 the ingredients those limit theorems need.
 

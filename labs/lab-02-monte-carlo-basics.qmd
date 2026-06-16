@@ -80,7 +80,7 @@ small and worth knowing by name:
   probability.
 
 ::: {.callout-note}
-In this diagnostic the code is **shown, not run**. Each chunk is marked `#| eval: false`, so the page
+Here the code is **shown, not run**. Each chunk is marked `#| eval: false`, so the page
 renders the code as teaching without executing it. To actually see the numbers, copy a chunk into your
 own R session. The chunks are written so that, when executed, the seed makes them reproducible.
 :::
