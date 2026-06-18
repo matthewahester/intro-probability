@@ -27,6 +27,9 @@ project:
     - "!run_reports/"
     - "!accessibility/"
 
+  resources:
+    - assets/hero-web.webp
+    - assets/hero-web-800.webp
 website:
   title: "Introduction to Probability"
   site-url: https://matthewhester.com/intro-probability/
