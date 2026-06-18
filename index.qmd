@@ -1,10 +1,15 @@
 ---
-title: "Introduction to Probability"
-subtitle: "Uncertainty, simulation, and Bayesian reasoning"
+pagetitle: "Introduction to Probability"
 toc: false
 ---
 
-![](assets/hero.png){.course-hero-img fig-alt="Course identity banner for Introduction to Probability — an iridescent opal crystal surrounded by probability graphics: sample spaces and events, the probability rules, Bayes' rule, a binomial distribution, the normal curve, expectation, a Monte Carlo simulation sketch, and the law of large numbers, with the course title."}
+![](assets/hero-web.webp){.course-hero-img fig-alt="Course identity banner for Introduction to Probability — an iridescent opal crystal surrounded by probability graphics: sample spaces and events, the probability rules, Bayes' rule, a binomial distribution, the normal curve, expectation, a Monte Carlo simulation sketch, and the law of large numbers, with the course title."}
+
+# Introduction to Probability {.course-landing-title}
+
+::: {.course-landing-subtitle}
+Uncertainty, simulation, and Bayesian reasoning
+:::
 
 > Probability is the language we use to reason carefully when we do not — and cannot — know what
 > will happen next. This course teaches you to speak it: to turn vague hunches about chance into
