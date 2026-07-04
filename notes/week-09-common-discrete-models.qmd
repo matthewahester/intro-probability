@@ -1,297 +1,451 @@
 ---
 title: "Week 9 — Common discrete models"
-subtitle: "Bernoulli, binomial, geometric, and Poisson"
+subtitle: "Bernoulli, binomial, geometric, Poisson"
 page_mode: normal_week
 week_contract: public_note
 source_mode: source-informed
 readings:
-  - "Grinstead & Snell, Ch 5 — Important Distributions (discrete) — supports the catalogue of named models and when each applies"
-  - "MIT OCW 18.05 — review of discrete distributions — supports the recognition checklist for picking a model"
+  - "Grinstead & Snell, Ch 5 — Important Distributions (discrete) — supports naming each model and its pmf"
+  - "MIT OCW 18.05 — discrete random variables, pmf, expectation — supports the model-fitting and computation framing"
 toc: true
 ---
 
 ## The week question
 
-When you face a new chance situation, you do not have to invent a probability model from scratch every
-time. A handful of named models show up again and again, and most discrete problems you will meet are one
-of them in disguise. So the week's question is a recognition question: **given a described scenario, which
-standard discrete model fits, and what makes you sure?** Once you can name the model, the pmf, the mean,
-and the variance come along for free.
+Up to now you have built a random variable by hand: you listed the values it could take, attached a
+probability to each, and read off the expectation and variance from that table. That works, but it is a lot
+of bookkeeping, and it hides a useful fact — most of the discrete random variables you meet in practice are
+not all different. They fall into a small number of recurring *shapes*, each with a name, a one-line story,
+and a formula for its pmf, mean, and variance. Once you recognize the shape, you can skip the table entirely.
 
-We have already met the pieces. In Week 6 we counted outcomes; in Week 7 we packaged those counts into a
-random variable and its pmf; in Week 8 we summarized a random variable with $E[X]$ and $\mathrm{Var}(X)$.
-This week we collect the four discrete models that cover most of what you will see — **Bernoulli**,
-**binomial**, **geometric**, and **Poisson** — and we practice matching a story to a model.
+So this week's question is: **which named discrete model fits a given situation, and how do you read off its
+probabilities once you have chosen it?** The skill is half modeling (matching a story to a model) and half
+calculation (plugging into the model's pmf). We will work through four models that cover an enormous share of
+first-course problems — Bernoulli, binomial, geometric, and Poisson — and we will keep checking the match
+rather than reaching for a formula on autopilot.
 
 ## Why this matters
 
-Naming the model is the move that turns a wordy scenario into something you can compute. If you can say
-"this is $\text{Binomial}(10, 0.5)$," then you immediately know the pmf, that the mean is $5$, and that
-the variance is $2.5$ — no fresh derivation required. The hard part is almost never the arithmetic; it is
-reading the assumptions in the story carefully enough to choose correctly.
+Naming a distribution is not vocabulary for its own sake. The payoff is that a name carries *everything* with
+it. When you say "this is Binomial(10, 0.5)," you have committed to a specific pmf, a specific mean, a
+specific variance, and a specific set of modeling assumptions — all at once, and all reusable. You no longer
+re-derive the wheel for every quiz, every batch of parts, every hour of arrivals.
 
-The skill also travels. The same Poisson model that describes shuttle arrivals describes typos on a page,
-calls to a help desk in an hour, or radioactive decays in a second. The same binomial that describes a
-guessed quiz describes defective items in a batch or voters favoring a measure in a small sample. Learning
-the *assumptions* behind each model — not just its formula — is what lets you reuse it.
+The matching itself is where the real reasoning lives. Each model is the answer to a *kind of question*:
+
+- **How many successes in a fixed number of independent tries?** That is the binomial's question.
+- **How long until the first success?** That is the geometric's question.
+- **How many rare events land in a fixed window of time or space?** That is the Poisson's question.
+
+Choosing the wrong model is the most common way a probability calculation goes wrong, and it never shows up
+as an arithmetic error — the numbers will look perfectly reasonable. So the habit worth building this week is
+to *say the assumptions out loud* before you compute. For Maya's commuter world, that means asking whether
+her quiz guesses really are independent identical trials, and whether shuttle arrivals really do scatter at a
+steady rate. When those assumptions hold, the named model is a gift; when they do not, the name is a trap.
 
 ## Learning goals
 
 By the end of this week you should be able to:
 
-- State, in words and in symbols, the Bernoulli, binomial, geometric, and Poisson models, including each
-  pmf and (as stated results from Week 8) each mean and variance.
-- Read a scenario and identify which standard discrete model its assumptions select — and explain the
-  assumption that rules the others out.
-- Compute a probability from the binomial pmf and from the Poisson pmf for our recurring commuter case.
-- Recognize a *new* scenario (defective items in a batch) as binomial and set up its pmf.
-- Know the boundary of each model: what happens when its assumptions are only approximately true.
+- State the one-sentence story behind the Bernoulli, binomial, geometric, and Poisson models, and say what
+  each one's parameter(s) mean.
+- Decide *which* of these models fits a described situation, and name the assumption that would break the
+  match.
+- Write down the pmf for each model and evaluate a probability such as $P(X = k)$ or $P(X \ge k)$ from it.
+- Read off the mean and variance of each model from its parameters without rebuilding a probability table.
+- Recognize the Poisson as a model for counts of rare events in a fixed window — typos on a page, calls to a
+  help desk, shuttles in an hour — and explain why mean equals variance there.
 
 ## Core vocabulary
 
-- **Bernoulli trial** — a single experiment with exactly two outcomes, conventionally "success" (1) and
-  "failure" (0), with $P(\text{success}) = p$. The atom out of which the other models are built.
-- **Binomial** — the count of successes in a *fixed* number $n$ of independent Bernoulli trials, each with
-  the same $p$. Written $X \sim \text{Binomial}(n, p)$.
-- **Geometric** — the number of *trials up to and including the first success* in a sequence of
-  independent Bernoulli$(p)$ trials. Written $X \sim \text{Geometric}(p)$, support $\{1, 2, 3, \dots\}$.
-- **Poisson** — the count of events in a fixed interval of time or space when events occur at a constant
-  average rate, independently of one another. Written $N \sim \text{Poisson}(\lambda)$.
-- **Rate / parameter $\lambda$** — for Poisson, the expected number of events per interval; it is both the
+- **Bernoulli trial** — a single trial with exactly two outcomes, "success" (probability $p$) and "failure"
+  (probability $1-p$). The atom out of which the binomial and geometric are built.
+- **Binomial model** — the count of successes in a *fixed* number $n$ of independent Bernoulli trials, each
+  with the same success probability $p$. Written $X \sim \text{Binomial}(n, p)$.
+- **Geometric model** — the number of trials *up to and including* the first success, in a sequence of
+  independent Bernoulli($p$) trials. Written $X \sim \text{Geometric}(p)$, support $\{1, 2, 3, \dots\}$.
+- **Poisson model** — the count of events in a fixed window of time, length, or area, when events occur at a
+  steady average rate $\lambda$ and independently of one another. Written $N \sim \text{Poisson}(\lambda)$.
+- **Rate / parameter $\lambda$** — for the Poisson, the mean number of events per window; it is *both* the
   mean and the variance.
-- **Support** — the set of values the random variable can actually take (binomial: $0$ to $n$; geometric:
-  $1, 2, 3, \dots$; Poisson: $0, 1, 2, \dots$).
+- **Support** — the set of values a random variable can actually take. It differs by model: $\{0, 1\}$ for
+  Bernoulli, $\{0, 1, \dots, n\}$ for binomial, $\{1, 2, \dots\}$ for geometric, $\{0, 1, 2, \dots\}$ for
+  Poisson.
+
+A convention note you will need all term: this course defines the **geometric as trials-until-success**, so
+its smallest value is $1$, not $0$. (R's `rgeom` counts *failures before* the first success, so its smallest
+value is $0$. Same idea, shifted by one — we flag this again in the lab and the distribution reference.)
 
 ## Concept development
 
-### Bernoulli and binomial: a fixed number of yes/no trials
+### Bernoulli — the single yes/no trial
 
-Start with the smallest model. A **Bernoulli$(p)$** random variable is one trial with two outcomes:
-$X = 1$ with probability $p$ and $X = 0$ with probability $1 - p$. Its pmf is just
-$p(1) = p$, $p(0) = 1 - p$. From Week 8, $E[X] = p$ and $\mathrm{Var}(X) = p(1-p)$. By itself it is almost
-too simple to be interesting; its value is as a building block.
-
-Now run $n$ independent Bernoulli$(p)$ trials and **count the successes**. That count is
-$X \sim \text{Binomial}(n, p)$. To take a particular value $x$, you need $x$ successes and $n - x$ failures
-in *some* order; each such ordering has probability $p^x (1-p)^{\,n-x}$, and there are $\binom{n}{x}$
-orderings (the Week 6 counting reappears here). Adding them gives the binomial pmf:
+The simplest discrete model has just one trial and two outcomes. Code success as $1$ and failure as $0$, with
 
 $$
-p(x) = \binom{n}{x}\, p^{x} (1-p)^{\,n-x}, \qquad x = 0, 1, 2, \dots, n.
+p(1) = p, \qquad p(0) = 1 - p, \qquad 0 \le p \le 1.
 $$
 
-The mean and variance (stated results from Week 8, where $X$ is a sum of $n$ Bernoulli pieces) are
+Its mean is $E[X] = p$ and its variance is $\text{Var}(X) = p(1-p)$, which you can confirm directly from the
+two-row table. The Bernoulli is rarely the *final* answer to an interesting question, but it is the building
+block: a single coin flip, a single quiz guess being right or wrong, a single shuttle being on time or late.
+Everything else this week is built by stacking or timing Bernoulli trials. One on-time-or-late shuttle in
+Maya's morning, taken in isolation, is a Bernoulli trial with $p = 0.81$ for "on time."
+
+### Binomial — counting successes in a fixed number of tries
+
+Now run $n$ independent Bernoulli($p$) trials and **count the successes**. The count $X$ ranges over
+$\{0, 1, \dots, n\}$, and its pmf combines two ideas you have already met: the number of *ways* to place $x$
+successes among $n$ trials, and the probability of *any one* such arrangement:
 
 $$
-E[X] = np, \qquad \mathrm{Var}(X) = np(1-p).
+p(x) = \binom{n}{x}\, p^{x}\, (1-p)^{\,n-x}, \qquad x = 0, 1, \dots, n.
 $$
 
-The assumptions that *define* binomial are worth memorizing, because they are exactly what you check when
-recognizing it: (1) a **fixed** number of trials $n$; (2) each trial has two outcomes; (3) the same $p$
-on every trial; (4) trials are **independent**. Break any one and you are likely in a different model.
-
-### Geometric: how long until the first success
-
-Keep the independent Bernoulli$(p)$ trials, but change the question. Instead of fixing $n$ and counting
-successes, **keep going until the first success and count the trials**. That count is
-$X \sim \text{Geometric}(p)$. To have the first success on trial $x$, the first $x - 1$ trials must all be
-failures and trial $x$ a success:
+The $\binom{n}{x}$ counts arrangements (the same combinations you built in Week 6); the $p^{x}(1-p)^{n-x}$
+gives each arrangement its probability because the trials are independent. The mean and variance follow from
+adding up $n$ independent Bernoulli pieces:
 
 $$
-p(x) = (1-p)^{\,x-1}\, p, \qquad x = 1, 2, 3, \dots .
+E[X] = n p, \qquad \text{Var}(X) = n p (1-p).
 $$
 
-The support is unbounded — in principle you could wait arbitrarily long — but the probabilities shrink
-geometrically. The mean is the clean result
+The binomial fits when four things hold: a *fixed* number of trials, only two outcomes per trial, a
+*constant* success probability, and *independence* across trials. Drop any one of these and the binomial
+stops being the right model. If the number of trials is not fixed but you keep going until something happens,
+you want the geometric instead.
+
+### Geometric — waiting for the first success
+
+Keep running independent Bernoulli($p$) trials, but now do not fix the count — stop the moment you get your
+first success, and let $X$ be the trial number on which that success arrives. To land the first success
+*exactly* on trial $x$, the first $x-1$ trials must all be failures and trial $x$ a success:
 
 $$
-E[X] = \frac{1}{p}.
+p(x) = (1-p)^{\,x-1}\, p, \qquad x = 1, 2, 3, \dots
 $$
 
-The intuition is friendly: if a success happens one trial in five ($p = 0.2$), you wait about five trials
-on average. The difference between binomial and geometric is *what is fixed*: binomial fixes the number of
-trials and lets the success count vary; geometric fixes "first success" and lets the number of trials
-vary.
-
-### Poisson: counts of events at a steady rate
-
-The last model drops the "trials" framing entirely. A **Poisson$(\lambda)$** random variable counts events
-in a fixed window — an hour, a page, a square meter — when events arrive at a constant average rate
-$\lambda$ and do not influence one another. Its pmf is
+The support starts at $1$ because at least one trial must occur. The mean has a clean and intuitive form,
 
 $$
-p(k) = \frac{e^{-\lambda}\, \lambda^{k}}{k!}, \qquad k = 0, 1, 2, \dots .
+E[X] = \frac{1}{p},
 $$
 
-Its defining feature is that the **mean equals the variance**:
+which says exactly what you would hope: if success has probability $p$, you wait on average $1/p$ trials for
+it. Rare successes (small $p$) mean long waits. The geometric answers "how many tries until it works?", where
+the binomial answers "how many of a fixed batch worked?" — same Bernoulli atoms, different question.
+
+Picture this with Maya's own quiz-guessing probability $p = 0.5$, reframed as a *waiting* question instead of a
+*counting* question: suppose she kept guessing, one question after another, until her first correct guess.
+That reframing is exactly $\text{Geometric}(0.5)$.
+
+![**Geometric(0.5) waiting-time pmf (synthetic).** If Maya kept guessing at her usual $p = 0.5$ until her first
+correct guess, the trial number of that first success follows $p(x) = (0.5)^{x-1}(0.5)$: half the time she
+gets it on the very first try, and the probability of waiting longer halves with each additional
+trial.](../assets/figures/wk09_geometric_pmf_decay.png){#fig-wk09-geometric-decay fig-alt="Bar chart of the Geometric(0.5) pmf over trial numbers 1 through 8, tallest at 1 (height 0.5) and shrinking by half at each subsequent trial, with a dashed vertical line at the mean of 2 trials."}
+
+::: {.callout-note appearance="minimal"}
+**What the figure shows (non-visual equivalent).** $p(1) = 0.5$, $p(2) = 0.25$, $p(3) = 0.125$, and so on —
+each bar is half the height of the one before it. The mean wait is $E[X] = 1/p = 2$ trials, marked by the
+dashed line. *Synthetic instructional example; numbers are illustrative.*
+:::
+
+### Poisson — counts of rare events in a fixed window
+
+The Poisson model is different in flavor: there are no obvious individual "trials" to count. Instead you have
+a continuous window — an hour, a page, a stretch of road — within which events happen at a steady average
+rate, independently, and rarely on any tiny sub-interval. Let $N$ be the number of events in that window and
+$\lambda$ the average count per window. Then
 
 $$
-E[N] = \lambda, \qquad \mathrm{Var}(N) = \lambda.
+p(x) = \frac{e^{-\lambda}\,\lambda^{x}}{x!}, \qquad x = 0, 1, 2, \dots
 $$
 
-One useful way to see where Poisson comes from: imagine chopping the hour into many tiny slots, each
-either holding an event or not — a binomial with huge $n$ and tiny $p$, but with $np = \lambda$ held fixed.
-In that limit the binomial pmf becomes the Poisson pmf. That is why Poisson is the natural model for "rare
-events over many opportunities": arrivals, accidents, typos, decays. You do not need a fixed $n$; you need
-a rate.
+The signature property is that the **mean and the variance are equal**:
 
-### Recognizing the model: a short checklist
+$$
+E[N] = \lambda, \qquad \text{Var}(N) = \lambda.
+$$
 
-When a scenario lands in front of you, ask in order:
+That equality is a quick diagnostic. If you have count data whose spread is much larger than its average, the
+Poisson assumption of independent, steady-rate events is probably violated (events may cluster). The Poisson
+is the natural model for shuttle arrivals in an hour, typos on a page, calls reaching a help desk, or
+particles registering on a counter — any setting where many opportunities each carry a small chance and you
+care about the total. (Conceptually, it is the limit of a Binomial($n$, $p$) where $n$ grows large, $p$
+shrinks, and the product $np = \lambda$ stays put. You can keep that picture in mind without proving it here.)
 
-1. **Is there a fixed number of yes/no trials, and do you count the successes?** → binomial (with $n = 1$,
-   a single Bernoulli).
-2. **Are you waiting for the first success and counting the trials it takes?** → geometric.
-3. **Are you counting events over a span of time or space at a steady rate, with no fixed number of
-   trials?** → Poisson.
+### Choosing among them
 
-The same questions also tell you when *no* standard model fits cleanly: if $p$ changes from trial to
-trial, or trials are dependent (drawing without replacement from a small population), or the rate is not
-constant, you are outside these models and should say so rather than force a fit. Recognizing the limit of
-a model is part of using it honestly.
+Before the words, here is the same decision path as a picture — the question to ask, and the three places it
+can land:
+
+![**Choosing a discrete model (synthetic).** The same question, asked three ways: is what you're counting a
+fixed batch of trials, a wait for a first success, or a rate of events with no discrete trials at
+all?](../assets/figures/wk09_choose_model_flowchart.png){#fig-wk09-choose-flow fig-alt="A flowchart with one top box ('What are you counting?') branching by arrows into three boxes: fixed number of trials counting successes, trials until the first success, and events at a steady rate with no trials; each of these points down to its named model, Binomial (with Bernoulli as its n=1 case), Geometric, and Poisson."}
+
+::: {.callout-note appearance="minimal"}
+**What the figure shows (non-visual equivalent).** Three questions, three models: a fixed trial count with
+successes counted is binomial (or Bernoulli when $n=1$); trials run until the first success is geometric;
+events scattered at a steady rate with no discrete trials at all is Poisson. *Synthetic instructional example; numbers are illustrative.*
+:::
+
+A short decision path covers most cases. Ask first whether the number of trials is *fixed*. If yes and you
+are counting successes, reach for the **binomial**; the single-trial case $n = 1$ is just the **Bernoulli**.
+If instead you keep trying until the first success and count the *trial number*, that is the **geometric**. If
+there are no discrete trials at all — just events scattered through a window at a steady rate — that is the
+**Poisson**. The same data sometimes admits more than one framing, so the assumptions, not the surface story,
+decide the model.
+
+![**Discrete model shapes (synthetic).** Two named models the recurring case uses: $\text{Binomial}(10, 0.5)$ (the guessing quiz) is symmetric and peaks at $5$; $\text{Poisson}(4)$ (hourly shuttle arrivals) leans right, with mean $=$ variance $= 4$.](../assets/figures/wk09_model_shape_gallery.png){#fig-wk09-models fig-alt="Two bar charts side by side. Left: Binomial(10, 0.5), symmetric, tallest at 5. Right: Poisson(4), right-leaning, tallest at 3 and 4 with a tail to the right, annotated P(N=4) about 0.195."}
+
+::: {.callout-note appearance="minimal"}
+**What the figure shows (non-visual equivalent).** The two shapes are visibly different even though both are
+discrete: the binomial is symmetric (peak at $5$); the Poisson leans right (peak near $3$–$4$, a long right
+tail). For the quiz, $P(X \ge 8) \approx 0.0547$; for arrivals, $P(N = 4) \approx 0.195$. The shape follows
+from the *assumptions* — a fixed number of trials versus events at a steady rate — not the surface story.
+*Synthetic instructional example; numbers are illustrative.*
+:::
 
 ## Worked examples
 
-### Worked example — the guessing quiz, as a binomial (recurring slice)
+All numbers below are **synthetic; seed 35003 is set** for any simulation. We re-use Maya's commuter world
+for the recurring slice and then transfer the Poisson idea to a fresh context.
 
-Maya takes the 10-question true/false quiz from Weeks 6–8 by pure guessing. Let $X$ be the number she
-gets correct. Each question is an independent yes/no trial with the same success probability $p = 0.5$, and
-there are a fixed $n = 10$ of them — the four binomial assumptions hold exactly — so
+### Worked example — the quiz score as a binomial (recurring slice)
 
-$$
-X \sim \text{Binomial}(10,\ 0.5), \qquad p(x) = \binom{10}{x} (0.5)^{x} (0.5)^{10 - x}
-= \binom{10}{x} (0.5)^{10}.
-$$
+Maya faces a 10-question true/false quiz and guesses purely at random, so each answer is right with
+probability $p = 0.5$, independently of the others. Let $X$ be the number she gets correct.
 
-Because $p = 0.5$, every term shares the factor $(0.5)^{10} = 1/1024$, so a probability is just a count of
-favorable orderings over $1024$. Suppose we want $P(X \ge 8)$ — guessing eight or more correctly. Add the
-top three terms:
+**Symbolic.** Ten independent two-outcome trials with constant success probability is exactly the binomial
+setting, so
 
 $$
-P(X \ge 8) = \big[\tbinom{10}{8} + \tbinom{10}{9} + \tbinom{10}{10}\big]\,(0.5)^{10}
+X \sim \text{Binomial}(10,\, 0.5), \qquad p(x) = \binom{10}{x}(0.5)^{x}(0.5)^{10-x} = \binom{10}{x}(0.5)^{10}.
+$$
+
+Because $p = 0.5$, every arrangement carries the same factor $(0.5)^{10} = 1/1024$, so a probability is just
+"(number of favorable arrangements) $/\, 1024$." The mean and variance come straight from the parameters:
+
+$$
+E[X] = n p = 10(0.5) = 5, \qquad \text{Var}(X) = n p (1-p) = 10(0.5)(0.5) = 2.5,
+\qquad \sigma = \sqrt{2.5} \approx 1.58.
+$$
+
+**Numeric.** Suppose we want the probability she scores at least $8$ out of $10$ by luck alone — that is,
+$P(X \ge 8)$. Sum the top three terms:
+
+$$
+P(X \ge 8) = p(8) + p(9) + p(10)
+= \frac{\binom{10}{8} + \binom{10}{9} + \binom{10}{10}}{1024}
 = \frac{45 + 10 + 1}{1024} = \frac{56}{1024} \approx 0.0547.
 $$
 
-So a pure guesser scores 8-or-better only about **5.5%** of the time. As a check, $E[X] = np = 5$ and
-$\mathrm{Var}(X) = np(1-p) = 2.5$ from Week 8, so a score of $8$ sits about two standard deviations
-($\sqrt{2.5} \approx 1.58$) above the mean — consistent with it being uncommon. (Synthetic scenario;
-numbers fixed for the course.)
+So a pure guesser clears an 8-out-of-10 bar only about $5.5\%$ of the time. The mean of $5$ and standard
+deviation of about $1.58$ say a score of $8$ sits roughly two standard deviations above what guessing
+produces — unusual, but not astronomically so. This is the same quiz thread you saw build across Weeks 6–8;
+the named model just lets you read mean, variance, and tail probabilities off the parameters directly.
 
-### Worked example — shuttle arrivals, as a Poisson (recurring slice)
+![**The binomial tail, isolated (synthetic).** The full pmf of $X \sim \text{Binomial}(10, 0.5)$, with the
+three bars that make up $P(X \ge 8)$ picked out in
+color.](../assets/figures/wk09_quiz_tail_highlight.png){#fig-wk09-quiz-tail fig-alt="Bar chart of the Binomial(10, 0.5) pmf over 0 through 10, symmetric and tallest at 5, with the bars at 8, 9, and 10 highlighted and their sum labeled as 56/1024, approximately 0.0547."}
 
-Shuttles arrive at Maya's stop at an average rate of $\lambda = 4$ per hour — one every fifteen minutes on
-average — and arrivals do not coordinate with one another. Let $N$ be the number that arrive in a given
-hour. There is no fixed number of trials here; we are counting events over a fixed span at a steady rate,
-so this is Poisson:
+::: {.callout-note appearance="minimal"}
+**What the figure shows (non-visual equivalent).** $P(X \ge 8)$ is not a separate calculation from the pmf —
+it is literally the combined height of the three rightmost bars, $p(8)+p(9)+p(10) = 56/1024 \approx 0.0547$.
+*Synthetic instructional example; numbers are illustrative.*
+:::
+
+You can confirm the tail by simulation (shown as teaching; not executed in this build):
+
+```{r}
+#| label: binom-quiz-sim
+#| eval: false
+set.seed(35003)
+n_sim <- 100000
+# count "correct" answers in 10 independent fair guesses, repeated many times
+scores <- rbinom(n_sim, size = 10, prob = 0.5)
+mean(scores)        # close to 5
+var(scores)         # close to 2.5
+mean(scores >= 8)   # close to 0.0547
+```
+
+### Worked example — shuttle arrivals as a Poisson count (recurring slice)
+
+Shuttles serving Maya's stop arrive at a steady average rate of one every 15 minutes, which is **four per
+hour**, and arrivals do not coordinate with one another. Let $N$ be the number that arrive in a given hour.
+
+**Symbolic.** A count of independent, steady-rate events in a fixed window is the Poisson setting, with rate
+$\lambda = 4$ per hour:
 
 $$
-N \sim \text{Poisson}(4), \qquad p(k) = \frac{e^{-4}\, 4^{k}}{k!}.
+N \sim \text{Poisson}(4), \qquad p(x) = \frac{e^{-4}\, 4^{x}}{x!}, \qquad x = 0, 1, 2, \dots
 $$
 
-What is the probability that *exactly four* arrive in the hour — the rate's "typical" value?
+Because mean equals variance for a Poisson,
+
+$$
+E[N] = \lambda = 4, \qquad \text{Var}(N) = \lambda = 4, \qquad \sigma = 2.
+$$
+
+**Numeric.** The probability that exactly four shuttles arrive in the hour is
 
 $$
 P(N = 4) = \frac{e^{-4}\, 4^{4}}{4!} = \frac{e^{-4}\,(256)}{24} \approx 0.195.
 $$
 
-About a **20%** chance of exactly four. Note this is well below $1$ even though $4$ is the mean: the
-Poisson spreads its probability across $0, 1, 2, \dots$, and "exactly the average" is just one of many
-plausible counts. Here $E[N] = \mathrm{Var}(N) = 4$, the Poisson signature. (Synthetic scenario; numbers
-fixed for the course.)
+So even though four per hour is the *average*, getting exactly four in any particular hour happens only about
+$19.5\%$ of the time — the rest of the probability spreads over three, five, two, six, and so on. That spread
+is the variance of $4$ at work, and it is why "on average four" does not mean "four every hour." (As a quick
+sanity check on the model choice: if you logged arrivals for many hours and found the variance was, say,
+$10$ while the mean stayed near $4$, the steady-independent-rate assumption would be suspect and the Poisson
+would be the wrong model.)
 
-### Worked example — defective items in a batch, as a binomial (transfer)
+![**Arrivals pmf with the observed count marked (synthetic).** The full pmf of $N \sim \text{Poisson}(4)$,
+with the bar at $x=4$ picked out — the single most likely count, at about
+$0.195$.](../assets/figures/wk09_poisson_arrivals_highlight.png){#fig-wk09-poisson-highlight fig-alt="Bar chart of the Poisson(4) pmf over counts 0 through 14, right-leaning with a peak near 3-4, with the bar at exactly 4 highlighted and labeled 0.195."}
 
-Now a new context. A supplier ships components in batches, and each component is independently defective
-with probability $p = 0.05$. An inspector pulls a fixed sample of $n = 20$ from a batch and counts the
-defectives, $D$. Two outcomes per item (defective / not), a fixed sample size, the same $p$ each time, and
-independence — this is binomial:
+::: {.callout-note appearance="minimal"}
+**What the figure shows (non-visual equivalent).** The bar at $x=4$ is the tallest single bar (height $\approx
+0.195$), but the other thirteen bars together still hold about $80\%$ of the probability — "on average four"
+describes the whole shape, not a promise about any one hour. *Synthetic instructional example; numbers are illustrative.*
+:::
+
+### Worked example — typos on a page (transfer)
+
+Now move the Poisson idea to a brand-new setting to show it is about the *structure* of the problem, not
+about shuttles. A careful copy editor finds that a particular manuscript averages $\lambda = 2$ typos per
+page, with typos scattered independently and at a steady rate down the page. Let $M$ be the number of typos
+on a randomly chosen page.
+
+**Symbolic.** Counts of rare, independent, steady-rate events in a fixed window (here the window is one page)
+give
 
 $$
-D \sim \text{Binomial}(20,\ 0.05), \qquad p(x) = \binom{20}{x} (0.05)^{x} (0.95)^{20 - x}.
+M \sim \text{Poisson}(2), \qquad p(x) = \frac{e^{-2}\, 2^{x}}{x!}, \qquad E[M] = \text{Var}(M) = 2.
 $$
 
-The probability the sample is *clean* (no defectives) is the $x = 0$ term:
+**Numeric.** The probability a page is *clean* — zero typos — is
 
 $$
-P(D = 0) = \binom{20}{0} (0.05)^{0} (0.95)^{20} = (0.95)^{20} \approx 0.358.
+P(M = 0) = \frac{e^{-2}\, 2^{0}}{0!} = e^{-2} \approx 0.135,
 $$
 
-So even at a 5% defect rate, a clean sample of 20 happens only about a third of the time; defects are
-common enough that you would expect to see one. The expected number is $E[D] = np = 20(0.05) = 1$, which
-matches the intuition that a clean draw should be the minority outcome. (Synthetic scenario; numbers fixed
-for the course.) The same setup — independent yes/no items at a fixed sample size — is why "defectives in a
-batch" and "correct answers on a guessed quiz" are the *same* model wearing different clothes.
+so only about $13.5\%$ of pages come out perfectly, even though the typical page has just two typos. The same
+template fits the number of calls reaching a help desk in an hour, or emails in an inbox over a lunch break:
+identify the window, estimate the average count $\lambda$ in that window, check the steady-independent-rate
+story, and the whole pmf follows. **Synthetic; seed set.**
+
+![**A different window, a different lambda (synthetic).** The pmf of $M \sim \text{Poisson}(2)$, with the bar
+at $x=0$ picked out. Same formula as the shuttle-arrivals figure above, but a smaller rate produces a shape
+that is front-loaded near $0$–$2$ instead of peaking near
+$4$.](../assets/figures/wk09_typos_poisson_highlight.png){#fig-wk09-typos-highlight fig-alt="Bar chart of the Poisson(2) pmf over counts 0 through 10, peaked at 1 and 2, with the bar at 0 highlighted and an arrow labeling it approximately 0.135."}
+
+::: {.callout-note appearance="minimal"}
+**What the figure shows (non-visual equivalent).** $P(M=0) = e^{-2} \approx 0.135$ is the leftmost bar's
+height. Compared with the arrivals figure ($\lambda=4$), this Poisson($2$) shape sits further left and drops
+off faster — the *same* pmf formula, a *different* rate, a visibly different shape. *Synthetic instructional example; numbers are illustrative.*
+:::
 
 ## A common mistake
 
-The most frequent error this week is **forcing the binomial onto a sampling-without-replacement problem**.
-If you draw 5 cards from a 52-card deck and count hearts, the trials are *not* independent and $p$ changes
-after each draw (one fewer heart, one fewer card), so $\text{Binomial}$ is only an approximation — exactly,
-it is a different (hypergeometric) model. The binomial assumes the same $p$ on every trial, which requires
-replacement or an effectively infinite pool. When the population is large relative to the sample, the
-binomial is a fine approximation; when it is small, it is not. Always check the "same $p$, independent
-trials" assumption before reaching for $\binom{n}{x} p^{x}(1-p)^{n-x}$.
+The classic Week-9 error is **matching the model to the surface story instead of the assumptions**, and the
+binomial-versus-geometric mix-up is the usual form. Both are built from independent Bernoulli($p$) trials, so
+a problem about "coin flips" or "quiz guesses" *feels* like it could be either. The deciding question is what
+is *fixed* and what is *random*:
 
-A related slip: confusing **binomial and geometric**. Both use independent Bernoulli$(p)$ trials, but
-binomial fixes the *number of trials* and counts successes, while geometric fixes *the first success* and
-counts trials. If the question is "how many out of 10?" it is binomial; if it is "how many until the
-first?" it is geometric.
+- If the **number of trials is fixed** ($n = 10$ quiz questions) and you count successes, it is **binomial**.
+- If you **stop at the first success** and count the trial number, the count itself is random and it is
+  **geometric**.
+
+The same sequence of trial outcomes can be read either way, which is exactly why the mix-up happens:
+
+![**One sequence, two questions (synthetic).** The identical illustrative 10-trial sequence of guesses, read
+two ways: count every success anywhere in the fixed 10 (binomial), versus stop looking the moment the first
+success appears (geometric).](../assets/figures/wk09_binom_geom_contrast.png){#fig-wk09-binom-geom-contrast fig-alt="Two panels showing the same ten-trial sequence of F and S outcomes. Left panel: all ten trials shown, with all four S trials highlighted and labeled X equals number of S's equals 4. Right panel: only the first three trials (up to and including the first S) are shown in color; the remaining seven trials are blanked out, labeled X equals trial number of first S equals 3."}
+
+::: {.callout-note appearance="minimal"}
+**What the figure shows (non-visual equivalent).** For the illustrative sequence F,F,S,F,S,F,S,F,F,S: read as
+a binomial question ("how many S's in all 10 trials?") the answer is $X=4$; read as a geometric question ("on
+which trial does the first S land?") the answer is $X=3$, and every trial after that first success is simply
+irrelevant to the count. Same data, two different random variables, because the *question* — not the outcomes
+themselves — decides the model. *Synthetic illustrative sequence, not simulated data.*
+:::
+
+A second, related slip is forgetting that this course's geometric **starts its support at $1$**, not $0$,
+because at least one trial must happen before you can have a first success. If you reach for software and use
+R's `rgeom`, remember it counts *failures before* the first success and so starts at $0$ — its values are
+exactly one less than ours. Add one to line them up. The third slip is treating a Poisson's $\lambda$ as if
+it were tied to a number of trials: there are no trials to count in a Poisson, only a rate and a window, and
+the giveaway that you have a genuine Poisson (rather than a binomial in disguise) is that **mean and variance
+come out equal**. When you find yourself about to plug numbers in, pause and name the model's assumptions
+first; the arithmetic is almost never the part that goes wrong.
 
 ## Low-stakes self-checks (ungraded)
 
-These are for your own practice — ungraded, no submission, just a way to test whether the recognition skill
-is sticking. Try them before peeking at the reasoning.
+These are for your own practice — nothing here is collected or graded.
 
-1. A basketball player makes free throws independently with probability $0.8$. You watch her shoot until
-   she misses for the first time and count the shots. Which model is the count of shots, and what is its
-   mean? (Geometric of the *miss*, $p = 0.2$; mean $1/0.2 = 5$.)
-2. In our shuttle-arrivals model $N \sim \text{Poisson}(4)$, is $P(N = 0)$ bigger or smaller than
-   $P(N = 4)$, without a calculator? (Smaller — $P(N=0) = e^{-4} \approx 0.018$, far below the
-   near-the-mean count.)
-3. A 12-item multiple-choice quiz has 4 options each; you guess every one. What model and parameters
-   describe the number correct, and what is its mean? (Binomial$(12,\ 0.25)$; mean $12 \times 0.25 = 3$.)
-4. You inspect items one at a time off a line where each is defective with probability $0.05$, stopping at
-   the first defective. Binomial or geometric — and why? (Geometric: you are counting trials *until* the
-   first success, not successes in a fixed number.)
-
-You can check all of these by simulation in the companion lab, [Lab 9 — Simulating discrete
-models](../labs/lab-09-simulating-discrete-models.qmd), where you draw many samples and compare the
-empirical frequencies to these pmfs.
+1. A multiple-choice section has $5$ questions, each guessed independently with success probability $0.25$.
+   Which model fits the number correct, and what are its mean and variance? (Answer the *model* before you
+   compute.)
+2. For Maya's quiz, $X \sim \text{Binomial}(10, 0.5)$, explain in one sentence why $P(X \ge 8)$ uses only the
+   three terms $x = 8, 9, 10$, and confirm the numerator $45 + 10 + 1 = 56$ from the combinations.
+3. You keep rolling a fair die until the first six appears. Name the model for the roll number of that first
+   six, give its parameter $p$, and state its mean number of rolls.
+4. Help-desk calls arrive at a steady $\lambda = 3$ per hour, independently. What are the mean and variance
+   of the hourly count, and what is $P(\text{exactly } 0 \text{ calls in an hour}) = e^{-3}$ to three
+   decimals?
+5. Without computing, decide which model fits each: (a) number of defective items in a shipment of $20$,
+   each defective with probability $0.05$; (b) number of pages you read before hitting the first dog-eared
+   page; (c) number of meteors you see in a one-hour sky watch. Justify each by naming the assumption that
+   makes it fit.
 
 ## Reading and source pointer
 
-This week tracks **Grinstead & Snell, Chapter 5 — Important Distributions**, specifically the discrete
-distributions (Bernoulli, binomial, geometric, and Poisson), for the catalogue of named models and the
-parameterizations we use. The recognition checklist and the "which assumption picks which model" framing
-are supported by the review of discrete distributions in **MIT OCW 18.05**. Our parameterizations follow
-the course ledger: $\text{Binomial}(n, p)$; $\text{Geometric}(p)$ as trials-to-first-success with support
-$\{1, 2, \dots\}$ and mean $1/p$; $\text{Poisson}(\lambda)$ with mean and variance both $\lambda$. *These
-notes are the course's own synthesis, grounded in but not copied from the sources.* All scenario data are
-synthetic, with seeds set in any simulation.
+For the discrete-model definitions and their pmfs, read **Grinstead & Snell, Chapter 5 — *Important
+Distributions* (discrete part)**, which develops the binomial, geometric, and Poisson families and their
+basic properties:
+<https://www.dartmouth.edu/~chance/teaching_aids/books_articles/probability_book/book.html>.
+
+This week also draws on the secondary course text. See **MIT OpenCourseWare 18.05** for its treatment of
+discrete random variables, the probability mass function, and expectation — useful for a second pass on how a
+named model's pmf gives you its mean and tail probabilities:
+<https://ocw.mit.edu/courses/18-05-introduction-to-probability-and-statistics-spring-2022/>.
+
+These notes are the course's own synthesis, grounded in but not copied from the sources.
 
 ## Public vs. graded
 
 These notes, the examples, and the practice here are **public and ungraded** — study material only. No
-graded prompts, answer keys, rubrics, point values, or due dates appear on this site. Graded checkpoints,
-quizzes, homework, labs, the midterm, the project, and the final live in **Blackboard (the LMS)**, which is
-authoritative for due dates, submissions, and grades. If this page and Blackboard ever disagree, follow
-Blackboard.
+graded prompts, answer keys, rubrics, point values, or due dates appear on this site. Graded
+checkpoints, quizzes, homework, labs, the midterm, the project, and the final live in **Blackboard
+(the LMS)**, which is authoritative for due dates, submissions, and grades. If this page and Blackboard
+ever disagree, follow Blackboard.
 
 ## Looking ahead
 
-Every model this week was **discrete** — the random variable took separated values you could list and add.
-Next week we cross to **continuous** random variables, where the variable can take any value in a range and
-a single point has probability zero. The bridge is our shuttle: this week we counted *how many* shuttles
-arrive in an hour (Poisson); next week we ask *how long* until the next one arrives (a continuous wait),
-and probability becomes the **area under a density** rather than a sum of pmf bars. In Week 11 we return to
-"common models," now continuous — the exponential wait and the normal commute time — mirroring this week's
-catalogue.
+Every model this week was **discrete**: the support was a list of separate values you could in principle
+enumerate, and a single value could carry positive probability. Next week we cross into **continuous random
+variables**, where a variable can land anywhere in an interval, no single point carries probability, and
+probability becomes *area under a density*. Maya's thread carries us there naturally: instead of counting how
+*many* shuttles arrive in an hour, we will ask how *long* she waits for the next one — a continuous quantity.
+The Poisson count and the continuous waiting time turn out to be two sides of the same arrival process, which
+is exactly what Weeks 10 and 11 will make precise.
 
 ## See also
 
-- [Notation glossary](../resources/notation-glossary.qmd) — the symbols, from $p(x)$ to $\lambda$, used here.
-- [Distribution reference](../resources/distribution-reference.qmd) — a one-page summary of these models'
-  parameters, means, and variances.
-- [Lab 9 — Simulating discrete models](../labs/lab-09-simulating-discrete-models.qmd) — the companion lab:
-  draw samples and compare empirical frequencies to these pmfs.
-- [Syllabus](../syllabus.qmd) — course structure, calendar, and where graded work actually lives.
+- Companion lab — [Lab 9: Simulating discrete models](../labs/lab-09-simulating-discrete-models.qmd) —
+  generate binomial, geometric, and Poisson draws and check the means, variances, and tail probabilities
+  above by simulation.
+- [Notation glossary](../resources/notation-glossary.qmd) — the binding symbols and the model
+  parameterizations ($\text{Geometric}(p)$ as trials-until-success, $\text{Poisson}(\lambda)$ with mean $=$
+  variance).
+- [Distribution reference](../resources/distribution-reference.qmd) — a one-stop table of each model's pmf,
+  mean, variance, support, and the R `*binom`/`*geom`/`*pois` functions (including the geometric support
+  shift).
+- [Week 7 — Discrete random variables](week-07-discrete-random-variables.qmd) — where the pmf and the quiz
+  random variable were first built by hand.
+- [Week 8 — Expectation and variance](week-08-expectation-and-variance.qmd) — where $E[X] = 5$ and
+  $\text{Var}(X) = 2.5$ for the quiz were derived from the definition.
+- [Week 10 — Continuous random variables](week-10-continuous-random-variables.qmd) — the next step, where
+  probability becomes area under a density.
+- [Course syllabus](../syllabus.qmd) — overall structure, schedule, and where graded work lives.

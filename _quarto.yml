@@ -1,20 +1,24 @@
 # Introduction to Probability — public Quarto course site (assembled undergraduate course materials).
-# Sibling of matthewhester.com; intended to live at /intro-probability/ under that domain.
+# Sibling of matthewhester.com; lives at /intro-probability/ under that domain.
 # Layout/theme aligned to the matthewhester.com course family (cosmo + styles.css, dark navbar,
 # floating sidebar, right-side TOC, MathML math). site-url set for the combined deploy; this
 # repo does not self-deploy (no CI here — the hub workflow assembles the courses).
+#
+# Code is shown as teaching (```{r} with #| eval: false), base-R only, set.seed(35003),
+# reproducible when a student later runs it in their own session. Figures are static PNGs under
+# assets/figures/ (pre-rendered, not chunk-executed at build time).
+#
 # Boundary: this is the PUBLIC surface. Private build state (_state/), source governance
-# (source_text/), assessment shadows (assessment_shadow/), run reports (run_reports/), and
-# accessibility evidence (accessibility/) are NOT rendered.
+# (source_text/), run reports (run_reports/), and the private assessment-production tree
+# (assessment_production/) are NOT rendered.
 project:
   type: website
   output-dir: _site
-  # RENDER ALLOW-LIST (docs/08 §2 boundary hazard; docs/26 §6). Fails safe — only the public
-  # sections below render into _site/. Every private dir (_state/ underscore-skipped, plus
-  # source_text/, assessment_shadow/, run_reports/, accessibility/) is excluded.
-  # NOTE: a bare "*.qmd" matches RECURSIVELY in Quarto 1.8.26 and could leak nested private .qmd.
-  # List the three public root pages explicitly instead, and negate private dirs as
-  # belt-and-suspenders (docs/08 §2, docs/26 §6).
+  # RENDER ALLOW-LIST (boundary hazard). Fails safe — only the public sections below render into
+  # _site/. Every private dir (_state/ underscore-skipped, plus source_text/, run_reports/,
+  # assessment_production/) is excluded. A bare "*.qmd" matches RECURSIVELY in Quarto 1.8.26 and
+  # could leak nested private .qmd — list the three public root pages explicitly and negate
+  # private dirs as belt-and-suspenders.
   render:
     - index.qmd
     - syllabus.qmd
@@ -22,10 +26,10 @@ project:
     - notes/*.qmd
     - labs/*.qmd
     - resources/*.qmd
+    - "!_state/"
     - "!source_text/"
-    - "!assessment_shadow/"
     - "!run_reports/"
-    - "!accessibility/"
+    - "!assessment_production/"
 
   resources:
     - assets/hero-web.webp

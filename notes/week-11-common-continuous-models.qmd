@@ -5,382 +5,491 @@ page_mode: normal_week
 week_contract: public_note
 source_mode: source-informed
 readings:
-  - "Grinstead & Snell, Ch 5 — Important Distributions (continuous) — supports the catalogue of named continuous models and when each applies"
-  - "MIT OCW 18.05 — review of continuous distributions and the normal — supports the standardization and 68–95–99.7 framing"
+  - "Grinstead & Snell, Ch 5 — Important Distributions (continuous) — supports naming each model and its density"
+  - "MIT OCW 18.05 — continuous random variables, the normal distribution — supports the standardizing and area-as-probability framing"
 toc: true
 ---
 
 ## The week question
 
-Last week you learned the *grammar* of continuous random variables: a density $f(x)$ whose area gives
-probability, a cdf $F(x) = P(X \le x)$, and the rule that any single point has probability zero. That
-grammar is general — it works for *any* continuous variable. This week we stock the shelf with the three
-named densities that cover most of what you will actually meet, just as Week 9 stocked the discrete shelf.
-The week's question is again a **recognition** question: **given a continuous scenario, which standard
-model fits, and what feature of the story tells you so?** Once you can name the model — Uniform,
-Exponential, or Normal — its density, its mean, and the way you read probabilities off it all come along
-for free.
+Last week you learned the *grammar* of continuous random variables: a density $f(x)$ that is not itself a
+probability, and probability that lives in the **area** under that density rather than at any single point.
+That grammar is general, but in practice you do not draw a fresh density for every problem. Just as the
+discrete world collapsed into a handful of named shapes — Bernoulli, binomial, geometric, Poisson — the
+continuous world is dominated by a small family of recurring models, each with a one-line story and a
+formula for its density, mean, and standard deviation.
 
-We have already met the machinery these models plug into. In Week 10 you computed probabilities as areas
-($P(a \le X \le b) = \int_a^b f(x)\,dx$) and built cdfs by integrating densities. This week we do not
-re-derive that machinery; we name the three densities you will reach for most, say what each one assumes,
-and practice matching a story to a model.
+So this week's question is: **which named continuous model fits a given measurement, and how do you turn
+that model into a probability?** We work through three models that cover an enormous share of first-course
+problems — the **uniform**, the **exponential**, and the **normal** — and we state the parameterization out
+loud each time. Continuous models are where the classic convention traps live (rate versus mean, standard
+deviation versus variance), so naming the convention is not pedantry; it is the difference between a right
+answer and a plausible-looking wrong one.
 
 ## Why this matters
 
-Naming the model is what turns a sentence like "the shuttle comes on average every fifteen minutes" into a
-number you can compute. If you can say "the wait is $\text{Exponential}$ with rate $4$ per hour," you
-immediately know its density, that its mean is $15$ minutes, and how to get $P(\text{wait} \le 15)$ — no
-fresh integration setup required each time. As in Week 9, the hard part is rarely the arithmetic; it is
-reading the assumptions in the story carefully enough to choose the right model.
+A named continuous model carries the same gift its discrete cousin did: say "this is Normal(22, 5)" and you
+have committed to a specific density, mean, standard deviation, and set of modeling assumptions all at once.
+You no longer integrate a fresh density by hand for every waiting time or measurement — you recognize the
+shape, read off the area you need, and interpret it.
 
-These three models also travel far beyond shuttles. The same **exponential** that describes a waiting time
-describes the lifetime of a component before it fails, the gap between earthquakes, or the time until a
-radioactive atom decays. The same **normal** that describes a commute time describes measurement error,
-heights in a population, or the average of many small independent effects (a fact Week 13 will make precise
-with the Central Limit Theorem). And the **uniform** — "any value in a range, all equally likely" — is the
-honest model for genuine no-information situations and the engine behind nearly every simulation you will
-run. Learning the *assumptions* behind each, not just its formula, is what lets you reuse them.
+But continuous models raise the stakes on one habit: **stating the parameterization.** Two sources can both
+write "Exponential($\lambda$)" and mean opposite things — one means $\lambda$ is the *rate* (so the mean is
+$1/\lambda$), the other means $\lambda$ is the *mean*. Two can both write "Normal($\mu$, $\sigma$)" and
+disagree about whether the second slot is the standard deviation or the variance. Plug a mean into a rate
+slot, or a variance into a standard-deviation slot, and the formula still renders, still runs, and still
+returns a confident number — just the wrong one. This is the continuous version of last week's lesson that a
+clean-looking calculation can be quietly false.
+
+This course fixes its conventions once and uses them everywhere. **Exponential($\lambda$) means $\lambda$ is
+a rate, with mean $1/\lambda$. Normal($\mu$, $\sigma$) means $\mu$ is the mean and $\sigma$ is the standard
+deviation, not the variance.** We restate these in each worked example — partly for discipline, and partly
+because Maya's commuter world, shuttle waits and commute times, is exactly where the conventions bite.
 
 ## Learning goals
 
 By the end of this week you should be able to:
 
-- State, in words and in symbols, the Uniform, Exponential, and Normal models, including each density and
-  (as results cross-linked to Weeks 8 and 10) each mean.
-- Read a continuous scenario and identify which of the three standard models its assumptions select — and
-  name the feature that rules the others out.
-- Compute a probability for our recurring commuter case: an exponential shuttle wait and a normal commute
-  time, using the cdf and the standard-normal $\Phi$.
-- Apply the **68–95–99.7 rule** and the **standardization** $Z = (X - \mu)/\sigma$ to read normal
-  probabilities.
-- Recognize a *new* scenario — the time until a component fails — as exponential, and explain the
-  **memoryless** property that makes it special.
-- Read shown R code (`dunif`/`punif`, `dexp`/`pexp`, `dnorm`/`pnorm`) so you can see how software returns
-  these same probabilities.
+- State the one-sentence story behind the uniform, exponential, and normal models, and say exactly what each
+  one's parameter(s) mean — including which slot is a rate, a mean, or a standard deviation.
+- Write down the density of each model and use it (or its cdf) to find a probability such as
+  $P(a \le X \le b)$ or $P(X \le c)$.
+- Read off the mean and standard deviation of each model from its parameters, without re-integrating.
+- Connect the exponential waiting time to last week's Poisson count: they describe the same arrival process
+  from two angles.
+- Standardize a normal variable, $Z = (X - \mu)/\sigma$, and use $\Phi$ to turn a normal question into a
+  standard-normal area.
 
 ## Core vocabulary
 
-- **Uniform$(a, b)$** — a continuous variable equally likely to land anywhere in the interval $[a, b]$; its
-  density is flat. Written $X \sim \text{Uniform}(a, b)$.
-- **Exponential$(\lambda)$** — the waiting time until the next event when events arrive at a constant
-  **rate** $\lambda$ (the Poisson rate from Week 9). Written $T \sim \text{Exponential}(\lambda)$; its mean
-  is $1/\lambda$.
-- **Rate $\lambda$** — for the exponential, the average number of events per unit time; large $\lambda$
-  means short waits. Mind the parameterization: we use **rate**, not mean, so $\text{Exponential}(4)$ has
-  mean $1/4$.
-- **Normal$(\mu, \sigma)$** — the symmetric bell-shaped model parameterized by its **mean** $\mu$ and its
-  **standard deviation** $\sigma$. Written $X \sim \text{Normal}(\mu, \sigma)$.
-- **Standard normal** $Z$ — the special case $\text{Normal}(0, 1)$; its cdf is written $\Phi(z) = P(Z \le z)$.
-- **Standardization** — the transform $Z = (X - \mu)/\sigma$ that re-expresses any normal value as a number
-  of standard deviations from the mean, so a single $\Phi$ table or function handles every normal.
-- **Memoryless property** — the exponential's signature: having already waited does not change the
-  distribution of the remaining wait.
+- **Uniform model** — a continuous variable equally likely to land anywhere in an interval $[a, b]$, with a
+  flat density on that interval and zero outside it. Written $X \sim \text{Uniform}(a, b)$.
+- **Exponential model** — the continuous waiting time until the next event in a steady-rate, independent
+  arrival process. Written $T \sim \text{Exponential}(\lambda)$, where **$\lambda$ is the rate** (events per
+  unit time) and the **mean wait is $1/\lambda$**.
+- **Rate $\lambda$** — for the exponential, the average number of events per unit time. It is the *same*
+  $\lambda$ that was the Poisson's mean count per window last week; the waiting time and the count are two
+  views of one process.
+- **Normal model** — the symmetric, bell-shaped "measurement" model. Written $X \sim \text{Normal}(\mu,
+  \sigma)$, where **$\mu$ is the mean** (the center) and **$\sigma$ is the standard deviation** (the spread),
+  *not* the variance.
+- **Standard normal $Z$** — the special case $\text{Normal}(0, 1)$, mean $0$ and standard deviation $1$.
+  Every normal question reduces to a standard-normal question by standardizing.
+- **Standard normal cdf $\Phi$** — the function $\Phi(z) = P(Z \le z)$, the area under the standard normal
+  density to the left of $z$. It has no elementary closed form, so you read it from a table or software, but
+  it is the workhorse for every normal probability.
+
+A convention note you will need all term: this course writes the **exponential by its rate** $\lambda$, so a
+larger $\lambda$ means events come *faster* and the mean wait $1/\lambda$ is *shorter*; and it writes the
+**normal by its mean and standard deviation**, so the second slot of $\text{Normal}(\mu, \sigma)$ is
+$\sigma$, never $\sigma^2$. (R follows both choices: `rexp` takes a `rate`, and `rnorm` takes `mean` and
+`sd`. We flag this again in the distribution reference.)
 
 ## Concept development
 
-### Uniform: every value in a range equally likely
+### Uniform — equally likely across an interval
 
-The simplest continuous model is the **Uniform$(a, b)$**. The variable can land anywhere in $[a, b]$, and
-no part of that interval is favored over another, so the density must be **flat**. Because the total area
-under a density is $1$ and the interval has width $b - a$, the height is forced to be $1/(b - a)$:
-
-$$
-f(x) = \frac{1}{b - a}, \quad a \le x \le b, \qquad f(x) = 0 \text{ otherwise.}
-$$
-
-Probabilities are then just proportions of the interval — a rectangle's area. For $a \le c \le d \le b$,
+The simplest continuous model says every point in an interval is as likely as every other. If $X$ is
+$\text{Uniform}(a, b)$, its density is flat on $[a, b]$ and zero elsewhere. Because total area must be $1$
+and the base has length $b - a$, the constant height is forced to be $1/(b - a)$:
 
 $$
-P(c \le X \le d) = \frac{d - c}{b - a},
+f(x) = \begin{cases} \dfrac{1}{\,b - a\,}, & a \le x \le b, \\[4pt] 0, & \text{otherwise.} \end{cases}
 $$
 
-and by symmetry the mean sits in the middle, $E[X] = (a + b)/2$. Use the uniform when the honest
-description is "somewhere in this range, with no reason to prefer any part of it": a rounding error in
-$[-0.5, 0.5]$, a random arrival time within a fixed window, or — crucially — the output of a computer's
-random-number generator, which is the raw material every simulation in this course is built from.
-
-### Exponential: waiting time at a steady rate
-
-In Week 9 we counted *how many* shuttles arrive in an hour with a Poisson at rate $\lambda = 4$. Now ask
-the companion question: *how long until the next one?* When events arrive at a constant rate $\lambda$ and
-do not coordinate, the waiting time $T$ is **Exponential$(\lambda)$**, with density
+Probabilities are then just *fractions of the interval*, because area under a flat density is height times
+width. For any sub-interval $[c, d]$ inside $[a, b]$,
 
 $$
-f(t) = \lambda e^{-\lambda t}, \quad t \ge 0, \qquad f(t) = 0 \text{ for } t < 0.
+P(c \le X \le d) = \frac{d - c}{\,b - a\,}.
 $$
 
-Integrating this density (the Week 10 move) gives a particularly clean cdf, which is what you actually use
-to get probabilities:
+By symmetry the mean sits at the midpoint, and the spread works out to
 
 $$
-F(t) = P(T \le t) = 1 - e^{-\lambda t}, \quad t \ge 0.
+E[X] = \frac{a + b}{2}, \qquad \text{Var}(X) = \frac{(b - a)^2}{12}, \qquad \sigma = \frac{b - a}{\sqrt{12}}.
 $$
 
-Its mean is the reciprocal of the rate,
+The uniform is the right model when you have genuinely *no reason to prefer any part of an interval* over any
+other — a rounding error anywhere in a half-unit window, a point dropped at random along a line. It is also
+the engine behind simulation: the random numbers a computer generates are, at bottom, $\text{Uniform}(0, 1)$
+draws, which is why the uniform underlies nearly every Monte Carlo method in the labs.
+
+### Exponential — waiting time at a steady rate
+
+Last week the Poisson counted how *many* events land in a fixed window when events arrive at a steady average
+rate $\lambda$, independently. Turn the same process sideways: starting now, how *long* until the next event?
+That waiting time $T$ is continuous, can be any positive number, and follows the **exponential** model with
+the *same* rate $\lambda$. Its density is
 
 $$
-E[T] = \frac{1}{\lambda},
+f(t) = \lambda\, e^{-\lambda t}, \qquad t \ge 0,
 $$
 
-which is exactly the intuition "rate $4$ per hour means about one every $1/4$ hour." The exponential's
-defining feature is the **memoryless property**: if you have already waited $s$ minutes, the probability
-of waiting at least $t$ more is the same as the original probability of waiting at least $t$ — the variable
-has no memory of time already spent. Symbolically,
+and the cdf — the probability the wait is at most $t$ — has a clean closed form you will use constantly:
 
 $$
-P(T > s + t \mid T > s) = P(T > t).
+F(t) = P(T \le t) = 1 - e^{-\lambda t}, \qquad t \ge 0.
 $$
 
-This is what makes the exponential the natural model for "pure waiting at a steady rate": a shuttle that is
-already five minutes late is, under this model, no more "due" than a fresh wait. (Whether that is *true* of
-real shuttles is exactly the kind of assumption you should question — but it is what the model says.)
-
-### Normal: the bell curve and standardization
-
-The **Normal$(\mu, \sigma)$** is the symmetric, bell-shaped model that shows up whenever a quantity is the
-sum of many small independent influences — measurement noise, biological variation, the average of many
-trials. Its density is
+The mean and standard deviation both come out equal to $1/\lambda$:
 
 $$
-f(x) = \frac{1}{\sigma \sqrt{2\pi}}\, \exp\!\left( -\frac{(x - \mu)^2}{2\sigma^2} \right),
-\quad -\infty < x < \infty,
+E[T] = \frac{1}{\lambda}, \qquad \sigma = \frac{1}{\lambda}.
 $$
 
-with mean $\mu$ at the center and standard deviation $\sigma$ controlling the spread. There is no simple
-closed form for its cdf, so we lean on two practical tools instead of integrating by hand.
+Notice the parameterization once more: $\lambda$ is a **rate**, measured in events per unit time, and the
+**mean wait is its reciprocal** $1/\lambda$, so doubling the rate halves the average wait. The exponential
+has a famous *memoryless* property — having already waited a while tells you nothing about how much longer
+you must wait — which is just what "steady, independent arrivals" should feel like. It is the natural model
+for the time between independent arrivals: the gap until the next shuttle, customer, phone call, or decay.
 
-The first is the **68–95–99.7 rule**: for any normal, about $68\%$ of the probability lies within $1$
-standard deviation of the mean, about $95\%$ within $2$, and about $99.7\%$ within $3$. This rule of thumb
-lets you sanity-check a normal probability in your head before trusting a table or a computer.
+### Normal — the bell curve for measurements
 
-The second tool is **standardization**. Every normal is a shifted, rescaled copy of the single **standard
-normal** $Z \sim \text{Normal}(0, 1)$. If $X \sim \text{Normal}(\mu, \sigma)$, then
+The third model is the most famous in all of probability: the **normal**, the symmetric bell curve,
+parameterized by its mean $\mu$ (the center) and its standard deviation $\sigma$ (the spread), with density
 
 $$
-Z = \frac{X - \mu}{\sigma} \sim \text{Normal}(0, 1),
-\qquad
-P(X \le x) = \Phi\!\left( \frac{x - \mu}{\sigma} \right),
+f(x) = \frac{1}{\sigma \sqrt{2\pi}}\, e^{-\frac{(x - \mu)^2}{2\sigma^2}}, \qquad -\infty < x < \infty,
 $$
 
-where $\Phi$ is the standard-normal cdf. So you never need a separate table for each $\mu$ and $\sigma$:
-convert your value to a $z$-score — a count of standard deviations from the mean — and read $\Phi(z)$ once.
-A score $2$ standard deviations above the mean, for instance, has $\Phi(2) \approx 0.977$ below it, which
-is just the upper end of the $95\%$ rule.
+and, by construction,
 
-### Recognizing the model: a short checklist
+$$
+E[X] = \mu, \qquad \sigma_X = \sigma, \qquad \text{Var}(X) = \sigma^2.
+$$
 
-When a continuous scenario lands in front of you, ask in order:
+The density never closes into an elementary antiderivative, so you cannot integrate it by hand to get a
+probability. Instead you **standardize**. Subtract the mean and divide by the standard deviation to turn any
+normal $X$ into the **standard normal** $Z \sim \text{Normal}(0, 1)$:
 
-1. **Is every value in a fixed range equally likely, with no part favored?** → Uniform.
-2. **Are you measuring a waiting time (or lifetime) where events arrive at a steady rate?** → Exponential
-   (and recall its rate is the Poisson rate from Week 9).
-3. **Is the quantity a measurement that clusters symmetrically around a typical value, with extremes rare?**
-   → Normal.
+$$
+Z = \frac{X - \mu}{\sigma}, \qquad P(X \le c) = P\!\left(Z \le \frac{c - \mu}{\sigma}\right)
+= \Phi\!\left(\frac{c - \mu}{\sigma}\right).
+$$
 
-As with the discrete catalogue, the checklist also tells you when *no* standard model fits cleanly: if the
-rate is not constant, the exponential is only an approximation; if a quantity is strictly positive and
-skewed, the normal (which allows any real value) may be a poor fit. Naming the limit of a model is part of
-using it honestly.
+The quantity $z = (c - \mu)/\sigma$ is a **$z$-score**: it says how many standard deviations $c$ sits above
+(or below) the mean. Once you have a $z$-score, the single function $\Phi(z) = P(Z \le z)$ — read from a
+table or software — gives the area, and every normal probability reduces to looking up $\Phi$. The normal
+earns its ubiquity because it *emerges* whenever many small, independent influences add up: measurement
+errors, heights, and — as Week 13 will make precise through the central limit theorem — averages of almost
+anything. State the parameterization each time: the second slot is the standard deviation $\sigma$, so
+feeding it a variance is a classic and silent error.
+
+### Choosing among them
+
+A short decision path covers most first-course cases. Ask what kind of quantity you are modeling. A value
+with **no preferred location inside a known interval** is **uniform**. A **waiting time until the next
+event** in a steady, independent arrival process is **exponential** (parameter is a rate). A **measurement
+that clusters symmetrically around a typical value**, especially a *sum or average* of many small effects, is
+**normal**. As always, the assumptions decide the model, not the surface story, and the first thing to pin
+down is the parameterization.
+
+![**The three continuous shapes (synthetic).** Uniform is flat across its interval; Exponential (parameter is a *rate*; mean $1/\lambda = 15$ min here) decays from a high value at $0$; Normal (mean $22$, sd $5$ here) is a symmetric bell. Recognizing the shape is the fastest route to the right model.](../assets/figures/wk11_continuous_shape_gallery.png){#fig-wk11-shapes fig-alt="Three density panels side by side. Left: Uniform, a flat rectangle over an interval. Middle: Exponential, a curve decaying from a high value at zero. Right: Normal, a symmetric bell centered at 22 with a dotted line at the mean."}
+
+::: {.callout-note appearance="minimal"}
+**What the figure shows (non-visual equivalent).** Three shapes to recognize: **Uniform** (flat — no
+preferred value in the interval), **Exponential** (decaying — a waiting time at a steady rate; the parameter
+is a rate and the mean is $1/\lambda$), and **Normal** (bell — a measurement clustering around a centre; the
+parameters are the mean and the standard deviation). *Synthetic instructional example; numbers are illustrative.*
+:::
 
 ## Worked examples
 
-### Worked example — Maya's morning: the shuttle wait and the commute (recurring slice)
+All numbers below are **synthetic; seed 35003 is set** for any simulation. We re-use Maya's commuter world
+for the recurring slices — the exponential shuttle wait and the normal commute time — and then transfer the
+exponential and normal ideas to fresh contexts.
 
-This is one connected morning in our recurring synthetic world; two continuous models appear back to back.
-*(Synthetic scenario; numbers fixed for the course.)*
+### Worked example — the shuttle wait as an exponential (recurring slice)
 
-**The shuttle wait, as an exponential.** Shuttles arrive at Maya's stop at a steady rate of $\lambda = 4$
-per hour — the same Poisson rate from Week 9 — so the time $T$ until the next one is exponential:
+Shuttles serving Maya's stop arrive at a steady average rate of **four per hour** (one every 15 minutes),
+independently — the same arrival process whose *count* you modeled with a Poisson last week. Now model the
+*wait*. Let $T$ be the time, in hours, from a given moment until the next shuttle arrives.
 
-$$
-T \sim \text{Exponential}(\lambda = 4 \text{ per hour}),
-\qquad
-f(t) = 4 e^{-4 t}, \quad t \ge 0,
-$$
-
-with time measured in hours. Its mean wait is
+**Symbolic.** A waiting time until the next event in a steady, independent arrival process is the exponential
+setting, with the rate carried straight over from the Poisson count:
 
 $$
-E[T] = \frac{1}{\lambda} = \frac{1}{4}\ \text{hour} = 15\ \text{minutes},
+T \sim \text{Exponential}(\lambda = 4 \text{ per hour}), \qquad f(t) = 4\, e^{-4t}, \qquad t \ge 0.
 $$
 
-matching the intuition "one every fifteen minutes." Now: what is the chance she waits at most $15$ minutes
-— at most $1/4$ hour? Use the cdf with $t = 1/4$, so that $\lambda t = 4 \times 1/4 = 1$:
+State the parameterization: $\lambda = 4$ is a **rate** (four arrivals per hour), so the **mean wait is its
+reciprocal**,
 
 $$
-P(T \le 15\text{ min}) = F\!\left(\tfrac{1}{4}\right) = 1 - e^{-\lambda t} = 1 - e^{-1} \approx 0.632.
+E[T] = \frac{1}{\lambda} = \frac{1}{4}\text{ hour} = 15 \text{ minutes}, \qquad \sigma = \frac{1}{\lambda}
+= 15 \text{ minutes}.
 $$
 
-So a little under two-thirds of the time her wait is at or below the *average* — a reminder that for a
-right-skewed model the mean is not the median, and "at most the mean wait" is more likely than a coin flip.
+The probability the wait is at most some time $t$ comes from the exponential cdf, $P(T \le t) = 1 -
+e^{-\lambda t}$.
 
-**The commute, as a normal.** Once aboard, Maya's commute time $C$ (in minutes) clusters symmetrically
-around a typical value with rare extremes, so we model it as normal:
-
-$$
-C \sim \text{Normal}(\mu = 22,\ \sigma = 5).
-$$
-
-What is the chance the commute takes at most $30$ minutes? Standardize $x = 30$:
+**Numeric.** What is the chance Maya waits **at most 15 minutes** for the next shuttle? Fifteen minutes is a
+quarter of an hour, $t = 1/4$, so $\lambda t = 4 \cdot \tfrac{1}{4} = 1$ and
 
 $$
-z = \frac{x - \mu}{\sigma} = \frac{30 - 22}{5} = \frac{8}{5} = 1.6,
-\qquad
+P(T \le 15 \text{ min}) = P\!\left(T \le \tfrac{1}{4}\text{ hr}\right) = 1 - e^{-4 \cdot \frac{1}{4}}
+= 1 - e^{-1} \approx 0.632.
+$$
+
+So about $63.2\%$ of the time the next shuttle comes within one mean-wait, and the other $36.8\%$ of the time
+Maya is still waiting after 15 minutes — even though 15 minutes *is* the average wait. That asymmetry is the
+signature of the exponential: because the density is highest near zero and trails off to the right, more than
+half the probability sits below the mean. (Unit care: the rate and the time must share a clock. With
+$\lambda$ in events per hour, $t$ must be in hours, which is why 15 minutes became $1/4$.)
+
+![**Seeing the shuttle-wait probability (synthetic).** The Exponential(rate $=4$/hr) density for the wait
+$T$, in minutes, with $P(T \le 15\text{ min}) \approx 0.632$ shaded darker and the remaining
+$P(T > 15\text{ min}) \approx 0.368$ shaded lighter; the dotted line marks the mean wait, 15
+minutes.](../assets/figures/wk11_exp_wait_shaded.png){#fig-wk11-exp-wait-shaded fig-alt="An exponential
+density decaying from a high value at zero, in minutes. The darker shaded region from 0 to 15 minutes covers
+about sixty-three percent of the area; the lighter shaded region beyond 15 minutes covers the remaining
+thirty-seven percent. A dotted vertical line marks the mean wait at 15 minutes, sitting inside the larger,
+darker region."}
+
+::: {.callout-note appearance="minimal"}
+**What the figure shows (non-visual equivalent).** The two shaded regions are the two possible outcomes for
+the next shuttle: arriving within the mean wait of 15 minutes (about 63.2% of the area, darker) or taking
+longer than that (about 36.8%, lighter). Because the exponential density is tallest at $t=0$ and decays
+afterward, *more than half* the probability sits at or before the mean — the asymmetry named in the numeric
+work above. *Synthetic instructional example; numbers are illustrative.*
+:::
+
+You can confirm the model by simulation (shown as teaching; not executed in this build):
+
+```{r}
+#| label: exp-wait-sim
+#| eval: false
+set.seed(35003)
+n_sim <- 100000
+# waiting times in hours, rate = 4 per hour
+waits <- rexp(n_sim, rate = 4)
+mean(waits)              # close to 0.25 hour = 15 minutes
+mean(waits <= 0.25)      # close to 0.632
+
+# what running this would show you (a histogram against the theoretical curve):
+waits_min <- waits * 60
+hist(waits_min, breaks = 80, freq = FALSE, xlim = c(0, 90),
+     xlab = "simulated wait (minutes)", main = "Simulated exponential waits")
+curve(dexp(x, rate = 4 / 60), add = TRUE, lwd = 2)
+abline(v = 15, lty = 3)
+```
+
+![**The shown simulation's expected output (synthetic).** A histogram of 100,000 simulated exponential
+waits — the code above, reproduced exactly (`set.seed(35003)`, rate 4/hr) — with the theoretical density
+overlaid and the mean wait, 15 minutes,
+marked.](../assets/figures/wk11_exp_sim_hist.png){#fig-wk11-exp-sim-hist fig-alt="A histogram of 100,000
+simulated exponential wait times in minutes, shaped like a curve decaying from a high value at zero and
+closely tracking an overlaid theoretical density curve. A dotted vertical line marks 15 minutes."}
+
+::: {.callout-note appearance="minimal"}
+**What the figure shows (non-visual equivalent).** This is the picture the code above would produce if you
+ran it: the simulated histogram tracks the theoretical curve closely, and the simulated `mean(waits)` and
+`mean(waits <= 0.25)` land close to the theoretical 15 minutes and 0.632 computed by hand. The code is shown
+as a teaching activity and is **not executed** in this build; this figure shows what running it yourself
+would produce. *Synthetic instructional example; numbers are illustrative.*
+:::
+
+### Worked example — the commute time as a normal (recurring slice)
+
+Maya's door-to-campus commute is not a count and not a pure waiting time; it is a **measurement** that piles
+up around a typical duration, a little longer on bad-traffic days, a little shorter on good ones. Records
+show it averages **22 minutes** with a standard deviation of **5 minutes**, roughly symmetric and
+bell-shaped. Let $C$ be the commute time in minutes.
+
+**Symbolic.** A symmetric, bell-shaped measurement is the normal setting. State the parameterization
+explicitly: $\mu = 22$ is the **mean** and $\sigma = 5$ is the **standard deviation** (not the variance), so
+
+$$
+C \sim \text{Normal}(\mu = 22, \sigma = 5), \qquad E[C] = 22 \text{ min}, \qquad \sigma_C = 5 \text{ min}.
+$$
+
+To find a probability, standardize: convert $C$ to a $z$-score and use $\Phi$,
+
+$$
+P(C \le c) = \Phi\!\left(\frac{c - \mu}{\sigma}\right) = \Phi\!\left(\frac{c - 22}{5}\right).
+$$
+
+**Numeric.** Maya wants to arrive within **30 minutes**. The $z$-score for $c = 30$ is
+
+$$
+z = \frac{30 - 22}{5} = \frac{8}{5} = 1.6,
+$$
+
+so 30 minutes sits $1.6$ standard deviations above her average commute, and
+
+$$
 P(C \le 30) = \Phi(1.6) \approx 0.945.
 $$
 
-So about $94.5\%$ of mornings the commute is $30$ minutes or less. The $68$–$95$–$99.7$ rule confirms the
-ballpark: $30$ is between $1\sigma$ ($27$) and $2\sigma$ ($32$) above the mean, so the cumulative
-probability should sit between $0.84$ and $0.975$ — and $0.945$ does.
+About $94.5\%$ of her commutes come in at or under 30 minutes; the other $5.5\%$ run longer. The whole
+calculation hinged on reading the second parameter as a standard deviation: treat the $5$ as a variance and
+use $\sigma = \sqrt{5} \approx 2.24$, and the $z$-score balloons to about $3.6$ and the probability to
+roughly $0.9998$ — a wildly different, confidently wrong answer from the same formula. This is exactly why
+the course states the parameterization every time.
 
-### Worked example — time until a component fails, as an exponential (transfer)
+![**Seeing the commute-time probability (synthetic).** The Normal(mean $22$, sd $5$) density for the commute
+$C$, in minutes, with $P(C \le 30) = \Phi(1.6) \approx 0.945$ shaded; the dotted line marks the mean, 22
+minutes, and the dashed line marks 30 minutes ($z = 1.6$).](../assets/figures/wk11_normal_commute_shaded.png){#fig-wk11-normal-commute-shaded fig-alt="A symmetric bell-shaped normal density centered at 22 minutes. The
+region from the left tail up to 30 minutes is shaded, covering about ninety-four and a half percent of the
+area. A dotted line marks the mean at 22 minutes and a dashed line marks 30 minutes, one point six standard
+deviations above the mean."}
 
-Now a new context with the same model. A small electronic component fails at a constant average rate of
-$\lambda = 0.5$ failures per year, with no wear-in or wear-out trend — the assumption that makes the
-**exponential** the right lifetime model. Let $L$ be its lifetime in years:
+::: {.callout-note appearance="minimal"}
+**What the figure shows (non-visual equivalent).** The shaded region is every commute of 30 minutes or
+less — about 94.5% of the bell's area — bounded on the right by a line exactly $1.6$ standard deviations
+above the mean, the $z$-score computed above. The unshaded sliver in the right tail, about 5.5% of the area,
+is every commute that runs longer than 30 minutes. *Synthetic instructional example; numbers are illustrative.*
+:::
+
+### Worked example — time to the next customer, and a measurement error (transfer)
+
+Now move both ideas to brand-new settings to show they are about the *structure* of the problem, not about
+Maya. **First, an exponential.** A small bakery finds customers arrive at a steady, independent average rate
+of $\lambda = 12$ per hour during the morning rush. Let $W$ be the time, in hours, until the *next* customer
+walks in. The waiting-time structure gives
 
 $$
-L \sim \text{Exponential}(\lambda = 0.5 \text{ per year}),
-\qquad
-f(\ell) = 0.5\, e^{-0.5 \ell}, \quad \ell \ge 0,
+W \sim \text{Exponential}(\lambda = 12 \text{ per hour}), \qquad E[W] = \frac{1}{12}\text{ hr} = 5
+\text{ minutes},
 $$
 
-so the **mean** time to failure is $E[L] = 1/\lambda = 1/0.5 = 2$ years. What is the probability the
-component survives past $4$ years? Use the complement of the cdf:
+and the chance the next customer arrives within two minutes ($t = 2/60 = 1/30$ hour) is
 
 $$
-P(L > 4) = 1 - F(4) = e^{-\lambda \ell} = e^{-0.5 \times 4} = e^{-2} \approx 0.135.
+P(W \le 2 \text{ min}) = 1 - e^{-12 \cdot \frac{1}{30}} = 1 - e^{-0.4} \approx 0.330.
 $$
 
-About a $13.5\%$ chance it lasts beyond $4$ years. The **memoryless** property gives a striking corollary:
-a component that has *already* survived $4$ years has the same probability of surviving another $2$ years
-as a brand-new one — $P(L > 6 \mid L > 4) = P(L > 2) = e^{-1} \approx 0.368$ — because the exponential
-keeps no memory of time already elapsed. This is the same machinery as Maya's shuttle wait, applied to
-hardware instead of buses. *(Synthetic scenario; numbers fixed for the course.)*
+So even in a brisk rush there is only about a one-in-three chance the next customer appears within two
+minutes — the same rate-and-reciprocal-mean logic as Maya's shuttle, in a different store.
 
-### Seeing it in software (shown, not run)
+**Second, a normal.** A lab scale used to weigh samples is unbiased but imprecise: repeated weighings of the
+*same* object scatter around the true weight with measurement error that is roughly normal, mean $0$ grams
+and standard deviation $\sigma = 0.4$ grams. Let $E$ be the error on a single weighing. Then
 
-Software returns all of these probabilities directly. Below, R's `p*` functions give cdf values
-$P(X \le x)$ and `d*` functions give density heights $f(x)$. The code is **shown to read**, not executed here.
+$$
+E \sim \text{Normal}(\mu = 0, \sigma = 0.4), \qquad P(|E| \le 0.5) = \Phi\!\left(\frac{0.5}{0.4}\right)
+- \Phi\!\left(\frac{-0.5}{0.4}\right) = \Phi(1.25) - \Phi(-1.25) \approx 0.789,
+$$
 
-```{r}
-#| label: continuous-models-cdf
-#| eval: false
+so a single weighing lands within half a gram of the truth about $79\%$ of the time. The same normal template
+fits adult heights, test scores, and any quantity built from many small independent nudges: name the mean,
+name the *standard deviation*, standardize, and read $\Phi$. **Synthetic; seed set.**
 
-# Shuttle wait T ~ Exponential(rate = 4 per hour); 15 minutes = 0.25 hour
-pexp(0.25, rate = 4)            # P(T <= 15 min) = 1 - e^-1 ~ 0.632
+![**Two transfer contexts, the same shading idea (synthetic).** Left: the bakery's Exponential(rate
+$=12$/hr) wait $W$, with $P(W \le 2\text{ min}) \approx 0.330$ shaded. Right: the scale's Normal(mean $0$, sd
+$0.4$) measurement error $E$, with $P(|E| \le 0.5) \approx 0.789$ shaded (both
+tails).](../assets/figures/wk11_transfer_gallery.png){#fig-wk11-transfer-gallery fig-alt="Two density panels
+side by side. Left: an exponential curve decaying from a high value at zero, with the region from 0 to 2
+minutes shaded, covering about a third of the area. Right: a narrow symmetric bell centered at zero, with the
+region between minus 0.5 and plus 0.5 shaded, covering about seventy-nine percent of the area."}
 
-# Commute C ~ Normal(mean = 22, sd = 5) minutes
-pnorm(30, mean = 22, sd = 5)    # P(C <= 30) ~ 0.945
-pnorm(1.6)                      # Phi(1.6): standardized, same answer ~ 0.945
-
-# Component lifetime L ~ Exponential(rate = 0.5 per year)
-1 - pexp(4, rate = 0.5)         # P(L > 4) = e^-2 ~ 0.135
-
-# Density heights (NOT probabilities): f(x) for plotting the curves
-dnorm(22, mean = 22, sd = 5)    # peak of the commute density, at the mean
-dexp(0,  rate = 4)              # exponential density height at t = 0, equals the rate
-dunif(0.1, min = 0, max = 0.25) # flat height 1/(b - a) = 4 over the interval
-```
-
-```{r}
-#| label: continuous-models-simulate
-#| eval: false
-
-# Optional: simulate to confirm the two recurring-slice probabilities by frequency.
-set.seed(35003)
-waits <- rexp(100000, rate = 4)              # simulated shuttle waits, in hours
-mean(waits <= 0.25)                          # empirical P(T <= 15 min), ~ 0.632
-
-commutes <- rnorm(100000, mean = 22, sd = 5) # simulated commute times, in minutes
-mean(commutes <= 30)                         # empirical P(C <= 30), ~ 0.945
-```
-
-The simulation chunk uses `set.seed(35003)` so it reproduces exactly when later executed; the empirical
-fractions should land near the exact values above. *(Synthetic; seed set.)*
+::: {.callout-note appearance="minimal"}
+**What the figure shows (non-visual equivalent).** Same shading idea, two new contexts. The bakery panel
+shades the roughly one-in-three chance the next customer arrives within two minutes; the scale panel shades
+the roughly four-in-five chance a single weighing lands within half a gram of the truth. Neither picture is
+about Maya — that is the point of a transfer example: the *shape* of the argument, shade-the-relevant-area-
+under-a-named-density, carries over unchanged. *Synthetic instructional example; numbers are illustrative.*
+:::
 
 ## A common mistake
 
-The most frequent error this week is **mixing up the exponential's rate and mean**. We parameterize the
-exponential by its **rate** $\lambda$, so $\text{Exponential}(4)$ has mean $1/4$, not $4$. In R this is the
-`rate =` argument; passing the mean where a rate belongs (or vice versa) silently gives the reciprocal of
-the answer you want. Always ask: is the number I have an *events-per-unit-time* (a rate) or a *time-per-
-event* (a mean)? For the shuttle, $4$ per hour is the rate; $15$ minutes is the mean.
+The classic Week-11 error is a **parameterization slip** — feeding a number into the wrong slot — and it
+takes two forms.
 
-A second slip is **treating a density value $f(x)$ as a probability**. The bell curve's height
-$dnorm(22, 22, 5) \approx 0.080$ is *not* the chance the commute equals exactly $22$ minutes — that
-probability is zero, exactly as Week 10 insisted. Density is probability *per unit length*; only the
-**area** between two values is a probability. And for the uniform, the flat height can even exceed $1$ (it
-is $4$ on $[0, 0.25]$) precisely because it is a density, not a probability.
+The first is the **exponential rate-versus-mean swap.** Because the mean wait is $1/\lambda$, it is easy to
+write the mean *into* the model as if it were the rate. For Maya's shuttle the mean wait is 15 minutes and
+the rate is 4 per hour; set "$\lambda = 15$" by mistake and you have made the rate enormous and the mean wait
+a fraction of a minute. Keep units attached: a rate is *events per unit time*, a mean is a *time*, and they
+are reciprocals — which is also why 15 minutes entered the formula as $1/4$ hour.
+
+The second is the **normal standard-deviation-versus-variance swap.** In this course's $\text{Normal}(\mu,
+\sigma)$ the second slot is the **standard deviation**, but many sources write $\text{Normal}(\mu, \sigma^2)$
+with a *variance* there. If a problem hands you a variance, take its square root before using it as $\sigma$;
+if it hands you a standard deviation, do *not* square it. For Maya's commute, $\sigma = 5$ minutes is the
+standard deviation, so the $z$-score for 30 minutes is $(30 - 22)/5 = 1.6$ — using $25$ or $\sqrt 5$ there
+gives a wrong answer the formula returns without complaint. Whenever you write a continuous model, **say the
+parameterization out loud first**; as in Week 9, the arithmetic is almost never the part that goes wrong.
+
+The two slips side by side, using only this week's own numbers:
+
+| Model slot | Correct read | If you swap it | What the swap does |
+|---|---|---|---|
+| Exponential $\lambda$ (shuttle wait) | $\lambda = 4$/hr is the **rate**; mean wait $= 1/\lambda = 15$ min | Set $\lambda = 15$, treating the *mean* as if it were the rate | Implied mean wait becomes $1/15$ hr $= 4$ min — a wait nearly four times *shorter*, not the 15 minutes intended |
+| Normal $\sigma$ (commute time) | $\sigma = 5$ min is the **standard deviation**; $z = (30-22)/5 = 1.6$, $\Phi(1.6) \approx 0.945$ | Treat $5$ as a *variance*, use $\sigma = \sqrt{5} \approx 2.24$ | $z$ balloons to about $3.6$, $\Phi(3.6) \approx 0.9998$ — a confidently wrong, near-certain answer |
+
+: Two parameterization slips side by side: the exponential rate-vs-mean swap and the normal
+sd-vs-variance swap, using only this week's own locked numbers.
+{#tbl-wk11-param-mistake-table}
+
+Both rows plug the *same* locked numbers into the *same* formula; only the parameter slot changes, and the
+formula never complains either way — which is exactly why saying the parameterization out loud first is the
+habit that catches the error before the arithmetic does.
 
 ## Low-stakes self-checks (ungraded)
 
-These are for your own practice — ungraded, no submission, just a way to test whether the recognition skill
-is sticking. Try them before peeking at the reasoning.
+These are for your own practice — nothing here is collected or graded.
 
-1. A bus is equally likely to arrive at any moment in the next $10$ minutes. Which model fits, and what is
-   the probability it arrives in the first $3$ minutes? (Uniform$(0, 10)$; $P = 3/10 = 0.3$, a proportion of
-   the interval.)
-2. For Maya's commute $C \sim \text{Normal}(22, 5)$, roughly what fraction of mornings is the commute
-   between $17$ and $27$ minutes, *without* a calculator? (Those are $\mu \pm 1\sigma$, so about $68\%$ by
-   the rule.)
-3. A help desk receives calls at a steady rate of $\lambda = 6$ per hour. What model describes the wait
-   until the next call, and what is the mean wait? (Exponential$(6)$; mean $1/6$ hour $= 10$ minutes.)
-4. Why is $P(C = 22)$ equal to $0$ for the normal commute, even though $22$ is its mean and the most likely
-   *region*? (It is continuous: any single exact value has zero area, so zero probability; only intervals
-   carry probability.)
-5. A component's lifetime is $\text{Exponential}(0.5)$ per year. Without recomputing, is the probability it
-   survives its *next* year larger if it is brand new or if it has already lasted $3$ years? (The same —
-   memoryless; past survival does not change the remaining-wait distribution.)
-
-You can check the probability statements by simulation using the shown `rexp`/`rnorm`/`runif` chunks above:
-draw many values and compare the empirical fraction to the exact answer.
+1. A bus is scheduled for 8:00 but actually shows up at a time spread uniformly between 8:00 and 8:10. Name
+   the model and its parameters, then find the probability it arrives in the first four minutes.
+2. For Maya's shuttle, $T \sim \text{Exponential}(\lambda = 4/\text{hr})$. Explain in one sentence why the
+   mean wait is 15 minutes rather than 4, and confirm that $P(T \le 15\text{ min}) = 1 - e^{-1}$ by checking
+   that $\lambda t = 1$ when $t = 1/4$ hour.
+3. Calls reach a help desk at a steady, independent rate of $\lambda = 6$ per hour. State the model for the
+   wait until the next call, give its mean wait in minutes, and write the expression for the probability the
+   next call comes within five minutes (you do not need to evaluate it).
+4. For Maya's commute, $C \sim \text{Normal}(22, 5)$ minutes. Compute the $z$-score for a 27-minute commute,
+   and say in words what that $z$-score means before you look up any area.
+5. Without computing a final number, decide which model fits each and name its parameter(s): (a) the exact
+   spot a raindrop lands along a 10-cm pencil left in the rain; (b) the time between independent text messages
+   arriving on a busy afternoon; (c) the heights of adult women in a large population. Justify each by the
+   assumption that makes it fit, and for the last one state which slot is the standard deviation.
 
 ## Reading and source pointer
 
-This week tracks **Grinstead & Snell, Chapter 5 — Important Distributions**, specifically the *continuous*
-distributions (uniform, exponential, and normal), for the catalogue of named models and the
-parameterizations we use. The standardization $Z = (X - \mu)/\sigma$ and the $68$–$95$–$99.7$ framing for
-reading normal probabilities are supported by the review of continuous distributions and the normal in
-**MIT OCW 18.05**. Our parameterizations follow the course ledger: $\text{Uniform}(a, b)$;
-$\text{Exponential}(\lambda)$ as a **rate** with mean $1/\lambda$; $\text{Normal}(\mu, \sigma)$ as **mean
-and standard deviation**. The means quoted here are stated results carried from the expectation work in
-Week 8 and the density/area machinery in Week 10, not re-derived. *These notes are the course's own
-synthesis, grounded in but not copied from the sources.* All scenario data are synthetic, with seeds set in
-any simulation.
+For the continuous-model definitions and their densities, read **Grinstead & Snell, Chapter 5 — *Important
+Distributions* (continuous part)**, which develops the uniform, exponential, and normal families and their
+basic properties:
+<https://www.dartmouth.edu/~chance/teaching_aids/books_articles/probability_book/book.html>.
 
-## Formula-verification status
+This week also draws on the secondary course text. See **MIT OpenCourseWare 18.05** for its treatment of
+continuous random variables and, in particular, the normal distribution and standardizing — a useful second
+pass on turning a normal question into a standard-normal area with $\Phi$:
+<https://ocw.mit.edu/courses/18-05-introduction-to-probability-and-statistics-spring-2022/>.
 
-`verified: false`. The densities, cdfs, means, and numeric probabilities on this page are **drafted and
-provisional**: the course **math gate is BLOCKED** pending human sign-off. Treat every formula and number
-here — the exponential cdf $1 - e^{-\lambda t}$, the mean $1/\lambda$, the standardization, and the worked
-values $1 - e^{-1} \approx 0.632$ and $\Phi(1.6) \approx 0.945$ — as **provisional pending human
-verification**, not as confirmed results.
+These notes are the course's own synthesis, grounded in but not copied from the sources.
 
 ## Public vs. graded
 
 These notes, the examples, and the practice here are **public and ungraded** — study material only. No
-graded prompts, answer keys, rubrics, point values, or due dates appear on this site. Graded checkpoints,
-quizzes, homework, labs, the midterm, the project, and the final live in **Blackboard (the LMS)**, which is
-authoritative for due dates, submissions, and grades. If this page and Blackboard ever disagree, follow
-Blackboard.
+graded prompts, answer keys, rubrics, point values, or due dates appear on this site. Graded
+checkpoints, quizzes, homework, labs, the midterm, the project, and the final live in **Blackboard
+(the LMS)**, which is authoritative for due dates, submissions, and grades. If this page and Blackboard
+ever disagree, follow Blackboard.
 
 ## Looking ahead
 
-So far every random variable — discrete or continuous — has been a *single* quantity. Next week we let two
-vary together: **joint distributions and dependence**. We return to the rain-and-lateness pair from Weeks
-3–4, now as random variables $X$ (rain) and $Y$ (late), and measure how they move together with
-**covariance** and **correlation**. After that, Week 13 brings the normal back in force: the Central Limit
-Theorem explains *why* the bell curve we used for Maya's commute is so common — it is what the average of
-many independent pieces looks like, no matter their individual shape.
+You now have the two big families — discrete models (Week 9) and continuous models (this week) — and the
+machinery to read a probability off either. So far every example has involved **one** random variable at a
+time. Next week we let variables interact: **joint distributions and dependence**, where two random
+quantities live together and we measure how strongly one moves with the other through covariance and
+correlation. Maya's thread carries us straight in: whether it rains and whether her shuttle is late are not
+independent (you saw that back in Weeks 3–4), and Week 12 quantifies that link. After that, Week 13 returns
+to the normal one more time — when we add or average many random variables, the normal reappears as a
+*limit*, which is the central limit theorem.
 
 ## See also
 
-- [Notation glossary](../resources/notation-glossary.qmd) — the symbols, from $f(x)$ and $F(x)$ to
-  $\lambda$, $\mu$, $\sigma$, and $\Phi$, used here.
-- [Distribution reference](../resources/distribution-reference.qmd) — a one-page summary of the uniform,
-  exponential, and normal: parameters, densities, and means.
-- [Lab 13 — Law of large numbers and CLT](../labs/lab-13-law-of-large-numbers-and-clt.qmd) — the
-  simulation lab where the normal returns as the shape of an average.
-- [Syllabus](../syllabus.qmd) — course structure, calendar, and where graded work actually lives.
+- [Notation glossary](../resources/notation-glossary.qmd) — the binding symbols and the model
+  parameterizations ($\text{Exponential}(\lambda)$ as a rate with mean $1/\lambda$; $\text{Normal}(\mu,
+  \sigma)$ as mean and standard deviation).
+- [Distribution reference](../resources/distribution-reference.qmd) — a one-stop table of each model's
+  density, mean, standard deviation, support, and the R `*unif`/`*exp`/`*norm` functions (including that
+  `rexp` takes a `rate` and `rnorm` takes `mean` and `sd`).
+- [Week 10 — Continuous random variables](week-10-continuous-random-variables.qmd) — where density, area as
+  probability, and the cdf $F(x) = P(X \le x)$ were first built.
+- [Week 9 — Common discrete models](week-09-common-discrete-models.qmd) — the discrete partner to this week,
+  and where the Poisson arrival rate $\lambda = 4$ per hour first appeared.
+- [Week 12 — Joint distributions and dependence](week-12-joint-distributions-and-dependence.qmd) — the next
+  step, where two random variables interact.
+- [Course syllabus](../syllabus.qmd) — overall structure, schedule, and where graded work lives.

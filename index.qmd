@@ -1,15 +1,8 @@
 ---
-pagetitle: "Introduction to Probability"
+title: "Introduction to Probability"
+subtitle: "Uncertainty, simulation, and Bayesian reasoning"
 toc: false
 ---
-
-![](assets/hero-web-800.webp){srcset="assets/hero-web-800.webp 800w, assets/hero-web.webp 1400w" sizes="(min-width: 992px) 760px, 92vw" .course-hero-img fig-alt="Course identity banner for Introduction to Probability — an iridescent opal crystal surrounded by probability graphics: sample spaces and events, the probability rules, Bayes' rule, a binomial distribution, the normal curve, expectation, a Monte Carlo simulation sketch, and the law of large numbers, with the course title."}
-
-# Introduction to Probability {.course-landing-title}
-
-::: {.course-landing-subtitle}
-Uncertainty, simulation, and Bayesian reasoning
-:::
 
 > Probability is the language we use to reason carefully when we do not — and cannot — know what
 > will happen next. This course teaches you to speak it: to turn vague hunches about chance into
@@ -53,13 +46,14 @@ By the end of the term, you should be able to:
 
 This public site has three working areas, reachable from the sidebar:
 
-- **Notes** — the weekly instructional spine. Each week poses a question, develops the concept,
-  works examples (including the recurring commuter case), names a common mistake, and offers
-  ungraded self-checks. Start here.
-- **Labs** — the simulation strand. Four short labs in R and Quarto let you confirm the theory by
-  generating data and watching the patterns appear. Code is shown for study; you run it locally.
-- **Resources** — a notation glossary, a one-page distribution reference, and setup instructions for
-  R and Quarto. Keep these open while you read.
+- **[Notes](notes/index.qmd)** — the weekly instructional spine. Each week poses a question, develops
+  the concept, works examples (including the recurring commuter case), names a common mistake, and
+  offers ungraded self-checks. Start here.
+- **[Labs](labs/index.qmd)** — the simulation strand. Four short labs in R and Quarto let you confirm
+  the theory by generating data and watching the patterns appear. Code is shown for study; you run it
+  locally.
+- **[Resources](resources/index.qmd)** — a notation glossary, a one-page distribution reference, and
+  setup instructions for R and Quarto. Keep these open while you read.
 
 ## Software
 
@@ -67,21 +61,24 @@ We use **R** (via RStudio or Posit Cloud) together with **Quarto** for the simul
 software is a *support* for probability reasoning, not the center of the course: simulation lets you
 check an answer you derived by hand, and build intuition for results that are hard to picture. No
 prior coding experience is assumed — every lab is scaffolded, and the code is explained as it goes.
-In the notes and labs here, R chunks are **shown as teaching examples** and are
-not executed in place; you run them in your own session.
+In the notes and labs on this site, R chunks are **shown as teaching examples** and are not executed
+in place; you run them in your own session. No paid homework platform is used in this course.
 
 ## Source and attribution
 
-These notes are the course's own synthesis, grounded in but not copied from established sources:
+These notes are the course's own synthesis, grounded in but not copied from established sources. The
+course uses **two free, openly licensed texts**, and you are pointed to **both**:
 
-- **Primary spine:** *Introduction to Probability* by Charles M. Grinstead and J. Laurie Snell, a
-  free text released under the **GNU Free Documentation License**. It grounds our scope, sequence,
-  and notation level.
-- **Supplement:** **MIT OpenCourseWare 18.05**, *Introduction to Probability and Statistics*
-  (**CC BY-NC-SA 4.0**), cited selectively for Bayesian reasoning, models, simulation, and review.
-- **Optional orientation:** E. T. Jaynes, *Probability Theory: The Logic of Science*, cited only for
+- **Primary text — *Introduction to Probability* by Charles M. Grinstead and J. Laurie Snell**, a
+  free text released under the **GNU Free Documentation License**. It grounds our scope, sequence, and
+  notation level, and is named as a reading in every spine week.
+- **Supplementary text — [MIT OpenCourseWare 18.05](https://ocw.mit.edu/courses/18-05-introduction-to-probability-and-statistics-spring-2022/)**,
+  *Introduction to Probability and Statistics* (**CC BY-NC-SA 4.0**, free). It is used selectively but
+  genuinely — the notes link it alongside Grinstead & Snell for Bayesian reasoning, the standard
+  models, simulation, and review.
+- **Optional orientation — E. T. Jaynes, *Probability Theory: The Logic of Science***, cited only for
   the one-line idea that probability can be read as *extended logic* — quantified reasoning under
-  uncertainty. Nothing from it is reproduced.
+  uncertainty. It is not a course text, and nothing from it is reproduced.
 
 All examples use synthetic data with seeds set. The prose here is original.
 
@@ -92,11 +89,3 @@ prompts, answer keys, point values, or due dates here. The operational side of t
 checkpoints, quizzes, homework, labs, the midterm, the project, and the final, along with all dates
 and submissions — lives in **Blackboard (the LMS)**, which is authoritative. If this site and
 Blackboard ever disagree, follow Blackboard.
-
-::: {.callout-note}
-## Draft course site
-
-This site is a **draft course site**, not a finished release. Some pages are drafts,
-formulas are provisional pending review, and no accessibility-compliance claim is made. Treat it as a
-work in progress rather than the final word.
-:::

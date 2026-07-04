@@ -15,6 +15,7 @@ Thumbs.db
 # treat it as a mistake and remove it before committing.
 /_state/
 /assessment_shadow/
+/assessment_production/
 /source_text/
 /run_reports/
 /specs/

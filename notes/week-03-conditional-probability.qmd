@@ -1,312 +1,380 @@
 ---
 title: "Week 3 — Conditional probability"
-subtitle: "How information changes a probability"
+subtitle: "How a probability changes once you know something"
 page_mode: compressed_week
 week_contract: public_note
 source_mode: source-informed
-depth_rationale: "Labor Day Monday (Sep 7) — class meets W/F only this week; the public note carries the full conditional-probability development as an asynchronous resource."
+depth_rationale: "Compressed week — Labor Day (Mon, Sep 7) means no Monday class; we meet Wednesday and Friday only, so the development is trimmed to the conditioning core."
 readings:
-  - "Grinstead & Snell, Ch 4 — Conditional Probability — supports the definition of P(A|B), the multiplication rule, and updating on information"
-  - "MIT OCW 18.05 — conditional probability and trees — supports the tree-diagram view of staged experiments"
+  - "Grinstead & Snell, Ch 4 — Conditional Probability — supports the definition, the multiplication rule, and trees"
+  - "MIT OCW 18.05 — conditional probability and independence — supports the conditioning-changes-the-answer intuition and the base-rate setup for Bayes"
 toc: true
 ---
 
 ## The week question
 
-When you learn that something happened, how should the probability of everything else change? Last
-week you built sample spaces and learned the addition rule for combining events. This week the central
-question is different: **given that one event is known to have occurred, what is the probability of
-another?** That "given" is the whole story. A probability is never a property of an event alone — it is
-a property of an event *together with what you currently know*. Conditional probability is the precise
-tool for revising a probability when new information arrives.
+Last week we assigned a probability to an event once the sample space and the rules were settled. That number
+is a *before-you-know-anything* statement. But real mornings are not like that: you wake up, you look out the
+window, and you *learn something*. The question this week is simple to state and surprisingly deep — once you
+know that some event has happened, how should the probability of everything else change?
 
-A scheduling note: this is a short week. Because **Labor Day falls on Monday, September 7**, the class
-meets only **Wednesday and Friday**. To keep the development complete, this public note carries the full
-conditional-probability story as an asynchronous resource — read it as the through-line that the two
-shorter in-person sessions point at, rather than as a transcript of three lectures.
+Return to Maya, our commuter student, and her campus shuttle. Across the whole term she catches it on time
+about $81\%$ of mornings; that is the marginal figure $P(\text{on time}) = 0.81$ we built last week. But this
+morning it is raining. Should she still plan around $0.81$? The honest answer is no: when it rains, the
+shuttle runs on time only $60\%$ of the time. The same shuttle, the same student — but the rain has changed
+what she should expect. The number $0.60$ is a **conditional probability**, and learning to compute and reason
+with it is the whole job of Week 3.
+
+A scheduling note: this is a **compressed week**. Labor Day falls on the Monday, so there is no Monday class —
+we meet Wednesday and Friday only. The development below is trimmed to the conditioning core (the definition,
+the multiplication rule, and the probability tree) so that two meetings are enough.
 
 ## Why this matters
 
-Almost every interesting probability statement in this course is secretly conditional. When Maya, our
-commuter student, checks the weather and sees rain, she does not keep using the all-mornings figure for
-catching the shuttle on time — she uses the rainy-morning figure. That switch *is* conditioning. The
-same move drives:
+Conditional probability is the hinge on which the rest of this course turns. Almost everything interesting in
+probability is a statement about how one event's chance shifts in light of another: a test result given a
+disease, a defect given a supplier, a late shuttle given the weather. If you can only ever quote the marginal
+probability — the long-run rate ignoring all context — you are throwing away exactly the information that
+makes a decision worth making.
 
-- **Updating beliefs with evidence.** Bayes' rule (Week 5) is built entirely on the definition you learn
-  this week. You cannot do Bayesian reasoning without conditional probability first.
-- **Diagnostic and screening questions.** "Given a positive test, what is the chance the person actually
-  has the condition?" is a conditional probability, and the answer is famously not what intuition guesses.
-- **Sequential and dependent events.** Drawing cards without replacement, sampling people one at a time,
-  multi-step processes — each step's probability depends on what already happened. The multiplication
-  rule, the other star of this week, is what lets you chain those steps together.
-
-Conditioning is also the precise language for **independence**, which is next week's topic. Two events are
-independent exactly when conditioning on one does not change the probability of the other. So this week is
-the hinge: it gives you the definition that the rest of the course leans on.
+It matters for three reasons you will feel all term. First, **updating**: conditioning is how a probability
+absorbs evidence, and Week 5's Bayes' rule is conditioning run in two directions at once. Second,
+**independence**: next week we ask when learning $B$ leaves $P(A)$ unchanged, a question that only makes
+sense once conditioning is in hand. Third, **modeling**: trees, joint distributions, and the standard models
+later in the term are all built by chaining conditional statements together.
 
 ## Learning goals
 
 By the end of this week you should be able to:
 
-- State the definition $P(A \mid B) = P(A \cap B) / P(B)$ and explain why it requires $P(B) > 0$.
-- Use the **multiplication rule** $P(A \cap B) = P(A \mid B)\,P(B)$ to find the probability of a joint
-  event from a conditional and a marginal.
-- Read and build a simple **tree diagram** for a staged experiment, and recover joint probabilities by
-  multiplying along branches.
-- Interpret conditioning as **updating on information** — narrowing the sample space to the outcomes
-  consistent with what you now know.
-- Verify, in the commuter case, that $P(\text{on time} \mid \text{rain}) = 0.60$ is consistent with the
-  unconditional $P(\text{on time}) = 0.81$ and explain why the two numbers differ.
+- State in plain language what $P(A \mid B)$ means and why it can differ from $P(A)$.
+- Apply the definition $P(A \mid B) = P(A \cap B) / P(B)$, and say why it requires $P(B) > 0$.
+- Rearrange the definition into the **multiplication rule** $P(A \cap B) = P(A \mid B)\,P(B)$ and use it to
+  find the probability of a joint event.
+- Draw and read a **probability tree** for a two-stage process, multiplying along a path to get a path
+  probability.
+- Distinguish **forward conditioning** (cause $\to$ effect, the direction we work this week) from the reverse
+  direction we will need for Bayes in Week 5.
 
 ## Core vocabulary
 
-- **Conditional probability** $P(A \mid B)$ — the probability of $A$ *given that* $B$ has occurred; read
-  "$A$ given $B$." Defined only when $P(B) > 0$.
-- **Conditioning event** — the event $B$ to the right of the bar; the information you are taking as known.
-- **Multiplication rule** — $P(A \cap B) = P(A \mid B)\,P(B)$, the definition rearranged so you can build
-  a joint probability from a conditional one.
-- **Joint event** — $A \cap B$, both happening; its probability is the numerator in the definition.
-- **Reduced sample space** — the set of outcomes still possible once you know $B$; conditioning rescales
-  probabilities so they sum to $1$ over just this reduced space.
-- **Tree diagram** — a branching picture of a staged experiment where each path's probability is the
-  product of the conditional probabilities along its branches.
-
-Carry the bar notation carefully: $P(A \mid B)$ and $P(B \mid A)$ are different questions with generally
-different answers. Keeping the conditioning event straight is half the battle this week.
+- **Conditional probability** $P(A \mid B)$ — the probability of $A$ *given that* $B$ has occurred. Read the
+  bar "$\mid$" as the word "given." It is defined only when $P(B) > 0$.
+- **Conditioning event** — the thing we treat as known, written on the right of the bar ($B$ above). To
+  condition on $B$ is to restrict attention to the worlds where $B$ is true.
+- **Joint probability** $P(A \cap B)$ — the probability that $A$ *and* $B$ both happen.
+- **Multiplication rule** — $P(A \cap B) = P(A \mid B)\,P(B)$, the definition rearranged so we can build a
+  joint probability from a conditional one.
+- **Probability tree** — a branching diagram for a multi-stage experiment; each branch carries a conditional
+  probability, and multiplying along a path gives that path's probability.
+- **Forward conditioning** — conditioning in the natural cause-to-effect direction (here, rain $\to$ on time).
+  The reverse direction (effect $\to$ cause) waits for Bayes in Week 5.
 
 ## Concept development
 
-### From "what is the probability" to "the probability given what I know"
+### Restricting the world to "given B"
 
-Start with a probability you already trust over the whole sample space — the *unconditional* or *marginal*
-probability $P(A)$. Now you learn that event $B$ occurred. Outcomes outside $B$ are no longer possible, so
-you discard them and look only at the outcomes inside $B$. Among those, the ones that also give you $A$ are
-exactly the outcomes in $A \cap B$. The conditional probability is the share of $B$'s probability that
-also lands in $A$:
+The cleanest way to picture conditioning is as a change of *which outcomes are still in play*. Before you know
+anything, the whole sample space $\Omega$ is live and $P(A)$ measures $A$ against all of it. The moment you
+learn that $B$ has occurred, every outcome outside $B$ is ruled out — those worlds simply did not happen. So
+the new universe is $B$ itself, and we ask: within $B$, how much of it is also $A$? That overlap is $A \cap B$
+measured against $B$, which as a fraction gives the definition:
 
 $$
 P(A \mid B) = \frac{P(A \cap B)}{P(B)}, \qquad P(B) > 0.
 $$
 
-Two things deserve emphasis. First, the **denominator $P(B)$** is what rescales the reduced sample space
-so its probabilities again sum to $1$: dividing by $P(B)$ stretches the leftover probability back up to a
-full unit. Second, the requirement $P(B) > 0$ is not a technicality you can wave away — if $B$ is
-impossible, the ratio divides by zero and "given $B$" has no meaning, because you would be conditioning on
-something that never happens. Throughout this course, whenever we write $P(A \mid B)$, take for granted
-that $P(B) > 0$.
+Two things to read off immediately. The denominator is $P(B)$, not $P(\Omega) = 1$ — we have *renormalized* to
+the smaller world $B$. And the precondition $P(B) > 0$ is not a technicality to skip: if $B$ has probability
+zero, "given $B$" describes a world that never occurs, and the fraction divides by zero. Conditioning on an
+impossible event is undefined, full stop.
 
-A useful sanity check: conditioning on the whole sample space $\Omega$ changes nothing, because
-$P(A \mid \Omega) = P(A \cap \Omega)/P(\Omega) = P(A)/1 = P(A)$. The unconditional probability is just the
-conditional probability given "everything," which is another way of saying every probability is conditional
-on *some* background of assumptions — conditioning simply makes the assumed information explicit.
+![**Restricting the world to "given B" (synthetic diagram).** Left: before you know anything, $A$ and $B$
+both sit inside the full sample space $\Omega$, and $P(A)$ is measured against all of it. Right: once you
+learn $B$ has occurred, $B$ itself becomes the new universe — the same overlap $A \cap B$ is now measured
+against $B$, which is exactly $P(A \mid B) = P(A \cap B)/P(B)$.](../assets/figures/wk03_restrict_world_diagram.png){#fig-wk03-restrict fig-alt="Two side-by-side panels. Left panel: a large square labeled Omega containing two overlapping rectangles labeled A and B, with their overlap shaded and marked A intersect B. Right panel: only the B rectangle remains, now filling the panel as the new universe, with the same A and A-intersect-B regions redrawn proportionally inside it."}
 
-### The multiplication rule: building joint probabilities
+::: {.callout-note appearance="minimal"}
+**What the figure shows (non-visual equivalent).** Before conditioning, $A$ and $B$ are two regions inside
+the whole space $\Omega$, and $P(A)$ compares $A$'s area to all of $\Omega$. After you learn $B$ is true, every
+outcome outside $B$ is discarded, so $B$ becomes the whole universe; the conditional probability $P(A \mid B)$
+compares the same overlap $A \cap B$ to the new, smaller universe $B$ instead of to $\Omega$. *Synthetic
+diagram; illustrative.*
+:::
 
-The definition has a denominator, which is awkward when what you actually want is the probability that
-*both* events happen. Clear the denominator and you get the **multiplication rule**:
+### The multiplication rule: building a joint from a conditional
+
+The definition is often easier to *use* in a rearranged form. Multiply both sides by $P(B)$:
 
 $$
 P(A \cap B) = P(A \mid B)\,P(B).
 $$
 
-This says a joint event happens in two stages: first $B$ happens (with probability $P(B)$), and then,
-*given that $B$ happened*, $A$ happens (with probability $P(A \mid B)$). Multiply the stage probabilities
-to get the probability of the whole path. By symmetry you can also condition the other way,
-$P(A \cap B) = P(B \mid A)\,P(A)$ — both are correct, and choosing the order that matches how the
-information actually arrives usually makes the arithmetic easiest. This rule is the engine behind every
-multi-step probability in the course; it is what makes staged experiments computable.
+This is the **multiplication rule** (sometimes the "chain rule" for two events). It says you can build the
+probability of "$A$ and $B$" by first asking how likely $B$ is, then asking how likely $A$ is *once $B$ has
+happened* — and that second step is exactly a conditional probability. In many real problems the conditional
+pieces are the ones you actually know (a meteorologist gives you the on-time rate *given* rain), so the
+multiplication rule is how you assemble the joint event you care about from the conditional facts you have.
 
-### Tree diagrams: conditioning you can see
+The order is a choice, not a law: you could equally write $P(A \cap B) = P(B \mid A)\,P(A)$, because "and" does
+not care which event you name first. Picking the order that matches what you know is half the skill.
 
-A **tree diagram** is the multiplication rule drawn as a picture. Each stage of an experiment becomes a
-fan of branches; you label every branch with the conditional probability of that outcome *given the path
-that led to it*. To get the probability of a complete path, multiply the branch probabilities along it.
-To get the probability of an event that several paths satisfy, add up those paths.
+### Forward conditioning and the probability tree
 
-For the commuter's morning, the first split is the weather and the second is the shuttle:
+A **probability tree** turns the multiplication rule into a picture for a process that happens in stages. You
+draw a branch for each first-stage outcome and label it with that outcome's probability; from the end of each
+first-stage branch you draw the second-stage branches and label *those* with **conditional** probabilities,
+conditional on the branch you are already on. A complete path from the root to a tip is one full scenario, and
+its probability is the product of the probabilities along the path — the "multiply along a path" rule is just
+$P(A \cap B) = P(A \mid B)\,P(B)$ drawn out.
 
-- Stage 1 — rain or no rain: $P(\text{rain}) = 0.30$, $P(\text{no rain}) = 0.70$.
-- Stage 2 — on time or late, *conditioned on the weather*:
-  - given rain: $P(\text{on time} \mid \text{rain}) = 0.60$, $P(\text{late} \mid \text{rain}) = 0.40$;
-  - given no rain: $P(\text{on time} \mid \text{no rain}) = 0.90$,
-    $P(\text{late} \mid \text{no rain}) = 0.10$.
-
-The four leaves multiply to the four joint probabilities — for example the "rain **and** on time" leaf is
-$0.30 \times 0.60 = 0.18$. Notice that the second-stage branches are conditional probabilities, and the
-leaf values are joint probabilities: the tree is literally the multiplication rule, repeated once per path.
-(All numbers here are synthetic; seed set for the simulated versions below.)
-
-### Conditioning as updating on information
-
-The deepest reading of this week is that conditioning is **updating**. Before checking the weather, Maya's
-best probability for catching the shuttle on time is the unconditional $0.81$. The instant she sees rain,
-the relevant sample space shrinks to rainy mornings, and her probability drops to $0.60$. No coin was
-flipped and no shuttle moved — only her information changed. The probability moved because probability
-encodes a state of knowledge, not a fixed physical attribute of the morning.
-
-This is the conceptual seed of the whole Bayesian thread of the course. A probability is a summary of what
-you know; new information conditions on a smaller world; the conditional probability is the updated
-summary. Week 4 asks when information *fails* to update a probability (independence), and Week 5 turns the
-machinery around to ask what the evidence tells you about its cause (Bayes' rule). All of it is this one
-definition, viewed from different angles.
+For the shuttle, the natural first stage is the weather, because it comes first and *drives* the on-time
+outcome. Conditioning in this order — from the cause (rain) to the effect (on time) — is what we mean by
+**forward conditioning**. It is the direction in which the facts are usually quoted, and the direction the
+tree is naturally drawn. The reverse question — *given that the shuttle was late, how likely is it that it
+rained?* — runs against the arrow of the process, and answering it cleanly needs Bayes' rule, which we set up
+at the end of the week and pay off in Week 5.
 
 ## Worked examples
 
-### Worked example — the commuter's morning (recurring slice)
+All data below are **synthetic; seed set** (the course seed `35003`).
 
-**Symbolic setup.** Let $R$ be the event "it rains" and $O$ the event "the shuttle is on time." We are
-given the conditional reliability $P(O \mid R) = 0.60$ and the rain rate $P(R) = 0.30$, and from Week 1's
-marginal we know the unconditional $P(O) = 0.81$. We want to confirm that the conditional definition is
-internally consistent: that the joint $P(O \cap R)$ implied by the multiplication rule, divided by $P(R)$,
-returns the $0.60$ we started with.
+### Worked example — the shuttle, given rain
 
-By the multiplication rule, the joint probability of rain **and** an on-time shuttle is
+**Setup (symbolic).** Let $R$ be the event "it rains this morning" and $T$ the event "the shuttle is on time."
+Our synthetic world fixes the weather and the two weather-dependent on-time rates:
 
 $$
-P(O \cap R) = P(O \mid R)\,P(R).
+P(R) = 0.30, \qquad P(T \mid R) = 0.60, \qquad P(T \mid R^{c}) = 0.90.
 $$
 
-The definition of conditional probability run in reverse then recovers the conditional we were given:
+So on a dry morning the shuttle is quite reliable ($0.90$), and rain knocks the on-time chance down to $0.60$.
+
+**Building the joint pieces (numeric).** The multiplication rule turns these conditional facts into the
+probabilities of the full morning scenarios. Multiply along each path:
 
 $$
-P(O \mid R) = \frac{P(O \cap R)}{P(R)}.
+P(T \cap R) = P(T \mid R)\,P(R) = (0.60)(0.30) = 0.18,
 $$
 
-**Numeric.** Substitute the locked numbers into the multiplication rule:
-
 $$
-P(O \cap R) = 0.60 \times 0.30 = 0.18.
+P(T \cap R^{c}) = P(T \mid R^{c})\,P(R^{c}) = (0.90)(0.70) = 0.63.
 $$
 
-Now divide that joint probability by the probability of the conditioning event:
+**Recovering the marginal.** An on-time morning happens either with rain or without, and those two cases do
+not overlap, so we add the two path probabilities:
 
 $$
-P(O \mid R) = \frac{0.18}{0.30} = 0.60.
+P(T) = P(T \cap R) + P(T \cap R^{c}) = 0.18 + 0.63 = 0.81.
 $$
 
-The loop closes: $0.18 / 0.30 = 0.60$, exactly the rainy-morning reliability we assumed. The point is the
-contrast with the unconditional figure. Across *all* mornings the shuttle is on time with probability
-$P(O) = 0.81$, but on the mornings you *know* it is raining the probability is only $0.60$. Knowing it
-rained genuinely changes the probability — from $0.81$ down to $0.60$ — because rainy mornings are a worse
-sub-population for the shuttle, and conditioning restricts attention to exactly that sub-population. Because
-$0.60 \neq 0.81$, rain and on-time arrival are **not** independent, which is the question Week 4 takes up.
+There is the term-long figure $P(\text{on time}) = 0.81$. Now hold it next to the conditional
+$P(T \mid R) = 0.60$. They are different numbers — and that difference is the whole point. The marginal $0.81$
+is what Maya should expect knowing *nothing* about today; the conditional $0.60$ is what she should expect once
+she has looked out the window and seen rain. Knowing it is raining genuinely changes the answer, from $0.81$
+down to $0.60$.
 
-### Worked example — two cards without replacement (transfer)
+![**Marginal vs. conditional on-time rates (synthetic).** The marginal $P(\text{on time}) = 0.81$ sits between
+the two weather-conditional rates: rain pulls it down to $0.60$, and no rain pushes it up to $0.90$. The dashed
+line marks the marginal so the two conditional bars' displacement from it is easy to
+read.](../assets/figures/wk03_marginal_vs_conditional_bars.png){#fig-wk03-bars fig-alt="A bar chart with three bars: P of on time (marginal) at 0.81, P of on time given rain at 0.60, and P of on time given no rain at 0.90. A dashed horizontal line at 0.81 marks the marginal for comparison."}
 
-**Symbolic setup.** Move to a fresh context to see the same two rules at work. A standard $52$-card deck
-has $4$ aces. Draw two cards one after another *without replacement* and ask for the probability that
-**both** are aces. Let $A_1$ be "first card is an ace" and $A_2$ be "second card is an ace." The two draws
-are dependent: removing the first card changes what is left for the second, so the second draw's
-probability must be *conditioned* on the first. The multiplication rule gives
+::: {.callout-note appearance="minimal"}
+**What the figure shows (non-visual equivalent).** Three numbers on the same scale: the marginal $0.81$, the
+rain-conditional $0.60$ (below the marginal), and the no-rain-conditional $0.90$ (above the marginal).
+Conditioning on the weather moves the on-time probability away from the marginal in the direction you would
+expect. *Synthetic instructional example; numbers are illustrative.*
+:::
 
-$$
-P(A_1 \cap A_2) = P(A_1)\,P(A_2 \mid A_1).
-$$
+Here is that same process drawn as a probability tree — the two-stage branching picture the multiplication
+rule builds, one branch per weather outcome and one sub-branch per on-time outcome:
 
-**Numeric.** On the first draw, $4$ of $52$ cards are aces, so
+![**The shuttle, as a probability tree (synthetic).** Stage 1 branches on rain (0.30) vs. no rain (0.70);
+stage 2 branches on on time vs. late, with the conditional rate for the branch you are already on. Multiplying
+along a path gives that path's probability; the four paths sum to
+$1$.](../assets/figures/wk03_probability_tree.png){#fig-wk03-tree fig-alt="A two-stage probability tree starting at a single point. The first stage splits into rain (0.30) and no rain (0.70). The rain branch splits into on time (0.60) and late (0.40); the no rain branch splits into on time (0.90) and late (0.10). The four path tips are labeled with their path probabilities: 0.18, 0.12, 0.63, and 0.07."}
 
-$$
-P(A_1) = \frac{4}{52} = \frac{1}{13}.
-$$
+::: {.callout-note appearance="minimal"}
+**What the figure shows (non-visual equivalent).** Multiplying along each path: rain-then-on-time
+$= 0.30 \times 0.60 = 0.18$; rain-then-late $= 0.30 \times 0.40 = 0.12$; no-rain-then-on-time
+$= 0.70 \times 0.90 = 0.63$; no-rain-then-late $= 0.70 \times 0.10 = 0.07$. The four paths sum to $1.00$, and
+the two on-time paths add to the marginal $0.18 + 0.63 = 0.81$. *Synthetic instructional example; numbers are illustrative.*
+:::
 
-If the first card *was* an ace, only $3$ aces remain among the $51$ remaining cards, so the conditional
-probability of a second ace is
+It is worth laying that same tree out as a small table — each row is one root-to-tip path, and the path
+probabilities sum to $1$:
 
-$$
-P(A_2 \mid A_1) = \frac{3}{51} = \frac{1}{17}.
-$$
+| Weather (stage 1) | On time? (stage 2) | Path probability |
+|---|---|---|
+| Rain ($0.30$) | On time ($0.60$) | $0.30 \times 0.60 = 0.18$ |
+| Rain ($0.30$) | Late ($0.40$) | $0.30 \times 0.40 = 0.12$ |
+| No rain ($0.70$) | On time ($0.90$) | $0.70 \times 0.90 = 0.63$ |
+| No rain ($0.70$) | Late ($0.10$) | $0.70 \times 0.10 = 0.07$ |
 
-Multiply the two stages — exactly the path through a two-level tree:
+: Path-probability table: weather stage, on-time stage, and the multiplied path probability for
+each of the four root-to-tip paths; the numeric companion to the probability-tree figure above.
+{#tbl-wk03-path-probability-table}
 
-$$
-P(A_1 \cap A_2) = \frac{4}{52} \times \frac{3}{51} = \frac{12}{2652} = \frac{1}{221} \approx 0.0045.
-$$
+The four paths total $0.18 + 0.12 + 0.63 + 0.07 = 1.00$, as they must, and the two "on time" rows again give
+$0.18 + 0.63 = 0.81$. We have just computed forward conditioning in full: the tree took us cleanly from the
+cause (weather) to the effect (on time). The reverse trip — from "late" back to "rain" — is the Week 5 story.
 
-The conditioning is doing real work here. The naive "with replacement" guess would be
-$(4/52)^2 = 1/169 \approx 0.0059$, larger because it ignores that one ace has already been used up. Sampling
-without replacement makes the second draw depend on the first, and the multiplication rule with its
-*conditional* second factor is what records that dependence.
-
-You can confirm the figure by simulation. The chunk below is shown as teaching, not executed
-here; running it later (with the seed set) will land near $1/221$.
+If you would like to see this as code (shown for teaching; not run in this build):
 
 ```{r}
-#| label: two-aces-without-replacement
+#| label: shuttle-conditioning
 #| eval: false
-
 set.seed(35003)
-deck <- rep(c("ace", "other"), times = c(4, 48))  # 4 aces, 48 non-aces
-trials <- 100000
-both_aces <- replicate(trials, {
-  hand <- sample(deck, size = 2, replace = FALSE)   # draw 2 without replacement
-  all(hand == "ace")
-})
-mean(both_aces)          # simulated P(both aces); compare to 1/221 ~ 0.00452
-1 / 221                  # exact value for reference
+
+p_rain      <- 0.30
+p_ontime_R  <- 0.60   # P(on time | rain)
+p_ontime_Rc <- 0.90   # P(on time | no rain)
+
+# multiplication rule: joint path probabilities
+joint_ontime_rain   <- p_ontime_R  * p_rain          # P(T and R)
+joint_ontime_norain <- p_ontime_Rc * (1 - p_rain)    # P(T and R^c)
+
+# marginal by adding the disjoint paths
+p_ontime <- joint_ontime_rain + joint_ontime_norain  # 0.81
+
+c(joint_ontime_rain = joint_ontime_rain,
+  joint_ontime_norain = joint_ontime_norain,
+  p_ontime = p_ontime)
 ```
+
+### Worked example — two cards, given the first is an ace (transfer)
+
+**Setup (symbolic).** Take a standard, well-shuffled $52$-card deck and deal two cards *without replacement* —
+the first card is set aside, not returned, before the second is drawn. Let $A_1$ be "the first card is an ace"
+and $A_2$ be "the second card is an ace." We want $P(A_2 \mid A_1)$: given that the first card came up an ace,
+how likely is the second to be an ace too?
+
+This is the same conditioning move in a brand-new setting. "Without replacement" is what makes the two draws
+*depend* on each other — what you see on the first draw changes the deck the second draw is taken from.
+
+**Reasoning it out (numeric).** Condition on $A_1$ by restricting to the world where the first card is an ace.
+In that world one ace is gone and one card removed: $51$ cards remain, only $3$ of them aces. The chance the
+next card is an ace is counted directly in the reduced deck:
+
+$$
+P(A_2 \mid A_1) = \frac{3}{51} = \frac{1}{17} \approx 0.0588.
+$$
+
+Compare that to the *unconditional* chance that the second card is an ace, $P(A_2) = 4/52 = 1/13 \approx 0.0769$.
+Conditioning on a first ace pulled the number *down*, because spending an ace on the first draw leaves fewer
+aces for the second. Once again, learning something changed the answer.
+
+![**Two cards, without replacement, given the first is an ace (synthetic).** The branch of the tree this
+example needs: given the first card is an ace ($4/52$), the second-draw branches become $3/51$ (ace) and
+$48/51$ (not ace). The other first-draw branch (first card not an ace) is shown but not expanded — it is not
+needed for $P(A_2 \mid A_1)$.](../assets/figures/wk03_card_tree_without_replacement.png){#fig-wk03-cardtree fig-alt="A probability tree. The first stage splits into first card is an ace (4/52, highlighted) and first card is not an ace (48/52, grayed out and not expanded). From the ace branch, the second stage splits into second card is an ace (3/51) and second card is not an ace (48/51). The ace-ace path is labeled with its probability, 1/221, about 0.0045. A caption line compares the conditional 3/51 to the unconditional 4/52."}
+
+::: {.callout-note appearance="minimal"}
+**What the figure shows (non-visual equivalent).** Once you condition on the first card being an ace, the
+second draw is taken from a $51$-card deck holding only $3$ aces, so $P(A_2 \mid A_1) = 3/51 \approx 0.0588$ —
+lower than the unconditional $P(A_2) = 4/52 \approx 0.0769$, because the first draw used up one of the four
+aces. The other first-draw branch (first card not an ace) is not needed for this question and is left
+unexpanded. *Synthetic instructional example; numbers are illustrative.*
+:::
+
+We can also confirm the definition gives the same value. Using $P(A_1) = 4/52$ and the multiplication rule for
+the joint "both aces,"
+
+$$
+P(A_1 \cap A_2) = \frac{4}{52}\cdot\frac{3}{51} = \frac{12}{2652} = \frac{1}{221},
+$$
+
+$$
+P(A_2 \mid A_1) = \frac{P(A_1 \cap A_2)}{P(A_1)} = \frac{1/221}{4/52} = \frac{3}{51} \approx 0.0588,
+$$
+
+which matches the direct count. The definition and the "restrict the world" picture are two views of one idea.
 
 ## A common mistake
 
-The most common error this week is **swapping the conditioning event** — treating $P(A \mid B)$ and
-$P(B \mid A)$ as the same number. They are not. In the commuter case, $P(\text{on time} \mid \text{rain})
-= 0.60$ answers "of rainy mornings, how many are on time?" while $P(\text{rain} \mid \text{on time})$
-answers the reverse, "of on-time mornings, how many were rainy?" — a completely different question with a
-different denominator. The two are linked by Bayes' rule (Week 5), not equal. A related slip is forgetting
-the denominator entirely and reporting the *joint* probability $P(A \cap B)$ when the question asked for
-the *conditional* $P(A \mid B)$: the joint rain-and-on-time figure is $0.18$, but the conditional on-time-
-given-rain figure is $0.60$, and confusing them is an order-of-magnitude error. When in doubt, write the
-definition out as a ratio and name the conditioning event in words before you compute.
+The mistake that catches almost everyone first is reading the bar in the wrong direction — treating
+$P(A \mid B)$ and $P(B \mid A)$ as if they were the same number. They are emphatically not. In the shuttle
+world $P(T \mid R) = 0.60$ is "given rain, on time," while $P(R \mid T)$ — "given the shuttle was on time, how
+likely is it that it rained" — is a different quantity entirely, and the reverse trip we are saving for Bayes.
+Whenever you write a conditional, say it out loud as "the probability of *[left]* given *[right]*," and make
+sure the thing on the right is genuinely the thing you are taking as known.
+
+![**Two different directions (synthetic diagram).** Left: the direction Week 3 actually computes — given rain
+(known), what is the chance of on time? Right: a different question the mistake confuses it with — given on
+time (known), what is the chance it rained? That reverse direction is not answered here; it needs Bayes' rule,
+which waits until Week 5.](../assets/figures/wk03_conditioning_direction_misconception.png){#fig-wk03-misconception fig-alt="Two labeled panels side by side. Left panel, titled what Week 3 computes forward: given it is raining leads to is the shuttle on time leads to P of on time given rain equals 0.60. Right panel, titled a different question reverse: given the shuttle is on time leads to did it rain leads to P of rain given on time equals a question mark, needs Bayes in Week 5."}
+
+::: {.callout-note appearance="minimal"}
+**What the figure shows (non-visual equivalent).** The two panels condition on *different* things. The left
+panel takes rain as known and asks about on-time — that is $P(T \mid R) = 0.60$, the number this week computes.
+The right panel takes on-time as known and asks about rain — that is $P(R \mid T)$, a different quantity this
+page does not compute; finding it needs Bayes' rule (Week 5). *Synthetic diagram; illustrative.*
+:::
+
+A close cousin of this slip is quoting the marginal when the conditional is what the situation calls for. If
+you already know it is raining, planning around $P(T) = 0.81$ instead of $P(T \mid R) = 0.60$ ignores the very
+information you have. And one precondition is easy to forget under pressure: $P(A \mid B)$ only makes sense
+when $P(B) > 0$. If $B$ cannot happen, there is no world to condition on, and the expression is undefined
+rather than zero.
 
 ## Low-stakes self-checks (ungraded)
 
-These are ungraded self-checks — work them on paper to test your grip on the definition, then read on.
-No answers are posted here; that is by design.
+Work these on your own; they are practice, not graded, and no answer key lives on this site.
 
-- Using only the locked commuter numbers, compute $P(\text{late} \mid \text{rain})$ and confirm it agrees
-  with $1 - P(\text{on time} \mid \text{rain})$.
-- Find the joint probability $P(\text{no rain} \cap \text{on time})$ by multiplying along the relevant
-  tree branch, then check that the four joint probabilities sum to $1$.
-- For the two-card example, compute $P(\text{second is an ace})$ *unconditionally* and explain why it still
-  equals $4/52$ even though the draws are dependent.
-- Explain in one sentence why $P(A \mid B)$ is undefined when $P(B) = 0$.
+1. In words, what is the difference between $P(\text{on time} \mid \text{rain})$ and $P(\text{on time})$? Which
+   one should Maya use on a morning when she has already seen rain, and why?
+2. Using the shuttle numbers, find $P(\text{late} \mid \text{rain})$ and $P(\text{late} \mid \text{no rain})$
+   directly from the tree, then check that the four path probabilities still sum to $1$.
+3. Use the multiplication rule to write $P(\text{rain and late})$ as a product of a conditional and a marginal,
+   and compute it.
+4. For the two-card example, redo the reasoning for $P(\text{second card is an ace} \mid \text{first card is a king})$.
+   Did conditioning change the second-draw chance this time? Explain why the answer differs from the
+   first-ace case.
+5. Explain, in one or two sentences, why $P(A \mid B)$ requires $P(B) > 0$. What would go wrong in the formula
+   if $P(B) = 0$?
 
 ## Reading and source pointer
 
-This week's spine is **Grinstead & Snell, Chapter 4 — Conditional Probability**, which develops the
-definition $P(A \mid B) = P(A \cap B)/P(B)$, the multiplication rule, and the tree-diagram view of staged
-experiments. For an alternate take on conditioning and trees, the **MIT OCW 18.05** materials on
-conditional probability are a useful supplement. These notes are the course's own synthesis, grounded in
-but not copied from the sources; all data are synthetic with seeds set.
+For this week's spine, read **Grinstead & Snell, *Introduction to Probability*, Chapter 4 (Conditional
+Probability)** — the definition of conditional probability, the multiplication rule, and the use of trees for
+staged experiments. The free online text is at
+<https://www.dartmouth.edu/~chance/teaching_aids/books_articles/probability_book/book.html>.
 
-## Formula-verification status
+Alongside it, read the conditional-probability and independence material in **MIT OpenCourseWare 18.05,
+*Introduction to Probability and Statistics*** — its treatment of how a probability shifts once you condition,
+and its base-rate examples, set up nicely for the Bayes work in Week 5. The course is free at
+<https://ocw.mit.edu/courses/18-05-introduction-to-probability-and-statistics-spring-2022/>.
 
-**verified: false.** The formulas on this page are drafted but not yet machine-checked, so the **math gate
-is BLOCKED**. Treat every expression here — the definition, the multiplication rule, and the worked
-arithmetic — as **provisional pending human sign-off**. The numbers are designed to be internally
-consistent (for instance $0.18/0.30 = 0.60$ and $4/52 \times 3/51 = 1/221$), but consistency is not
-verification; do not rely on these as confirmed results until the gate is cleared.
+These notes are the course's own synthesis, grounded in but not copied from the sources.
 
 ## Public vs. graded
 
 These notes, the examples, and the practice here are **public and ungraded** — study material only. No
-graded prompts, answer keys, rubrics, point values, or due dates appear on this site. Graded checkpoints,
-quizzes, homework, labs, the midterm, the project, and the final live in **Blackboard (the LMS)**, which is
-authoritative for due dates, submissions, and grades. If this page and Blackboard ever disagree, follow
-Blackboard.
+graded prompts, answer keys, rubrics, point values, or due dates appear on this site. Graded
+checkpoints, quizzes, homework, labs, the midterm, the project, and the final live in **Blackboard
+(the LMS)**, which is authoritative for due dates, submissions, and grades. If this page and Blackboard
+ever disagree, follow Blackboard.
 
 ## Looking ahead
 
-Next week sharpens conditioning into a yes-or-no question: **independence**. Two events are independent
-exactly when conditioning on one leaves the other's probability unchanged — that is, when $P(A \mid B) =
-P(A)$. We already have the evidence that rain and on-time arrival are *not* independent ($0.60 \neq 0.81$),
-and Week 4 will make that observation precise and contrast it with a genuinely independent pair, like two
-coin flips. Then Week 5 turns the bar around with Bayes' rule to ask what an observation tells us about its
-hidden cause.
+Conditioning naturally raises its own follow-up question: *when does conditioning change nothing at all?* If
+learning $B$ leaves $P(A)$ exactly where it was, we call $A$ and $B$ **independent** — and **Week 4** makes
+that precise, contrasting the shuttle (on-time and rain are *not* independent, since $0.60 \neq 0.81$) with a
+genuinely independent setup like successive coin tosses. Then **Week 5** runs conditioning in reverse: the
+multiplication rule, written in both orders and combined with the law of total probability, becomes **Bayes'
+rule**, which is how we get from "given rain, late" back to "given late, rain." Everything we did with the
+forward tree this week is the scaffolding for that reversal.
 
 ## See also
 
-- [Notation glossary](../resources/notation-glossary.qmd) — the bar notation $P(A \mid B)$, joint and
-  marginal probabilities, and the conventions used here.
-- [Distribution reference](../resources/distribution-reference.qmd) — for the models built on top of this
-  conditioning machinery later in the course.
-- [Syllabus](../syllabus.qmd) — calendar, structure, and where graded work actually lives.
+- [Week 2 — Sample spaces, events & rules](week-02-sample-spaces-events-rules.qmd) — the sample space, the
+  complement, and the addition rule we lean on here.
+- [Week 4 — Independence & information](week-04-independence-and-information.qmd) — when conditioning leaves a
+  probability unchanged.
+- [Week 5 — Bayes' rule & updating](week-05-bayes-rule-and-updating.qmd) — conditioning run in reverse.
+- [Notation glossary](../resources/notation-glossary.qmd) — the binding meaning of $P(A \mid B)$, $A \cap B$,
+  and the rest of the symbols used above.
+- [Distribution reference](../resources/distribution-reference.qmd) — for the models that later get built by
+  chaining conditional statements together.
+- [Course syllabus](../syllabus.qmd) — the calendar (including the Labor Day no-class Monday) and the policies
+  behind this week's rhythm.

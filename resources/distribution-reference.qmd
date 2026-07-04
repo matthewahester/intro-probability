@@ -5,123 +5,201 @@ page-type: reference
 toc: true
 ---
 
-This card collects the probability models you meet across the course in one place. It is a **pointer**,
-not a derivation: each row names a model, gives its mass or density, its mean and variance, and a short
-cue for *when the model fits*. Use it the way you would use a multiplication table — to recognize a
-shape quickly, then go back to the relevant week note for the reasoning behind it. The numbers in the
-"when it fits" column are matched to the recurring **commuter's-morning** world (Maya, her shuttle, her
-quiz) so the abstractions stay attached to something concrete.
+Keep this page open while you read the model weeks (Weeks 9 and 11) and work the labs. It is a
+**recognition card**, not a derivation: it collects the handful of named distributions this course uses,
+their probability functions, their mean and standard deviation, and — just as important — the one-sentence
+story that tells you *when each one fits*. Every formula here is developed and motivated in the week notes;
+this page is where you come to look one up fast.
 
-Symbols here follow the course ledger exactly. If a symbol looks unfamiliar — for instance, why
-$f(x)$ is a **density** and not a probability, or why Exponential is written as a **rate** — see the
-companion [notation glossary](notation-glossary.qmd). All data referenced are **synthetic; seeds set.**
+A word on the numbers before we start. Every worked figure on this page belongs to the same recurring example
+the rest of the course uses — **Maya's commuter morning** — so the binomial $n = 10$, $p = 0.5$ quiz, the
+Poisson rate $\lambda = 4$ shuttles per hour, the exponential wait, and the normal commute all carry exactly
+the values used in the notes. Any simulation on this page uses seed 35003, matching the notation glossary
+and the weekly notes.
+
+Two conventions govern the whole card, because they are exactly where first-course mistakes hide:
+
+- **Exponential$(\lambda)$ uses a rate.** $\lambda$ is events per unit time; the *mean wait* is its
+  reciprocal $1/\lambda$, not $\lambda$.
+- **Normal$(\mu, \sigma)$ uses mean and standard deviation.** The second slot is $\sigma$, never the
+  variance $\sigma^2$.
+
+Both choices match R's functions (`rexp(rate = )`, `rnorm(mean = , sd = )`), which is why the [In R](#in-r)
+section below uses them without translation.
 
 ## Discrete models
 
-A discrete model puts probability on a list of separate values. Its **probability mass function** (pmf)
-$p(x) = P(X = x)$ gives the actual probability of each value, and the masses sum to $1$.
+A **discrete** model describes a quantity you can in principle list and count — a number of correct answers,
+a number of arrivals, the trial on which something first happens. Its probabilities live in a **probability
+mass function** $p(x) = P(X = x)$: the actual probability of each value, and the values' probabilities sum to
+$1$. You read a discrete probability by *adding up* the masses of the outcomes you care about.
 
-| Model | pmf $p(x)$ | Mean $E[X]$ | Variance $\operatorname{Var}(X)$ | When it fits |
+| Model | pmf $p(x)$ | Mean | Variance | When it fits |
 |---|---|---|---|---|
-| **Bernoulli$(p)$** | $p^x (1-p)^{1-x}$, $x\in\{0,1\}$ | $p$ | $p(1-p)$ | One yes/no trial: rain today ($p=0.30$); a single coin flip. |
-| **Binomial$(n,p)$** | $\binom{n}{x} p^x (1-p)^{n-x}$, $x\in\{0,\dots,n\}$ | $np$ | $np(1-p)$ | Count of successes in $n$ independent same-$p$ trials: correct answers on the 10-question guessing quiz, $n=10$, $p=0.5$. |
-| **Geometric$(p)$** | $(1-p)^{x-1} p$, $x\in\{1,2,\dots\}$ | $\dfrac{1}{p}$ | $\dfrac{1-p}{p^2}$ | Number of trials up to and **including** the first success: how many mornings until the first late shuttle. |
-| **Poisson$(\lambda)$** | $\dfrac{e^{-\lambda}\,\lambda^{x}}{x!}$, $x\in\{0,1,2,\dots\}$ | $\lambda$ | $\lambda$ | Count of events in a fixed window when events are rare and independent: shuttle arrivals in an hour, $\lambda = 4$. |
+| $\text{Bernoulli}(p)$ | $p(1)=p,\ p(0)=1-p$ | $p$ | $p(1-p)$ | one yes/no trial: a single success-or-failure with success probability $p$ |
+| $\text{Binomial}(n,p)$ | $\dbinom{n}{x}p^{x}(1-p)^{n-x}$, $x=0,\dots,n$ | $np$ | $np(1-p)$ | the count of successes in $n$ **independent** trials, each with the same $p$ |
+| $\text{Geometric}(p)$ | $(1-p)^{x-1}p$, $x=1,2,\dots$ | $\dfrac{1}{p}$ | $\dfrac{1-p}{p^{2}}$ | the **trial number** of the first success in independent trials (this course counts trials, support $\{1,2,\dots\}$) |
+| $\text{Poisson}(\lambda)$ | $\dfrac{e^{-\lambda}\lambda^{x}}{x!}$, $x=0,1,2,\dots$ | $\lambda$ | $\lambda$ | the count of independent events in a fixed window when they arrive at a steady average rate $\lambda$ |
 
-Two cues to keep:
+A few notes on reading this table.
 
-- A **Bernoulli** is just a **Binomial$(1,p)$** — one trial. A **Binomial** is a sum of $n$ independent
-  Bernoulli$(p)$ trials. That is why the binomial mean $np$ is $n$ copies of the Bernoulli mean $p$.
-- For **Poisson** the mean and variance are equal, both $\lambda$. If a count's spread looks much larger
-  than its average, a plain Poisson may not fit.
+- **Bernoulli is the atom.** A single Bernoulli$(p)$ trial is the building block; a binomial is what you get
+  by adding up $n$ independent Bernoulli trials, which is exactly why its mean $np$ and variance $np(1-p)$ are
+  $n$ copies of the Bernoulli mean $p$ and variance $p(1-p)$.
+- **The quiz is a binomial.** Maya's recurring 10-question true/false quiz, answered by pure guessing, is
+  $X \sim \text{Binomial}(n = 10,\ p = 0.5)$. Its mean is $np = 10 \cdot 0.5 = 5$ correct, its variance is
+  $np(1-p) = 10 \cdot 0.5 \cdot 0.5 = 2.5$, and its standard deviation is $\sqrt{2.5} \approx 1.58$. Those are
+  the same numbers Week 8 derives by hand and Week 9 re-reads off the formula.
+- **Geometric counts trials, not failures.** This is a real convention fork and a frequent bug. *This course*
+  defines $\text{Geometric}(p)$ as the **trial on which the first success occurs**, so its smallest value is
+  $1$ and its mean is $1/p$. (R defines its `*geom` family differently — see the [In R](#in-r) flag below.)
+- **Poisson is the count partner of the exponential.** Maya's shuttles arrive, independently, at a steady
+  $\lambda = 4$ per hour. The *number* arriving in an hour is $N \sim \text{Poisson}(4)$, with mean and
+  variance both equal to $4$; for instance $P(N = 4) = e^{-4}4^{4}/4! \approx 0.195$. The *wait* until the
+  next one is the exponential below, with the same $\lambda$.
+
+For a discrete model, a range probability is a sum: $P(a \le X \le b) = \sum_{x=a}^{b} p(x)$, and the masses
+over all values obey
+
+$$
+\sum_{x} p(x) = 1 .
+$$
 
 ## Continuous models
 
-A continuous model spreads probability over an interval of the real line. Its **density** $f(x)$ is
-**not** a probability — single points have probability $0$. Probability is **area under the density**:
-$$
-P(a \le X \le b) = \int_a^b f(x)\,dx,
-\qquad
-\int_{-\infty}^{\infty} f(x)\,dx = 1.
-$$
+A **continuous** model describes a quantity measured on a scale — a length of time, a duration, a physical
+measurement — where listing the values one by one makes no sense and the probability of any single exact
+value is $0$. Its probabilities live in a **probability density function** $f(x)$, and the crucial mental
+shift from the discrete world is this: $f(x)$ is **not a probability**. It is a *height*. Probability is the
+**area** under that height across an interval. You read a continuous probability by *integrating* the density
+over the range you care about — or, far more often in practice, by reading the **cdf** $F(x) = P(X \le x)$.
 
-| Model | density $f(x)$ | Mean $E[X]$ | Variance $\operatorname{Var}(X)$ | When it fits |
+| Model | density $f(x)$ | Mean | SD $\sigma$ | When it fits |
 |---|---|---|---|---|
-| **Uniform$(a,b)$** | $\dfrac{1}{b-a}$ for $a \le x \le b$, else $0$ | $\dfrac{a+b}{2}$ | $\dfrac{(b-a)^2}{12}$ | Every value in a range equally plausible: a "uniform on $[0,1]$" draw, the engine of simulation. |
-| **Exponential$(\lambda)$** | $\lambda e^{-\lambda x}$ for $x \ge 0$, else $0$ | $\dfrac{1}{\lambda}$ | $\dfrac{1}{\lambda^2}$ | Waiting time until the next event when events arrive at a constant rate: wait for the next shuttle, $\lambda = 4$/hr, mean $15$ min. |
-| **Normal$(\mu,\sigma)$** | $\dfrac{1}{\sigma\sqrt{2\pi}}\exp\!\left(-\dfrac{(x-\mu)^2}{2\sigma^2}\right)$ | $\mu$ | $\sigma^2$ | A symmetric bell around a center, totals and averages of many small effects: commute time $C \sim \text{Normal}(\mu = 22,\ \sigma = 5)$ minutes. |
+| $\text{Uniform}(a,b)$ | $\dfrac{1}{b-a}$ on $[a,b]$, else $0$ | $\dfrac{a+b}{2}$ | $\dfrac{b-a}{\sqrt{12}}$ | a value equally likely anywhere in a known interval; no part is preferred |
+| $\text{Exponential}(\lambda)$ | $\lambda e^{-\lambda x}$, $x \ge 0$ | $\dfrac{1}{\lambda}$ | $\dfrac{1}{\lambda}$ | the wait until the next event in a steady, independent arrival process; $\lambda$ is a **rate** |
+| $\text{Normal}(\mu,\sigma)$ | $\dfrac{1}{\sigma\sqrt{2\pi}}\,e^{-\frac{(x-\mu)^{2}}{2\sigma^{2}}}$ | $\mu$ | $\sigma$ | a symmetric, bell-shaped measurement; especially a sum or average of many small effects |
 
-Two cues to keep:
+The defining statement for every continuous model is that probability is area: for any interval $[a, b]$,
 
-- **Exponential** is the continuous partner of **Poisson**: if events occur Poisson with rate $\lambda$,
-  the gaps **between** events are Exponential$(\lambda)$. That is why both use the same $\lambda$.
-- **Normal** is written here with the **standard deviation** $\sigma$, not the variance, matching the
-  course parameterization. So $\text{Normal}(22, 5)$ has $\sigma = 5$ minutes and $\sigma^2 = 25$.
+$$
+P(a \le X \le b) = \int_{a}^{b} f(x)\,dx ,
+$$
+
+and, because some value must occur, the **total area under any density is one**:
+
+$$
+\int_{-\infty}^{\infty} f(x)\,dx = 1 .
+$$
+
+Reading the continuous table:
+
+- **Exponential is parameterized by its rate.** Maya's shuttles arrive at rate $\lambda = 4$ per hour, so the
+  wait $T \sim \text{Exponential}(\lambda = 4/\text{hr})$ has **mean $1/\lambda = 1/4$ hour $= 15$ minutes**,
+  not 4. Its cdf has a clean closed form you will use constantly,
+
+  $$
+  F(t) = P(T \le t) = 1 - e^{-\lambda t}, \qquad t \ge 0,
+  $$
+
+  so the chance the next shuttle comes within one mean-wait is $P(T \le 15\text{ min}) = 1 - e^{-1} \approx
+  0.632$. Keep $\lambda$ and $t$ on the same clock: with $\lambda$ per hour, 15 minutes enters as $t = 1/4$.
+- **Normal is parameterized by mean and standard deviation.** Maya's commute is
+  $C \sim \text{Normal}(\mu = 22, \sigma = 5)$ minutes — the second slot is the **standard deviation**, not
+  the variance. The normal density has no elementary antiderivative, so you do not integrate it by hand; you
+  **standardize**. Convert to a $z$-score and read the standard-normal cdf $\Phi$:
+
+  $$
+  P(C \le c) = \Phi\!\left(\frac{c - \mu}{\sigma}\right), \qquad
+  z = \frac{c - \mu}{\sigma}.
+  $$
+
+  For a 30-minute commute, $z = (30 - 22)/5 = 1.6$, so $P(C \le 30) = \Phi(1.6) \approx 0.945$. Had you read
+  the $5$ as a variance and used $\sqrt 5$ in the denominator, the same formula would return a confidently
+  wrong number — which is exactly why the parameterization is stated out loud every time.
+- **Uniform is the simulation workhorse.** Its flat density makes probabilities into plain fractions of the
+  interval, $P(c \le X \le d) = (d - c)/(b - a)$, and the $\text{Uniform}(0, 1)$ draws a computer produces are
+  the raw material behind nearly every simulation in the labs.
 
 ## Reading the table
 
-The skill this card trains is **recognition**: read a situation, match its assumptions to a row, then
-borrow that row's formulas. Work from the assumptions, not from the answer you want.
+The hard part of a probability problem is almost never the arithmetic; it is **deciding which row of these
+two tables you are in**. Here is the recognition procedure to run before you reach for any formula.
 
-Ask, in order:
+1. **Discrete or continuous?** Ask what the quantity *is*. If you could in principle list and count the
+   possible values — a number of correct answers, a number of arrivals, a trial number — you are in the
+   discrete table and you will *sum* a pmf. If the quantity is measured on a scale where exact equality has
+   probability zero — a duration, a length, a physical measurement — you are in the continuous table and you
+   will read *area* from a density or its cdf.
+2. **Count, wait, or magnitude?** Within that choice, name the *kind* of quantity. A **count** of successes
+   in a fixed number of trials points to the **binomial**; a **count** of events in a window at a steady rate
+   points to the **Poisson**; a **trial-number-of-first-success** points to the **geometric**; a single
+   yes/no points to **Bernoulli**. A **wait** until the next steady-rate event points to the **exponential**;
+   a value with **no preferred location in an interval** points to the **uniform**; a symmetric **magnitude**
+   that clusters around a typical value — especially a sum or average — points to the **normal**.
+3. **Do the assumptions actually hold?** This is the step people skip, and it is where models break. Every
+   model on this card carries assumptions, and the recurring one is **independence**. The binomial needs the
+   $n$ trials to be independent with a constant $p$; the Poisson and exponential need events to arrive
+   independently at a steady rate. When independence fails, the named model is the *wrong* model even if the
+   surface story matches. Maya's morning is the standing cautionary tale: "the shuttle is on time" and "it is
+   raining" are **not independent** — $P(\text{on time} \mid \text{rain}) = 0.60 \ne 0.81 = P(\text{on
+   time})$ — so you cannot multiply their probabilities as if they were, and you cannot treat a week of
+   commutes as independent Bernoulli trials if a rainy stretch makes several late mornings move together. When
+   the assumptions hold, the named model is a gift; when they do not, it is a trap. Check them before you
+   commit to a row.
 
-1. **Discrete or continuous?** Are the outcomes a separated list you could count (heads, correct
-   answers, arrivals), or a measurement that can land anywhere in a range (a time, a length)? Counts
-   point you to the top table; measurements to the bottom one.
-2. **What is being modeled — a count, a wait, or a magnitude?** A single yes/no is **Bernoulli**; a
-   count of yes/no successes in a fixed number of trials is **Binomial**; a count of events in a fixed
-   window is **Poisson**; a wait *to* the first discrete success is **Geometric**; a continuous wait to
-   the next event is **Exponential**; a bell-shaped magnitude is **Normal**.
-3. **Do the model's assumptions actually hold?** Binomial wants a *fixed* $n$ and the *same* $p$ on each
-   independent trial. Poisson wants rare, independent events at a steady rate. Independence is the most
-   common assumption to lose — recall that for Maya, "on time" and "rain" are **not** independent, so a
-   model that assumes independence across her mornings would misfit.
-
-A worked match: "shuttle arrivals in one hour, rate $4$ per hour." Outcomes are a count ($0,1,2,\dots$),
-the window is fixed (one hour), arrivals are roughly independent and rare per minute — that is the
-**Poisson$(\lambda = 4)$** row. From the table, $E[N] = \lambda = 4$ and $\operatorname{Var}(N) = 4$,
-with no extra algebra needed.
+A compact way to hold the whole thing: *discrete sums a pmf, continuous integrates a density; count → binomial
+or Poisson, trial-to-success → geometric, wait → exponential, no-preferred-spot → uniform, bell-shaped
+magnitude → normal; and independence is the assumption that quietly decides whether any of it is allowed.*
 
 ## In R
 
-R names its distribution tools with a one-letter prefix plus the model's short name. The four prefixes
-are the same for every model, which is the whole point of learning them once:
+R names its distribution functions with a **prefix + a root**. The root names the model (`binom`, `pois`,
+`geom`, `unif`, `exp`, `norm`); the one-letter prefix says *what you want*:
 
-- `d…` — **density / mass** at a value: `dbinom`, `dnorm`.
-- `p…` — **cumulative** probability $F(x) = P(X \le x)$: `pbinom`, `pnorm`.
-- `q…` — **quantile**, the inverse of `p…`: `qbinom`, `qnorm`.
-- `r…` — **random** draws from the model: `rbinom`, `rnorm`.
+- `d…` — the **density** $f(x)$ (continuous) or mass $p(x)$ (discrete), the height/probability at a value;
+- `p…` — the **cdf** $F(x) = P(X \le x)$, probability at or below a value;
+- `q…` — the **quantile**, the inverse of the cdf (the value at a given lower-tail probability);
+- `r…` — **random draws** from the model.
 
-The chunk below is a **pointer only** — it is shown, not run, and lists the function family per model so
-you can look up the right call. (R chunks here carry `#| eval: false`.)
+So `dbinom`/`pbinom`/`qbinom`/`rbinom` cover the binomial, `dpois`/`ppois`/`qpois`/`rpois` the Poisson,
+`dexp`/`pexp`/`qexp`/`rexp` the exponential, and `dnorm`/`pnorm`/`qnorm`/`rnorm` the normal — and the same
+four-prefix pattern extends to every model on this page. The two parameterization conventions from the top of
+the card show up directly in the argument names: the exponential takes `rate = `, and the normal takes
+`mean = ` and `sd = ` (a standard deviation, not a variance). The chunk below is **shown as teaching, not
+executed in this build** (`#| eval: false`); run it in your own session to reproduce the recurring numbers.
 
 ```{r}
-#| label: distribution-reference-functions
+#| label: distribution-reference-r
 #| eval: false
+set.seed(35003)
 
-set.seed(35003)  # set so any draws below are reproducible when later executed
+# --- Binomial: Maya's 10-question true/false quiz, pure guessing p = 0.5 ---
+dbinom(8, size = 10, prob = 0.5)        # P(exactly 8 correct)
+1 - pbinom(7, size = 10, prob = 0.5)    # P(X >= 8) ~ 0.0547
+mean(rbinom(1e5, size = 10, prob = 0.5))# simulated mean, close to np = 5
 
-# Discrete models: d = mass, p = cdf, q = quantile, r = random draws
-dbinom; pbinom; qbinom; rbinom   # Binomial(n, p)  -- also Bernoulli via size = 1
-dgeom;  pgeom;  qgeom;  rgeom    # Geometric(p)    -- NOTE: R counts FAILURES before
-                                 #   the first success (support 0, 1, 2, ...), so it is
-                                 #   shifted by one from the course's trials-to-success form
-dpois;  ppois;  qpois;  rpois    # Poisson(lambda)
+# --- Poisson: shuttle arrivals in an hour, rate lambda = 4 ---
+dpois(4, lambda = 4)                    # P(N = 4) ~ 0.195
 
-# Continuous models: d = density, p = cdf, q = quantile, r = random draws
-dunif;  punif;  qunif;  runif    # Uniform(a = min, b = max)
-dexp;   pexp;   qexp;   rexp     # Exponential(rate = lambda)
-dnorm;  pnorm;  qnorm;  rnorm    # Normal(mean = mu, sd = sigma)  -- R takes sd, not variance
+# --- Exponential: wait for the next shuttle, RATE = 4 per hour ---
+pexp(0.25, rate = 4)                    # P(T <= 15 min) = 1 - e^-1 ~ 0.632
+1 / 4                                   # mean wait in hours = 15 minutes
+
+# --- Normal: Maya's commute, mean 22 min, SD 5 min (sd, NOT variance) ---
+pnorm(30, mean = 22, sd = 5)            # P(C <= 30) = Phi(1.6) ~ 0.945
 ```
 
-Two pointers worth flagging before you use these:
-
-- `dexp` and friends take `rate = lambda`, matching the course's **rate** parameterization, and `rnorm`
-  takes `sd = sigma`, matching the **standard-deviation** parameterization. Read the help page (`?rexp`,
-  `?rnorm`) before trusting an argument.
-- R's `*geom` family counts the number of **failures before** the first success (support starting at
-  $0$), while this course defines Geometric as the number of **trials** up to and including the first
-  success (support starting at $1$). The two differ by exactly one — convert deliberately.
+**One flag that will bite you if you miss it.** R's geometric family — `dgeom`, `pgeom`, `qgeom`, `rgeom` —
+counts the **number of failures before the first success**, so its support starts at $0$. *This course* counts
+the **number of trials up to and including the first success**, so its support starts at $1$. The two differ
+by exactly one: if $X$ is the course's trial count and $K$ is R's failure count, then $X = K + 1$. Concretely,
+the course's $P(X = x) = (1-p)^{x-1}p$ is R's `dgeom(x - 1, prob = p)`, and the course's mean $1/p$ is R's
+mean $(1-p)/p$ plus one. The probabilities are not wrong on either side — they answer the same questions
+through a one-step shift in what "the value" means — but you must line up the supports before you compare a
+hand calculation against `rgeom` output, or your simulated mean will look off by one. (This is the same
+convention note flagged in the model weeks and the labs; the [notation glossary](notation-glossary.qmd)
+records the course's trial-counting choice as binding.)
 
 ## Public vs. graded
 
@@ -130,3 +208,16 @@ graded prompts, answer keys, rubrics, point values, or due dates appear on this 
 checkpoints, quizzes, homework, labs, the midterm, the project, and the final live in **Blackboard
 (the LMS)**, which is authoritative for due dates, submissions, and grades. If this page and Blackboard
 ever disagree, follow Blackboard.
+
+## See also
+
+- [Notation glossary](notation-glossary.qmd) — the binding symbols and the fixed model parameterizations
+  ($\text{Geometric}(p)$ as trials-to-success; $\text{Exponential}(\lambda)$ as a rate with mean $1/\lambda$;
+  $\text{Normal}(\mu, \sigma)$ as mean and standard deviation).
+- [R · Quarto setup](r-quarto-setup.qmd) — how to install or open R, RStudio or Posit Cloud, and Quarto so you
+  can run the shown chunk above in your own session.
+- [Week 9 — Common discrete models](../notes/week-09-common-discrete-models.qmd) — where the binomial,
+  geometric, and Poisson rows are built and motivated, including the quiz and the shuttle-arrival counts.
+- [Week 11 — Common continuous models](../notes/week-11-common-continuous-models.qmd) — where the uniform,
+  exponential, and normal rows are built, including the shuttle wait and the commute time.
+- [Course index](../index.qmd) — the course home, with the full week-by-week map and where graded work lives.

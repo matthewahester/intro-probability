@@ -1,329 +1,340 @@
 ---
 title: "Week 15 — Final review & synthesis"
-subtitle: "How the whole course fits together"
+subtitle: "The whole commuter's-morning thread as one picture"
 page_mode: overview_review_week
 week_contract: public_note
 source_mode: source-informed
-depth_rationale: "One-day synthesis week (last class Dec 7) — a review/orientation note that ties the term together rather than introducing new material."
+depth_rationale: "Overview/review week — a single one-day synthesis on the last class (Mon, Dec 7); we tie the term together rather than introduce new machinery, so the development is lighter and the worked thread is a recap."
 readings:
-  - "Grinstead & Snell, course-original synthesis (G&S Ch 1–9) — supports the whole-term arc from sample spaces and rules through random variables, models, dependence, and the limit theorems"
-  - "MIT OCW 18.05 — its review/orientation material — supports how to organize a cumulative review around big ideas rather than isolated formulas"
+  - "Grinstead & Snell — whole text — supports a chapter-by-chapter review of the term's spine"
+  - "MIT OCW 18.05 — review materials & practice problems — supports a second source of practice and end-of-term review"
 toc: true
 ---
 
 ## The week question
 
-After fifteen weeks, here is the question that should have a clean answer: **when you meet a new
-problem about uncertainty, what do you actually do?** Not "which formula," but "which *moves*" — how
-do you set up a model, decide what to condition on, summarize what you expect, and reason about what
-happens when things repeat. This is a one-day synthesis week (our last class meeting is Mon Dec 7),
-so the goal is not to add new machinery. It is to step back and see that the whole semester has been
-one connected chain of ideas, not a pile of separate tricks. We will walk that chain end to end using
-the case we have carried since Week 1 — Maya's commuter morning — recalling each tool by the number
-it produced. By the end you should be able to look at the arc and say, in your own words, why each
-link follows from the one before it.
+We have spent fourteen weeks adding machinery one piece at a time, and each piece arrived wired to the same
+small world: Maya's commuter morning. This last class is not for new tools. It is for stepping back far enough
+to see that the tools were never separate — they were a single chain of reasoning that grew one link at a
+time. So the question this week is the most useful one you can ask before a cumulative final: **when a
+probability problem lands in front of you, how do you know which idea it is asking for, and how do the ideas
+connect?**
+
+The honest answer is that almost every problem in this course is one of a handful of moves — describe the
+randomness, condition on what you know, update a belief, count or model the variable, summarize it with a
+mean and spread, fit a named distribution, or take a limit — and the whole term has been those moves applied
+to one running story. If you can re-walk Maya's morning end to end and name the move at each step, you can
+read almost any first-course probability problem. That re-walk is what this page is.
 
 ## Why this matters
 
-A cumulative final is not a memory test for thirty disconnected facts. It rewards students who can
-*recognize what kind of problem they are looking at* and reach for the right move. Someone who has
-memorized the binomial pmf but cannot tell when a situation is binomial will stall; someone who
-understands that "fixed number of independent yes/no trials with the same success chance" *is* the
-binomial will reconstruct the formula if they have to. Synthesis week is where that recognition gets
-built. It is also where you turn a semester of notes into a study plan that actually works — using
-**retrieval** and **spacing** instead of rereading — so the last stretch before the exam is efficient
-rather than frantic.
+A final exam tempts you to memorize formulas. That is the wrong instinct, and this course was built to push
+back on it. The reason naming a distribution mattered in Week 9, or stating an assumption out loud mattered in
+Week 4, is that **the hard part of a probability problem is almost never the arithmetic** — it is deciding
+what kind of object you are holding. Is "rain this morning" an event or a random variable? Is the question
+asking for a marginal probability, a conditional one, or an updated one? Is the wait time discrete or
+continuous? Get those choices right and the formula is the easy part; get them wrong and a perfectly clean
+calculation answers the wrong question.
 
-There is a second, longer payoff. The habits this course drills — name the sample space, state the
-assumptions, condition carefully, summarize with expectation and variance, reason about averages —
-are the habits you will use whenever you face data, risk, or a decision under incomplete information,
-long after STAT 35003 is behind you. The final is a checkpoint; the reasoning is the keepsake.
+So the payoff of a synthesis week is a *reading skill*. By the end of it you should be able to look at a
+problem, sort it into the right corner of the course in a sentence or two, and only then reach for a formula.
+That skill is also exactly what carries past this class — into statistics, into any modeling you do later, and
+into everyday reasoning about base rates and risk. The commuter thread is the scaffold we hang it on, but the
+skill is the point.
 
 ## Learning goals
 
-By the end of this week you should be able to:
+By the end of this synthesis you should be able to:
 
-- **Trace the arc of the course** from uncertainty through the limit theorems, naming each tool and
-  saying what problem it solves and what it assumes.
-- **Pick the right tool for a described situation** — recognize when to count, when to condition, when
-  a random variable and its expectation are the right summary, which distribution family fits, and
-  when a limit theorem applies.
-- **State the four big ideas** in plain words: a probability needs a model plus assumptions;
-  conditioning is updating; expectation and variance summarize a distribution; limits explain why
-  averages are stable.
-- **Study for a cumulative exam well**, using active retrieval and spaced practice rather than passive
-  rereading, and self-test against the course's worked cases.
-- **Reconstruct the commuter's-morning thread** from memory — the chain $0.81 \to 0.60 \to 0.162 \to
-  E[X]=5 \to \text{Var}=2.5 \to 0.0547 \to 15\text{ min} \to \rho\approx0.35 \to \text{LLN/CLT}$ — and
-  explain how each number followed from the previous tool.
+- Re-tell Maya's commuter morning as one connected chain, naming the probability idea at each link.
+- Sort a new probability question into the right move — marginal, conditional, Bayes, counting, discrete or
+  continuous random variable, expectation/variance, named model, joint/dependence, or a limit theorem.
+- Recall the term's load-bearing numbers and say what each one *means*, not just what it equals.
+- Apply a short "how to read a probability problem" checklist — model, calculate, interpret, check
+  assumptions — to a problem you have not seen before.
+- Use both course texts and the four labs as review aids, knowing which one helps with which strand.
 
 ## Core vocabulary
 
-This week introduces no new terms; it re-collects the ones the course already built. Treat the list
-as a checklist — if any entry feels unfamiliar, that is your signal for where to spend review time.
+This week's vocabulary is the whole course, so instead of new terms, here are the *moves* the term taught,
+each with the one-line question it answers:
 
-- **Probability model** — the package of a sample space $\Omega$, an assignment $P(\cdot)$, and the
-  assumptions that justify it (Week 1).
-- **Conditional probability** $P(A\mid B)$ — the probability of $A$ once we know $B$ happened; the
-  formal name for *updating* on information (Weeks 3, 5).
-- **Independence** $A \perp B$ — knowing one event tells you nothing about the other,
-  $P(A\cap B)=P(A)P(B)$ (Week 4).
-- **Random variable** $X$ — a number attached to each outcome; described by a pmf $p(x)$ (discrete) or
-  density $f(x)$ (continuous) and a cdf $F(x)=P(X\le x)$ (Weeks 7, 10).
-- **Expectation and variance** $E[X]$, $\text{Var}(X)=\sigma^2$ — the center and the spread that
-  summarize a distribution (Week 8).
-- **Distribution family** — Binomial, Geometric, Poisson, Exponential, Normal: named models with
-  parameters chosen to fit a situation (Weeks 9, 11).
-- **Covariance and correlation** $\text{Cov}(X,Y)$, $\rho\in[-1,1]$ — how two random variables move
-  together (Week 12).
-- **Law of large numbers / central limit theorem** — why a sample mean settles toward $E[X]$, and why
-  the average of many independent pieces is approximately Normal (Week 13).
+- **Marginal probability** — "How likely is this event overall, before I know anything?" (Weeks 1–2.)
+- **Conditional probability** — "How does that change once I know something else happened?" (Week 3.)
+- **Independence** — "Does knowing one thing actually change the other, or not?" (Week 4.)
+- **Bayes' rule / updating** — "Given an effect, how do I revise the probability of its cause?" (Week 5.)
+- **Counting** — "How many equally likely arrangements are there?" (Week 6.)
+- **Random variable, pmf, expectation, variance** — "What number does this experiment produce, and what is
+  its center and spread?" (Weeks 7–8.)
+- **Named model** — "Which standard distribution's story matches this one?" (Weeks 9, 11.)
+- **Density and area** — "For a continuous quantity, what is the probability of a range?" (Weeks 10–11.)
+- **Joint distribution, covariance, correlation** — "How do two random quantities move together?" (Week 12.)
+- **Limit theorems (LLN, CLT)** — "What happens to an average as the sample grows?" (Week 13.)
 
 ## Concept development
 
-### The arc, link by link
+### One thread, end to end
 
-The course is a single chain. Each link takes the previous one as input and hands its output forward.
-Read it once as a story before you study any piece in isolation.
+Here is the whole term as a single walk through Maya's morning. Read it slowly; each arrow is a week.
 
-1. **Uncertainty (Wk 1).** A probability is never a free-floating number; it is a reading off a
-   **model** — a sample space, an assignment, and assumptions. Everything downstream inherits whatever
-   the model gets right or wrong.
-2. **Sample spaces, events, rules (Wk 2).** Lay out *what can happen* as a set $\Omega$, treat events
-   as subsets, and combine them with the complement and addition rules.
-3. **Conditional probability (Wk 3).** Restrict attention to the world where $B$ is known to have
-   happened: $P(A\mid B)=P(A\cap B)/P(B)$. This is the engine of *updating*.
-4. **Independence (Wk 4).** The special case where conditioning changes nothing — $P(A\mid B)=P(A)$.
-   Most interesting situations are *not* independent, which is exactly why conditioning earns its keep.
-5. **Bayes' rule (Wk 5).** Flip a conditional you have into the one you want, using prior information.
-   Updating made fully symmetric.
-6. **Counting (Wk 6).** When outcomes are equally likely, probability becomes careful counting:
-   combinations $\binom{n}{k}$ tell you how many ways an event can happen.
-7. **Random variables (Wk 7).** Stop tracking raw outcomes and attach a *number* to each, described by
-   a pmf $p(x)$.
-8. **Expectation and variance (Wk 8).** Summarize a whole distribution by its center $E[X]$ and spread
-   $\text{Var}(X)$.
-9. **Common discrete models (Wk 9).** Recognize recurring shapes — Binomial, Geometric, Poisson — so
-   you do not rebuild the pmf each time.
-10. **Continuous random variables (Wk 10).** When outcomes form a continuum, probability becomes
-    *area under a density* $f(x)$, and single points carry probability zero.
-11. **Common continuous models (Wk 11).** The Exponential and Normal as the workhorse continuous
-    families, parameterized by rate and by mean-and-sd respectively.
-12. **Joint distributions and dependence (Wk 12).** Two random variables at once; covariance and
-    correlation quantify the non-independence we first met back in Weeks 3–4.
-13. **Sums, simulation, and limits (Wk 13).** Add up many independent pieces: the LLN says the average
-    converges to $E[X]$, the CLT says it is approximately Normal. This is why averages are trustworthy.
+It starts with **uncertainty and a marginal**. There is a $0.30$ chance of rain, the shuttle is more reliable
+when it is dry, and combining those gives the headline number $P(\text{on time}) = 0.81$, so $P(\text{late}) =
+0.19$. That single number was the whole point of Weeks 1–2: a probability is a summary of a described random
+world.
 
-Notice the rhythm: rules $\to$ conditioning $\to$ numbers on outcomes $\to$ summaries of those
-numbers $\to$ named families $\to$ how families behave in aggregate. The final asks you to move up and
-down this ladder fluidly.
+Then Maya **learns something** and we **condition**. Looking out the window changes the problem: $P(\text{on
+time} \mid \text{rain}) = 0.60$, not $0.81$. Conditioning is just restricting the world to the cases where
+what you learned is true (Week 3).
 
-### The four big ideas
+That immediately raises **independence**: is "on time" unaffected by "rain"? No — $0.60 \ne 0.81$, so the two
+are *dependent*, which is exactly what makes the morning interesting. A fair coin flip on the side would be
+independent; the shuttle is not (Week 4).
 
-If you remember only four sentences from the whole term, make them these. Every formula on the exam is
-a special case of one of them.
+Dependence makes **updating** possible. If Maya only learns she was *late*, she can run the arrow backward
+with Bayes' rule and ask how likely rain was: $P(\text{rain} \mid \text{late}) \approx 0.632$. The same
+machinery, applied to a medical screening test, produces the term's most memorable surprise — a positive test
+for a rare condition still leaves the posterior near $0.162$, because base rates dominate (Week 5).
 
-- **A probability needs a model plus assumptions.** The number $0.81$ means nothing until you say
-  *probability of what, in what sample space, assuming what*. Two careful people can get different
-  numbers because they built different, defensible models. Always ask "model of what, assuming what?"
-- **Conditioning is updating.** $P(A\mid B)$ is what you believe about $A$ once you learn $B$.
-  Independence is just the case where the update does nothing; Bayes' rule is the case where you run
-  the update backwards. Most of the course is variations on this single move.
-- **Expectation and variance summarize a distribution.** $E[X]$ is the long-run average, the balance
-  point; $\text{Var}(X)$ is how far values typically scatter from it. Two numbers that compress an
-  entire pmf or density into "where" and "how spread."
-- **Limits explain why averages are stable.** Individual outcomes are unpredictable, but their
-  *average* is not: the LLN pins it to $E[X]$ and the CLT makes its distribution Normal. This is the
-  bridge from probability to the statistics you will meet next.
+To handle questions with many equally likely arrangements, we needed **counting**: a 10-question true/false
+quiz has $2^{10} = 1024$ possible answer keys, and $\binom{10}{k}$ of them have exactly $k$ correct (Week 6).
 
-### How to study for a cumulative final
+Counting turned the quiz into a **random variable** $X$ = number correct, with a pmf, and then a center and
+spread: $E[X] = 5$, $\operatorname{Var}(X) = 2.5$, $\sigma \approx 1.58$ (Weeks 7–8).
 
-The research-backed moves are simple and most students under-use them.
+That random variable had a name. $X \sim \text{Binomial}(10, 0.5)$, and the arrivals at Maya's stop are
+$\text{Poisson}(4)$ per hour — **named discrete models** carry their mean, variance, and pmf with them
+(Week 9).
 
-- **Retrieval practice beats rereading.** Close the notes and try to *produce* the answer — state the
-  addition rule, write the binomial pmf, explain why rain and lateness are dependent. The effort of
-  pulling it from memory is what builds durable recall; rereading feels productive but mostly builds
-  false confidence. Reread only to *check* after you have tried.
-- **Space your sessions.** Three sessions of forty minutes across three days beat one two-hour cram.
-  Spacing forces repeated retrieval and lets the harder links resurface, which is where the learning
-  happens. Revisit a topic *after* you have started to forget it, not before.
-- **Interleave problem types.** Mix a conditioning problem, a counting problem, and a distribution
-  problem in one sitting rather than doing ten of each kind in a block. The hard skill on a cumulative
-  exam is *recognizing* which tool applies, and you only practice recognition when types are mixed.
-- **Self-test against the course's worked cases.** Cover the commuter's-morning numbers and try to
-  regenerate each one — $0.81$, $0.162$, $E[X]=5$, $0.0547$, $\rho\approx0.35$ — explaining the move,
-  not just the arithmetic. If you can rebuild the thread, you understand the course.
-- **Diagnose, don't just grind.** When you miss a self-check, ask *which link* broke — was it the
-  model, the conditioning, the summary, or the limit? Fix the link, not the symptom.
+Asking *how long* she waits, rather than *how many* arrive, pushed us into the **continuous** world, where
+probability is *area under a density*: the wait is $\text{Exponential}$ with mean $15$ minutes, and her
+commute time is $\text{Normal}(22, 5)$ with $P(C \le 30) \approx 0.945$ (Weeks 10–11).
+
+Two of these quantities move together, so we built a **joint distribution** for (rain, late) and measured the
+dependence we first spotted in Week 4 as a number: $\operatorname{Cov} = 0.063$, $\rho \approx 0.35$
+(Week 12).
+
+Finally, averaging many days of commute brought the **limit theorems**: the sample mean settles toward the
+true mean $22$ (LLN), and the average of $n$ days is approximately $\text{Normal}(22, 5/\sqrt{n})$ (CLT,
+Week 13).
+
+That is the entire course in one paragraph-per-week. Every formula you learned was one link in this chain.
+Seeing the whole chain as a single picture makes the "one link at a time" claim concrete:
+
+![**The whole term as one chain (synthetic recap diagram).** Ten moves, read left to right and wrapping down: marginal, conditional, independence, Bayes/updating, and counting across the top; random variable/expectation/variance, named model, density/area, joint/covariance, and the limit theorems across the bottom. Each arrow is a week.](../assets/figures/wk15_course_map_flow.png){#fig-wk15-course-map fig-alt="A flow diagram of ten boxes in two rows of five, connected by arrows left to right and wrapping from the end of the top row down to the start of the bottom row. Top row: Marginal, Conditional, Independence, Bayes/updating, Counting. Bottom row: Random variable/expectation/variance, Named model, Density/area, Joint/covariance, Limits (LLN, CLT)."}
+
+::: {.callout-note appearance="minimal"}
+**What the figure shows (non-visual equivalent).** Ten labeled boxes in reading order: Marginal (Wk 1–2),
+Conditional (Wk 3), Independence (Wk 4), Bayes/updating (Wk 5), Counting (Wk 6), Random variable/expectation/
+variance (Wk 7–8), Named model (Wk 9), Density/area (Wk 10–11), Joint/covariance (Wk 12), Limits: LLN and CLT
+(Wk 13). An arrow connects each box to the next, including the wrap from Counting down to Random variable —
+the same order the paragraphs above just walked. *Synthetic instructional example; numbers are illustrative.*
+:::
+
+### The term's load-bearing numbers (and what they mean)
+
+A final rewards *understanding* the key numbers, not just listing them. Here are the term's anchors with their
+meaning attached, in the same order as the chain above — read the table as a ladder, each row one rung past
+the row before it. All are **synthetic; seed 35003 is set** for any simulation.
+
+| Number | Where | What it *means* |
+|---|---|---|
+| $0.81 \,/\, 0.19$ | Wk 1–2 | overall chance the shuttle is on time / late, before you look outside |
+| $0.60$ | Wk 3 | on-time chance *given* it is raining — conditioning lowers it from $0.81$ |
+| not independent | Wk 4 | $0.60 \ne 0.81$, so rain and lateness carry information about each other |
+| $0.632$ | Wk 5 | $P(\text{rain} \mid \text{late})$ — updating *backward* from effect to cause |
+| $0.162$ | Wk 5 | screening posterior $P(D \mid +)$ — a rare base rate survives a positive test |
+| $1024,\ \binom{10}{k}$ | Wk 6 | total answer keys and the count with exactly $k$ correct |
+| $E = 5,\ \operatorname{Var} = 2.5$ | Wk 7–8 | center and spread of the guessed quiz score |
+| $\text{Poisson}(4)$ | Wk 9 | arrivals per hour; mean $=$ variance $= 4$ |
+| mean $15$ min | Wk 11 | exponential wait for the next shuttle |
+| $0.945$ | Wk 11 | $P(C \le 30)$ for a $\text{Normal}(22, 5)$ commute |
+| $0.063,\ \rho \approx 0.35$ | Wk 12 | covariance and correlation of rain and lateness — Week 4's "dependent," now numeric |
+| $\to 22$ | Wk 13 | the long-run average commute the LLN drives toward |
+
+: The term's load-bearing numbers and what they mean, in the same order as the chain above -- the numeric companion to the course-map diagram above. {#tbl-wk15-numbers-ladder}
+
+If you can say the *meaning* column out loud for each row, you understand the course. The equals signs are the
+easy part.
+
+### How to read a probability problem (the checklist)
+
+The single most transferable thing this course can hand you is a way to *start* any problem. Four steps, in
+order:
+
+1. **Model.** Name the objects. Is each quantity an event or a random variable? Discrete or continuous? What
+   sample space, or what distribution? Write the assumptions down — independence, a fixed number of trials, a
+   steady rate — *before* you compute. Most wrong answers are wrong here, not in the arithmetic.
+2. **Calculate.** Now reach for the matching formula: an addition or multiplication rule, a conditional ratio,
+   Bayes' rule, a pmf or density, an expectation sum or integral, a named model's mean and variance, or a
+   limit theorem. The model from Step 1 tells you which one.
+3. **Interpret.** Translate the number back into the world. "About $5.5\%$" or "the posterior is only $0.162$"
+   — say what it *means* for Maya, the patient, or the manuscript. A probability with no interpretation is
+   half an answer.
+4. **Check assumptions.** Ask whether the model you assumed is actually plausible. Are the trials really
+   independent? Is the rate really steady? Does a Poisson's mean-equals-variance hold in the data? If the
+   assumptions fail, the clean number is meaningless, and recognizing that is itself a correct answer.
+
+![**The four-step checklist, as a loop (synthetic diagram).** Model, calculate, interpret, check assumptions — read left to right. The dashed return arrow shows what happens when Step 4 turns up trouble: you revisit Step 1, not the arithmetic.](../assets/figures/wk15_checklist_flow.png){#fig-wk15-checklist fig-alt="A left-to-right flow diagram of four boxes: 1. Model, 2. Calculate, 3. Interpret, 4. Check assumptions, connected by solid arrows. A dashed arrow loops from box 4 back to box 1, labeled: if assumptions fail, revisit the model."}
+
+::: {.callout-note appearance="minimal"}
+**What the figure shows (non-visual equivalent).** Four boxes in a row — Model, Calculate, Interpret, Check
+assumptions — each connected to the next by an arrow. A dashed arrow loops from the fourth box back to the
+first, labeled "if assumptions fail, revisit the model," showing that a failed assumptions check sends you
+back to naming the objects, not back to redoing the arithmetic. Both worked examples below use these same four
+labels, in this order. *Synthetic instructional example; numbers are illustrative.*
+:::
+
+This is the same arc every concept week followed — describe, compute, interpret, sanity-check — compressed
+into four words you can carry into the exam: **model, calculate, interpret, check.**
 
 ## Worked examples
 
-### Worked example — the commuter's morning, recalled end to end (the recurring slice)
+This is a synthesis week, so we add no new transfer scenario — we re-walk the recurring slice and show the
+checklist running on it. All numbers are **synthetic; seed 35003 set.**
 
-*Synthetic data; seed set.* Here is the whole thread in one place, each number tagged with the move
-that produces it. This is the single most useful object to study: if you can walk it from memory, you
-have walked the course.
+### Worked example — one question, four moves on the recurring thread
 
-**Setup.** Maya is a commuter student. It rains with probability $P(\text{rain})=0.30$. The shuttle is
-on time on $60\%$ of rainy mornings and $90\%$ of dry mornings.
+Take a single composite question about Maya's morning and watch the checklist sort it. *"Maya was late this
+morning. How surprised should she be, and how does that revise her guess that it rained?"*
 
-**Wk 1–2 — a model and the rules.** The on-time probability is not given; it is *built* by the law of
-total probability from the rain-conditioned rates:
-$$
-P(\text{on time}) = P(\text{on time}\mid \text{rain})P(\text{rain})
-                  + P(\text{on time}\mid \text{no rain})P(\text{no rain})
-                  = (0.60)(0.30) + (0.90)(0.70) = 0.81 .
-$$
-The complement rule then gives $P(\text{late}) = 1 - 0.81 = 0.19$.
+**Model.** "Late" and "rain" are *events*, not random variables, so this is a conditioning-and-updating
+problem, not a distribution problem. We have the marginals and the conditionals from the term: $P(\text{rain})
+= 0.30$, $P(\text{late} \mid \text{rain}) = 0.40$, $P(\text{late} \mid \text{no rain}) = 0.10$. The move is
+Bayes' rule.
 
-**Wk 3–4 — conditioning and (non-)independence.** The conditional rate $P(\text{on time}\mid
-\text{rain}) = 0.60$ is *not* the marginal $0.81$, so
-$$
-P(\text{on time}\mid \text{rain}) = 0.60 \ne 0.81 = P(\text{on time})
-\quad\Longrightarrow\quad
-\text{on time and rain are dependent.}
-$$
-Rain carries information about lateness — knowing it rained should change your guess.
+**Calculate.** First the marginal chance of being late, by the law of total probability:
 
-**Wk 5 — Bayes, running the update backwards.** Switch to the lateness rates $P(\text{late}\mid
-\text{rain})=0.40$ and $P(\text{late}\mid \text{no rain})=0.10$, so $P(\text{late})=0.19$ as before.
-Given that Maya *was* late, how likely is it that it rained?
 $$
-P(\text{rain}\mid \text{late})
- = \frac{P(\text{late}\mid \text{rain})P(\text{rain})}{P(\text{late})}
- = \frac{(0.40)(0.30)}{0.19} = \frac{0.12}{0.19} \approx 0.632 .
-$$
-The headline Bayes number of the course is the screening posterior: with prevalence $0.02$,
-sensitivity $0.95$, and a $0.10$ false-positive rate, a positive test gives $P(D\mid +) = 0.019/0.117
-\approx 0.162$ — a vivid reminder that a "$95\%$ accurate" test on a rare condition still leaves a
-positive mostly a false alarm.
-
-**Wk 6–9 — counting, random variables, discrete models.** Maya guesses a $10$-question true/false
-quiz, $p=0.5$. Let $X$ be the number correct. There are $\binom{10}{k}$ ways to get $k$ right out of
-$2^{10}=1024$ equally likely answer patterns, so $X \sim \text{Binomial}(10, 0.5)$ with $p(x) =
-\binom{10}{x}(0.5)^{10}$. Its summaries are
-$$
-E[X] = np = (10)(0.5) = 5, \qquad
-\text{Var}(X) = np(1-p) = (10)(0.5)(0.5) = 2.5 .
-$$
-The chance of acing it (eight or more correct) is
-$$
-P(X \ge 8) = \frac{\binom{10}{8}+\binom{10}{9}+\binom{10}{10}}{1024}
-           = \frac{45 + 10 + 1}{1024} = \frac{56}{1024} \approx 0.0547 .
+P(\text{late}) = P(\text{late} \mid \text{rain})P(\text{rain}) + P(\text{late} \mid \text{no rain})P(\text{no rain})
+= 0.40(0.30) + 0.10(0.70) = 0.19.
 $$
 
-**Wk 10–11 — continuous models.** Shuttles arrive as a Poisson process at rate $\lambda = 4$ per hour
-(one every $15$ minutes). The wait $T$ until the next shuttle is continuous, with probability read as
-area under a density: $T \sim \text{Exponential}(\text{rate } \lambda = 4/\text{hr})$, mean $1/\lambda
-= 15$ minutes, and
-$$
-P(T \le 15\text{ min}) = 1 - e^{-\lambda t} = 1 - e^{-(4)(0.25)} = 1 - e^{-1} \approx 0.632 .
-$$
-Maya's commute time is $C \sim \text{Normal}(\mu = 22, \sigma = 5)$ minutes, and $P(C \le 30) =
-\Phi(1.6) \approx 0.945$.
+Then run the arrow backward with Bayes' rule:
 
-**Wk 12 — joint dependence, made numeric.** With $X=\mathbb{1}\{\text{rain}\}$ and
-$Y=\mathbb{1}\{\text{late}\}$ and the joint probabilities $P(1,1)=0.12$, $P(1,0)=0.18$, $P(0,1)=0.07$,
-$P(0,0)=0.63$,
 $$
-\text{Cov}(X,Y) = E[XY] - E[X]E[Y] = 0.12 - (0.30)(0.19) = 0.063,
+P(\text{rain} \mid \text{late}) = \frac{P(\text{late} \mid \text{rain})\,P(\text{rain})}{P(\text{late})}
+= \frac{0.40 \times 0.30}{0.19} = \frac{0.12}{0.19} \approx 0.632.
+$$
+
+**Interpret.** Being late is a $0.19$ event — uncommon but not rare, so it is mild evidence. Learning she was
+late lifts the chance it rained from the prior $0.30$ up to about $0.632$ — better than even, because lateness
+is much more likely on rainy mornings, but not a certainty, because dry mornings still occasionally run late.
+
+![**One example, three numbers (synthetic).** The Model step's prior $P(\text{rain})=0.30$, the Calculate step's marginal $P(\text{late})=0.19$, and the Calculate step's posterior $P(\text{rain}\mid\text{late})\approx 0.632$ — the checklist's first two steps, read off as one chain of bars.](../assets/figures/wk15_bayes_recap_chain.png){#fig-wk15-bayes-chain fig-alt="A three-bar chart. Left bar, prior P of rain equals 0.30. Middle bar, marginal P of late equals 0.19, shorter and gray. Right bar, posterior P of rain given late, about 0.632, more than double the prior bar height, with a dotted reference line at the prior's height for comparison."}
+
+::: {.callout-note appearance="minimal"}
+**What the figure shows (non-visual equivalent).** Three bars on the same $0$-to-$1$ probability scale: the
+Model step's prior $P(\text{rain})=0.30$, the Calculate step's marginal $P(\text{late})=0.19$, and the
+Calculate step's posterior $P(\text{rain}\mid\text{late})\approx 0.632$. A dotted line at the prior's height
+shows the posterior bar rising to a bit more than double it — the same numbers this worked example already
+derived, now shown as one chain instead of three separate lines of algebra. *Synthetic instructional example; numbers are illustrative.*
+:::
+
+**Check assumptions.** The whole calculation rests on those two conditional rates ($0.40$ and $0.10$) being
+stable, and on rain being the only relevant cause of lateness. If a road closure or a missed alarm were also
+in play, the model would be incomplete and the tidy $0.632$ would overstate the rain's role. Naming that limit
+is part of the answer.
+
+That is the entire reading skill in one example: the four steps did the work, and the formula appeared only
+once we knew it was a Bayes problem.
+
+### Worked example — the same morning as a random variable and a joint pair
+
+The recurring thread also lives on the *random-variable* side, and a final may ask it that way. Code rain as
+$X$ ($1$ if rain, $0$ if not) and late as $Y$ ($1$ if late, $0$ if not). The joint pmf we built in Week 12 is
+$P(1,1) = 0.12$, $P(1,0) = 0.18$, $P(0,1) = 0.07$, $P(0,0) = 0.63$.
+
+**Symbolic.** Covariance measures how the two move together,
+
+$$
+\operatorname{Cov}(X, Y) = E[XY] - E[X]\,E[Y],
 \qquad
-\rho = \frac{0.063}{\sqrt{(0.21)(0.1539)}} \approx 0.35 .
+\rho = \frac{\operatorname{Cov}(X, Y)}{\sigma_X \, \sigma_Y}.
 $$
-The positive correlation is the Week 3–4 "not independent" observation turned into a number: rain goes
-with lateness.
 
-**Wk 13 — limits.** Average $n$ independent commute times $C \sim \text{Normal}(22, 5)$. The LLN says
-the sample mean $\bar{C}_n \to 22$ as $n$ grows; the CLT sharpens this to
+**Numeric.** With $E[X] = 0.30$, $E[Y] = 0.19$, and $E[XY] = P(1,1) = 0.12$,
+
 $$
-\bar{C}_n \;\approx\; \text{Normal}\!\left(22, \frac{5}{\sqrt{n}}\right),
+\operatorname{Cov}(X, Y) = 0.12 - 0.30(0.19) = 0.063,
+\qquad
+\rho \approx \frac{0.063}{0.1798} \approx 0.35.
 $$
-so the spread of the average shrinks like $1/\sqrt{n}$. That is why a semester of averaged commutes is
-far more predictable than any single morning — the capstone idea the whole arc was building toward.
 
-### Worked example — a new clinic-callback problem (transfer)
+![**The joint pmf, drawn (synthetic).** The four joint probabilities as a shaded $2\times2$ grid, darker meaning more probable; row and column totals are the marginals. The $(\text{rain}=1,\text{late}=1)$ cell, $0.12$, is more than double the $0.057$ an independent world would give it — dependence, made visible.](../assets/figures/wk15_joint_pmf_grid.png){#fig-wk15-joint-grid fig-alt="A two-by-two shaded grid with rows rain equals 1 and rain equals 0, columns late equals 0 and late equals 1. Cell values: rain 1 late 0 is 0.18; rain 1 late 1 is 0.12, annotated that an independent world would give 0.057; rain 0 late 0 is 0.63, the darkest and largest cell; rain 0 late 1 is 0.07. Row totals 0.30 and 0.70; column totals 0.81 and 0.19."}
 
-*Synthetic context; no real data; seed set.* The point of synthesis is that you can drop the whole
-toolkit onto a situation you have never seen. A small clinic calls patients to confirm appointments. On
-any given call, the patient picks up with probability $0.40$, independently across calls. Walk the same
-links.
+::: {.callout-note appearance="minimal"}
+**What the figure shows (non-visual equivalent).** A $2\times2$ grid of the joint pmf: $P(1,1)=0.12$,
+$P(1,0)=0.18$, $P(0,1)=0.07$, $P(0,0)=0.63$, with row totals $0.30/0.70$ and column totals $0.81/0.19$
+matching the marginals. Darker shading marks a larger probability, so the $(0,0)$ cell (no rain, on time) is
+darkest. The $(1,1)$ cell, $0.12$, is called out against the $0.057$ an independent world would produce
+($P(\text{rain})\times P(\text{late}) = 0.30 \times 0.19$) — the joint pmf puts more than double the
+independent weight on "rain and late together," the numeric fingerprint of the positive covariance computed
+above. *Synthetic instructional example; numbers are illustrative.*
+:::
 
-**Model and conditioning.** The sample space for one call is $\{\text{pickup}, \text{no pickup}\}$ with
-$P(\text{pickup}) = 0.40$ — a model with its assumption (calls behave alike and independently) stated
-up front. If the clinic places $8$ calls in a block, the natural random variable is $W = $ number of
-pickups.
-
-**Recognize the family.** Fixed number of trials ($n=8$), each a yes/no with the same success chance
-($p=0.40$), independent — that *is* a binomial: $W \sim \text{Binomial}(8, 0.40)$, with pmf $p(w) =
-\binom{8}{w}(0.40)^w(0.60)^{8-w}$. We did not memorize a new formula; we recognized the shape.
-
-**Summarize.** Center and spread come straight from the Week 8 results:
-$$
-E[W] = np = (8)(0.40) = 3.2, \qquad
-\text{Var}(W) = np(1-p) = (8)(0.40)(0.60) = 1.92 .
-$$
-So the clinic should plan around roughly three pickups per block of eight, give or take about
-$\sqrt{1.92}\approx 1.39$.
-
-**Apply a tail and a limit.** The chance that *no one* picks up in a block is
-$$
-P(W = 0) = (0.60)^{8} \approx 0.0168 ,
-$$
-small but not negligible. And if the clinic runs many such blocks over a week, the *average* number of
-pickups per block is, by the LLN, going to settle near $3.2$ — and by the CLT, that weekly average is
-approximately Normal — so staffing can be planned around the average even though any single block is
-unpredictable. Same four moves as the commuter's morning: build the model, recognize the family,
-summarize, then reason about the average. That portability is the whole point of the course.
+**Interpret.** The positive covariance is the *number* behind Week 4's word "dependent": rain and lateness go
+up together. And the consistency check ties the two halves of the course shut — from the joint pmf,
+$P(\text{late} \mid \text{rain}) = 0.12 / 0.30 = 0.40$, exactly the conditional rate that drove the Bayes
+calculation above. The event view and the random-variable view are the same world described twice.
 
 ## A common mistake
 
-The signature synthesis-week error is **reaching for a formula before identifying the situation.**
-Students who studied by memorizing pmfs and integrals often pattern-match on surface words — "test"
-$\to$ Bayes, "how many" $\to$ binomial — and apply a formula whose *assumptions* do not hold. The
-clinic problem is binomial only because the calls are independent with a constant success chance;
-change either assumption and the formula is wrong even though the words look the same.
+The signature synthesis-week error is **reaching for a formula before naming the object** — the exact thing
+the checklist exists to prevent. Under exam pressure it is tempting to scan a problem for numbers and start
+multiplying. That is how a marginal gets used where a conditional is needed, how a density value gets read as
+a probability, or how the binomial gets fitted to a "wait until the first success" story that is really
+geometric. None of these show up as arithmetic errors; the numbers look fine. They are *modeling* errors, and
+they are caught only in Step 1.
 
-The repair is to lead with recognition, not recall. Before writing anything, ask the diagnostic
-questions in order: *What is the sample space and what are the assumptions? Am I being asked to
-condition or update? Is the unknown a number — a random variable — and if so does it fit a named
-family? Do I need a summary ($E$, $\text{Var}$) or a probability, and is a limit theorem in play?* Two
-narrower slips ride along with this one: confusing a **density** $f(x)$ with a probability (it is not —
-only its *area* over an interval is), and treating dependent events as independent (multiplying
-$P(A)P(B)$ when rain and lateness clearly travel together). On a cumulative exam, naming the situation
-correctly is most of the work; the arithmetic is the easy part once the model is right.
+![**Two paths through the same problem (synthetic diagram).** The top path skips straight to arithmetic and answers the wrong question with clean-looking numbers; the bottom path names the object first and answers the right question with the same arithmetic skill.](../assets/figures/wk15_formula_first_misconception.png){#fig-wk15-two-paths fig-alt="Two labeled paths. Top, wrong path: see numbers, start multiplying, leading to clean arithmetic that answers the wrong question. Bottom, right path: name the object as an event or random variable and pick the move, leading to the matching formula that answers the right question. Caption beneath both: same numbers, same arithmetic skill, different first move."}
+
+::: {.callout-note appearance="minimal"}
+**What the figure shows (non-visual equivalent).** Two parallel two-box paths. Top ("wrong path"): "see
+numbers, start multiplying" leads to "clean arithmetic, wrong question answered." Bottom ("right path"): "name
+the object: event or RV? which move?" leads to "matching formula, right question answered." Both paths use
+the same arithmetic skill; only the first move differs, and that first move is exactly Step 1 of the
+checklist above. *Synthetic instructional example; numbers are illustrative.*
+:::
+
+A second, related slip is **forgetting to interpret and sanity-check**. A bare number — "$0.162$" — is not a
+finished answer; the finished answer is "even after a positive test, the condition is still unlikely, because
+it is rare to begin with." And a number built on a broken assumption (independent trials that are actually
+correlated, a steady rate that actually clusters) is worse than no number, because it looks authoritative. The
+fix for both is the same discipline you practiced all term: model first, then calculate, then say what it
+means, then ask whether you believe the model. Slow down at Steps 1 and 4 and the middle takes care of itself.
 
 ## Low-stakes self-checks (ungraded)
 
-These are for your own thinking — **ungraded, self-check, no submission.** Cover the answers in your
-notes and try to *produce* each one before you look; that retrieval effort is the study method this
-week is recommending.
+These are for your own review — nothing here is collected or graded. Try to name the *move* before you compute.
 
-1. From memory, write the chain of the commuter's-morning numbers in order — $0.81$, $0.632$, $0.162$,
-   $E[X]=5$, $\text{Var}=2.5$, $0.0547$, $15$ min, $\rho\approx0.35$ — and name the *move* that
-   produces each. Where does conditioning first show up?
-2. A streaming service finds that $5\%$ of accounts are fraudulent. Its detector flags $90\%$ of fraud
-   and $8\%$ of legitimate accounts. A flagged account — how likely is it actually fraud? Which Week 5
-   tool is this, and why is the answer smaller than your gut expects?
-3. You are told $X$ counts the number of defective items in a shipment of $20$, each defective with
-   probability $0.03$, independently. Name the family, write $E[X]$ and $\text{Var}(X)$, and say which
-   assumption would break the binomial if it failed.
-4. In one sentence each, state the four big ideas of the course, then point to one commuter's-morning
-   number that illustrates each.
-5. Explain, without formulas, *why* averaging many independent commute times is more predictable than
-   a single commute, and name the two theorems that make that precise.
+1. Walk Maya's morning from $P(\text{on time}) = 0.81$ all the way to the CLT, naming the week and the
+   probability idea at each link, without looking at the thread above.
+2. For each, say which move it is — marginal, conditional, Bayes, counting, expectation, named model,
+   density/area, joint, or a limit theorem: (a) $P(\text{shuttle on time})$; (b) $P(\text{rain} \mid
+   \text{late})$; (c) $P(C \le 30)$ for the commute; (d) $\rho$ between rain and lateness; (e) the average of
+   $50$ commutes.
+3. Recompute $P(\text{rain} \mid \text{late}) \approx 0.632$ from $P(\text{rain}) = 0.30$,
+   $P(\text{late} \mid \text{rain}) = 0.40$, $P(\text{late} \mid \text{no rain}) = 0.10$, and explain in one
+   sentence why the posterior rose above the prior.
+4. State what each anchor number *means* (not just equals): $0.945$, $0.162$, $E[X] = 5$, $\rho \approx 0.35$,
+   and "$\to 22$."
+5. Pick any problem from any earlier week, and write the four checklist steps for it — model, calculate,
+   interpret, check assumptions — in full sentences.
 
 ## Reading and source pointer
 
-This synthesis week ranges across **Grinstead & Snell, Chapters 1–9** rather than tracking a single
-chapter: Ch 1 for sample spaces and the basic rules, Ch 4 for conditional probability, independence,
-and Bayes, Ch 3 for counting, Ch 5–6 for random variables, expectation, variance, and the named
-families, Ch 7 for joint distributions and dependence, and Ch 8–9 for the law of large numbers and the
-central limit theorem. For the *shape* of an effective cumulative review — organizing around big ideas
-and recognition rather than isolated formulas — the **MIT OCW 18.05** review and orientation material
-is a useful companion (used for orientation only; nothing is reproduced).
+This is a review week, so point yourself at *both* course texts and skim broadly rather than deeply. For a
+chapter-by-chapter re-walk of the whole term's spine — sample spaces and rules, conditional probability and
+Bayes, counting, random variables, the standard discrete and continuous models, joint distributions, and the
+limit theorems — return to **Grinstead & Snell**, reading the chapter that matches each week of the arc:
+<https://www.dartmouth.edu/~chance/teaching_aids/books_articles/probability_book/book.html>.
 
-*These notes are the course's own synthesis, grounded in but not copied from the sources.* All example
-data are **synthetic, with seeds set**.
+For a *second* source of review and practice in a different voice, use the **MIT OpenCourseWare 18.05** review
+materials and practice problems; working a few of its problems alongside your re-walk is a good way to test
+whether the reading skill transfers off the commuter thread:
+<https://ocw.mit.edu/courses/18-05-introduction-to-probability-and-statistics-spring-2022/>.
+
+These notes are the course's own synthesis, grounded in but not copied from the sources.
 
 ## Public vs. graded
 
@@ -335,24 +346,32 @@ ever disagree, follow Blackboard.
 
 ## Looking ahead
 
-This is the last set of notes for the term. Our final class meeting is Mon Dec 7, with a consultation
-day Dec 8 for individual questions. The **final-exam window is Dec 9–15**, and the exact block is
-announced through **Blackboard** — treat this note as orientation only; it contains no exam items, no
-schedule beyond that window, and no graded content of any kind. Beyond this course, the same arc keeps
-going: the central limit theorem you met in Week 13 is the doorway to inferential statistics —
-confidence intervals, hypothesis tests, and the Bayesian updating you have been practicing all term,
-now applied to data rather than to a single morning's shuttle. You already own the reasoning; the next
-course supplies the data.
+The last class meets Monday, December 7; a consultation day follows, and the cumulative final lands in the
+end-of-term window (the exact block is posted in Blackboard, which is authoritative — no date or block is
+fixed on this page). What is "ahead" is really what is *next after this course*: every move you practiced here
+is the foundation under statistical inference. The conditioning and updating of Week 5 grow into Bayesian
+statistics; the expectation, variance, and named models become the building blocks of estimators; and the
+limit theorems of Week 13 are the reason a sample mean can stand in for a population mean at all. You leave
+with a reading skill — model, calculate, interpret, check — that outlasts every formula on the final.
 
 ## See also
 
-- [Notation glossary](../resources/notation-glossary.qmd) — every fixed symbol used across the course,
-  collected in one place for final review.
-- [Distribution reference](../resources/distribution-reference.qmd) — the parameterizations of the
-  Binomial, Geometric, Poisson, Exponential, and Normal families to check before the exam.
-- [Course syllabus](../syllabus.qmd) — schedule, policies, the final-exam window, and where graded work
-  actually lives.
-
-*(Week 15 has no companion lab; the simulation labs pair with Weeks 2, 5, 9, and 13 — revisit
-[the law-of-large-numbers and CLT lab](../labs/lab-13-law-of-large-numbers-and-clt.qmd) when you review
-the limit theorems.)*
+- [Course syllabus](../syllabus.qmd) — the full schedule and where graded work, including the final, lives
+  (Blackboard is authoritative for all dates and the exam block).
+- [Notation glossary](../resources/notation-glossary.qmd) — every symbol and model parameterization the term
+  used, in one place — the right thing to skim before the final.
+- [Distribution reference](../resources/distribution-reference.qmd) — a one-stop table of each named model's
+  pmf or density, mean, variance, and support, for the Week 9 and Week 11 strands.
+- Review aids — the four simulation labs, each re-checking a piece of the thread by simulation:
+  [Lab 2: Monte Carlo basics](../labs/lab-02-monte-carlo-basics.qmd),
+  [Lab 5: Bayes by simulation](../labs/lab-05-bayes-by-simulation.qmd),
+  [Lab 9: Simulating discrete models](../labs/lab-09-simulating-discrete-models.qmd), and
+  [Lab 13: Law of large numbers and the CLT](../labs/lab-13-law-of-large-numbers-and-clt.qmd).
+- [Week 1 — Uncertainty, probability & models](week-01-uncertainty-probability-models.qmd) — the start of the
+  thread, where $P(\text{on time}) = 0.81$ first appeared.
+- [Week 5 — Bayes' rule & updating](week-05-bayes-rule-and-updating.qmd) — the updating move at the heart of
+  the recurring slice above.
+- [Week 13 — Sums, simulation & limit behavior](week-13-sums-simulation-limit-behavior.qmd) — the final link
+  in the chain, where averages settle toward $22$.
+- [Week 14 — Probability modeling project](week-14-probability-modeling-project.qmd) — the project that put
+  the whole arc to work just before this review.

@@ -5,333 +5,378 @@ page_mode: software_lab_week
 week_contract: software_note_lab
 source_mode: source-informed
 readings:
-  - "Grinstead & Snell, Ch 7 — Sums of Random Variables — supports the variance-of-a-sum rule and the setup"
   - "Grinstead & Snell, Ch 8 — Law of Large Numbers — supports the LLN statement"
   - "Grinstead & Snell, Ch 9 — Central Limit Theorem — supports the CLT statement"
-  - "MIT OCW 18.05 — central limit theorem and the bootstrap/simulation strand — supports the simulation picture"
 toc: true
 ---
 
-This is a **software week**. The whole term we have *derived* probabilities by hand — counting outcomes,
-integrating densities, applying Bayes' rule. This week we add the other half of the course's promise:
-*simulation*. We will not prove the week's two big results; we will state them and then **watch them
-happen** by generating synthetic data in R and counting. The page is built on the
-`software_note_lab` anatomy — a concept note, a practiced simulation sequence, a reproducibility
-convention, a debugging note, and an honest record of any AI help — and it hands off to the companion
-[Lab 13](../labs/lab-13-law-of-large-numbers-and-clt.qmd) where you run the code yourself.
-
 ## Concept note
 
-Two questions sit underneath almost everything you do with data. *If I average many noisy measurements,
-does the average settle down to the truth?* And *if it does, what does the leftover wobble look like?*
-This week names the two theorems that answer them — the **law of large numbers** (LLN) and the
-**central limit theorem** (CLT) — and uses simulation to make them visible. Before either, we need one
-small piece of algebra about adding random variables.
+For twelve weeks you have computed with single random quantities — one quiz score, one shuttle wait, one
+commute. This week the random quantity is an **average**, and two of the most useful facts in all of
+probability are about what happens to an average as you let the sample size grow. Both facts are easiest to
+*believe* once you have watched them happen on a screen, so this is a software week: we state each law in
+words and symbols, then let base-R simulation make it visible.
 
-### Adding random variables, and the variance of a sum
+Keep one distinction at the front of your mind the whole week, because everything turns on it. The
+**sample mean** is a *statistic* — a number you compute from data you actually drew, and it changes every
+time you draw a fresh sample. The **expectation** $E[X]$ is a *parameter* — a fixed feature of the
+underlying model, the same no matter how many times you sample. We will write the sample mean of $n$ draws
+as $\bar{X}_n$ and the expectation as $\mu = E[X]$. The two laws below are statements about how the random
+$\bar{X}_n$ relates to the fixed $\mu$.
 
-Expectation adds with no fine print. For any random variables $X$ and $Y$,
-
-$$
-E[X + Y] \;=\; E[X] + E[Y],
-$$
-
-whether or not $X$ and $Y$ are independent. Variance is the careful one. The general rule carries a
-cross-term:
+Take Maya's morning commute as the running quantity. From Week 11, her commute time in minutes is modeled as
 
 $$
-\operatorname{Var}(X + Y) \;=\; \operatorname{Var}(X) + \operatorname{Var}(Y) + 2\,\operatorname{Cov}(X, Y).
+C \sim \text{Normal}(\mu = 22,\ \sigma = 5),
 $$
 
-The covariance $\operatorname{Cov}(X, Y)$ is exactly the joint-dependence quantity from Week 12 — it
-measures whether $X$ and $Y$ move together. When $X$ and $Y$ are **independent** (or merely uncorrelated)
-the covariance is $0$, the cross-term vanishes, and variance becomes additive:
+with $\mu$ and $\sigma$ read as **mean and standard deviation** (the course's Normal convention; R's
+`rnorm` uses the same one). Imagine recording her commute on $n$ independent days and averaging the times.
+That average $\bar{C}_n$ is itself random — a different $n$ days would give a different average — but the
+two limit laws pin down its behavior tightly.
+
+### The law of large numbers, in words
+
+The **law of large numbers (LLN)** says that as you average more and more independent draws, the sample
+mean settles down onto the expectation. For independent, identically distributed draws $C_1, C_2, \dots,
+C_n$ each with mean $\mu = E[C]$,
 
 $$
-\operatorname{Var}(X + Y) \;=\; \operatorname{Var}(X) + \operatorname{Var}(Y)
-\qquad (X \perp Y).
+\bar{C}_n = \frac{1}{n} \sum_{i=1}^{n} C_i \;\longrightarrow\; \mu \quad \text{as } n \to \infty.
 $$
 
-That special case is the engine of the whole week. Stack up $n$ **independent and identically
-distributed** (iid) copies $X_1, X_2, \dots, X_n$, each with mean $\mu$ and standard deviation $\sigma$,
-and look at their sum and their average. For the sum $S_n = X_1 + \cdots + X_n$,
+For Maya's commute, $\mu = 22$, so the average of her commute times **converges to $22$ minutes**. The word
+"converges" is doing real work: it does not say the average equals $22$ at any finite $n$, and it does not
+say the average marches toward $22$ without ever stepping back. It says the wobble around $22$ keeps
+shrinking, so that for large $n$ the average is reliably close to $22$. The LLN is the precise version of
+the everyday intuition that "more data gives a more trustworthy average."
+
+### The central limit theorem, in words
+
+The LLN tells you *where* the average lands. The **central limit theorem (CLT)** tells you the *shape* of
+its leftover wobble — and the answer is the same shape almost regardless of where the data came from. For
+$n$ independent, identically distributed draws with mean $\mu$ and standard deviation $\sigma$, the sample
+mean is, for large $n$, approximately Normal:
 
 $$
-E[S_n] \;=\; n\mu,
-\qquad
-\operatorname{Var}(S_n) \;=\; n\sigma^2,
+\bar{C}_n \;\approx\; \text{Normal}\!\left(\mu,\ \frac{\sigma}{\sqrt{n}}\right).
 $$
 
-and for the sample mean $\bar X_n = S_n / n$,
+Two things to read off this. First, the average is **centered at $\mu$** — that is the LLN again. Second,
+the standard deviation of the average is $\sigma/\sqrt{n}$, which **shrinks as $n$ grows**. For Maya's
+commute, $\bar{C}_n \approx \text{Normal}(22,\ 5/\sqrt{n})$: centered at $22$, with spread $5/\sqrt{n}$ that
+narrows as you average more days. At $n = 25$ the spread is $5/5 = 1$ minute; at $n = 100$ it is
+$5/10 = 0.5$ minutes. The factor $\sqrt{n}$ in the denominator is why halving the spread of an average costs
+you *four* times the data, not twice.
 
-$$
-E[\bar X_n] \;=\; \mu,
-\qquad
-\operatorname{Var}(\bar X_n) \;=\; \frac{\sigma^2}{n},
-\qquad
-\operatorname{sd}(\bar X_n) \;=\; \frac{\sigma}{\sqrt n}.
-$$
+The striking part is the word *approximately Normal*. Maya's commute was already Normal, so an average of
+Normals being Normal is no surprise. The CLT's real power is that the average turns bell-shaped **even when
+the individual draws are not** — dice rolls, coin flips, waiting times. We will see exactly that with the
+dice transfer example below.
 
-Read that last line slowly, because it is the seed of both theorems. The average is **centered on the
-truth** $\mu$ for every $n$, and its spread **shrinks** like $\sigma/\sqrt n$ as $n$ grows. The mean stays
-put; the wobble around it gets smaller.
+### Why the sample-mean / expectation distinction matters here
 
-### The law of large numbers — the average settles
-
-The LLN turns "the spread shrinks" into a promise about the average itself. As the sample size grows, the
-sample mean of iid draws converges to the true expectation:
-
-$$
-\bar X_n \;=\; \frac{1}{n}\sum_{i=1}^{n} X_i \;\longrightarrow\; \mu \;=\; E[X]
-\qquad \text{as } n \to \infty.
-$$
-
-In words: pile up enough independent observations and their average gets and stays close to the value you
-would have computed if you knew the distribution exactly. This is the formal license behind a habit you
-already have — estimating a probability or a mean by *running many trials and averaging*. Every Monte
-Carlo estimate in this course (the lab-2 counting, the lab-5 posterior) is the LLN cashing out: the
-long-run proportion converges to the true probability because a proportion is just the average of $0/1$
-indicators. We state the LLN; we do not prove it. Its plausibility comes straight from the previous
-section — if $\operatorname{Var}(\bar X_n) = \sigma^2/n \to 0$, the average has less and less room to stray
-from $\mu$.
-
-### The central limit theorem — the wobble is a bell
-
-The LLN says the average lands on $\mu$. The CLT describes the *shape* of how it scatters along the way,
-and the answer is remarkable: almost regardless of the shape of the original distribution, the
-**standardized** sum of many iid draws looks Normal. Precisely,
-
-$$
-Z_n \;=\; \frac{S_n - n\mu}{\sigma\sqrt n}
-\;=\; \frac{\bar X_n - \mu}{\sigma / \sqrt n}
-\;\longrightarrow\; \operatorname{Normal}(0, 1)
-\qquad \text{as } n \to \infty.
-$$
-
-Undo the standardizing and the same statement says the sample mean of $n$ iid draws is **approximately
-Normal**, centered at $\mu$ with standard deviation $\sigma/\sqrt n$:
-
-$$
-\bar X_n \;\approx\; \operatorname{Normal}\!\left(\mu, \; \frac{\sigma}{\sqrt n}\right)
-\qquad \text{for large } n.
-$$
-
-This is why the Normal distribution is everywhere: anything built by *adding up many small independent
-contributions* — measurement error, total wait across many stops, an average of many quiz scores — tends
-toward a bell curve, even when each contribution is not itself Normal. We state the CLT; we do not prove
-it. The point of the week is that you can *see* both results on screen in a few lines of R, without taking
-a limit by hand.
-
-A convenient feature of this week's recurring case: when the draws are *already* Normal, the
-approximation is exact. If $C \sim \operatorname{Normal}(22, 5)$, then for **every** $n$ the average of $n$
-iid commutes is exactly $\bar C_n \sim \operatorname{Normal}(22, 5/\sqrt n)$. That makes the commute the
-perfect first thing to simulate — we know the exact target to compare against — and then we will switch to
-a decidedly non-Normal source to show the CLT bending it into a bell anyway.
+Because the sample mean is random and the expectation is fixed, it is a category error to say "the sample
+mean *is* $22$." A particular sample mean is a draw; $22$ is the target it is drawn around. The LLN says the
+draws cluster ever more tightly on the target as $n$ grows; the CLT says that, at any large $n$, those draws
+are scattered around the target in a Normal pattern with a known, shrinking width. Holding the two ideas
+apart — statistic versus parameter — is what keeps the simulations below interpretable rather than magical.
 
 ## Setup and practice sequence
 
-*All data below are **synthetic; seed set** (`set.seed(35003)`). The R chunks are **shown for study**,
-written in base R, and **not executed** on this site (`#| eval: false`) — you run them yourself in the
-[companion lab](../labs/lab-13-law-of-large-numbers-and-clt.qmd).* Work the sequence in order; each step
-builds on the last.
+The plan is to *make both laws visible* with two pictures, all in base R. All data here are **synthetic;
+seed `35003` is set** so every run is reproducible. The R chunks are shown for study and are **not executed
+on this site** (`#| eval: false`) — you run them yourself in your own R session. See the
+[R · Quarto setup](../resources/r-quarto-setup.qmd) page to get an environment going.
 
-The recurring world: Maya's morning commute time is $C \sim \operatorname{Normal}(\mu = 22, \sigma = 5)$
-minutes, the same model from Week 11. We will (1) watch one running average settle to $22$ — the LLN; (2)
-build the sampling distribution of $\bar C_n$ and see it is the bell the CLT promises; and (3) repeat the
-CLT step on a *non-Normal* source — a sum of quiz scores — to show the bell appears even when the
-ingredients are not Normal.
+Work the sequence in order:
 
-**1. Watch one running average settle (the LLN).** Draw a long stream of commute times and plot the
-*cumulative* average after $1, 2, 3, \dots$ mornings. Early on the average jumps around; as $n$ grows it
-hugs the line $\mu = 22$.
+1. **Set the world.** Fix the seed and the commute model so every reader gets the same numbers.
+2. **See the LLN: a running-mean curve.** Draw one long stream of commute times, compute the average of
+   the first $1, 2, 3, \dots, n$ of them, and plot that running average against $n$. Watch the curve flatten
+   onto $22$.
+3. **See the CLT: a histogram of many sample means.** Draw *many separate samples* of size $n$, compute
+   each sample's mean, and histogram those means. Watch the histogram look Normal and watch it **narrow** as
+   $n$ grows.
+4. **Transfer to dice.** Repeat both pictures with rolls of a fair six-sided die — a decidedly non-Normal,
+   flat-topped distribution — and watch the average flatten onto $3.5$ and the histogram of means go
+   bell-shaped anyway.
+
+### Step 1 — set the commute world
 
 ```{r}
-#| label: wk13-lln-running-average
+#| label: setup-world
 #| eval: false
-#| fig-cap: "Running average of simulated commute times converging to the true mean of 22 minutes."
-#| fig-alt: "A jagged line that smooths and settles onto a dashed horizontal line at 22 as the number of mornings increases."
-# Synthetic commute times C ~ Normal(mu = 22, sd = 5). Watch the running mean settle to 22 (LLN).
 set.seed(35003)
-n  <- 5000
-C  <- rnorm(n, mean = 22, sd = 5)        # NOTE: sd = 5 is a standard deviation, NOT a variance
-run_mean <- cumsum(C) / seq_len(n)       # cumulative average after 1, 2, ..., n mornings
 
-plot(seq_len(n), run_mean, type = "l",
-     xlab = "number of mornings (n)", ylab = "running average commute (min)",
-     main = "Law of large numbers: running mean -> 22")
-abline(h = 22, lty = 2)                  # the true mean mu the average is converging to
+mu_C    <- 22   # E[C], the expectation (a fixed parameter)
+sigma_C <- 5    # sd of C (Normal convention: mean & standard deviation)
 
-run_mean[c(10, 100, 1000, 5000)]         # the average at a few sample sizes: drifting toward 22
+# one independent commute time, in minutes
+rcommute <- function(n) rnorm(n, mean = mu_C, sd = sigma_C)
 ```
 
-What you are meant to see: the line is ragged for small $n$ and flattens onto the dashed $\mu = 22$ line as
-$n$ grows. That flattening *is* the LLN, and the rate it tightens is the $\sigma/\sqrt n$ shrinkage from the
-concept note.
+Note the naming on purpose: `mu_C` is the *parameter* $\mu = 22$ we are trying to recover, never the data.
+The data come only from `rcommute()`.
 
-**2. Build the sampling distribution of the mean (the CLT).** Now repeat the *experiment* many times.
-Take $n = 30$ commutes, average them to get one $\bar C_{30}$, and do that for many independent weeks-worth
-of mornings. Histogram the resulting averages.
+### Step 2 — the LLN as a running-mean curve
+
+Draw one stream of $n = 2000$ commute times. For each prefix length $k$, average the first $k$ draws. The
+function `cumsum(x) / seq_along(x)` gives that whole running average in one vectorized step.
 
 ```{r}
-#| label: wk13-clt-sampling-distribution
+#| label: lln-running-mean
 #| eval: false
-#| fig-cap: "Histogram of many sample means of 30 commute times, overlaid with the Normal(22, 5/sqrt(30)) curve."
-#| fig-alt: "A bell-shaped histogram of sample means centered at 22, closely matched by an overlaid normal curve."
-# Many independent sample means of n = 30 commutes each. The histogram should look Normal (CLT),
-# centered at 22 with sd = 5/sqrt(30).
 set.seed(35003)
-reps <- 10000                            # number of independent sample means to form
-n    <- 30                               # commutes averaged per sample mean
-means <- replicate(reps, mean(rnorm(n, mean = 22, sd = 5)))
 
-hist(means, breaks = 40, freq = FALSE,
-     xlab = "sample mean of 30 commutes (min)",
-     main = "CLT: distribution of the sample mean")
-# overlay the Normal the CLT predicts: center 22, sd 5/sqrt(30)
-curve(dnorm(x, mean = 22, sd = 5 / sqrt(30)), add = TRUE, lwd = 2)
+n      <- 2000
+draws  <- rcommute(n)                 # 2000 independent commute times
+runavg <- cumsum(draws) / seq_along(draws)   # running mean after 1, 2, ..., n draws
 
-c(observed_mean = mean(means),           # should be ~ 22
-  observed_sd   = sd(means),             # should be ~ 5/sqrt(30) ~ 0.913
-  predicted_sd  = 5 / sqrt(30))
+plot(seq_len(n), runavg, type = "l",
+     xlab = "number of days averaged (n)",
+     ylab = "running average commute (min)",
+     main = "Law of large numbers: the average settles onto 22")
+abline(h = mu_C, lty = 2)             # the target E[C] = 22
+
+runavg[c(10, 100, 1000, 2000)]        # average is jumpy early, steady late
 ```
 
-What you are meant to see: a tidy bell sitting on top of the overlaid Normal curve, its center near $22$
-and its spread near $5/\sqrt{30} \approx 0.913$. Because the source was already Normal, the match is
-essentially exact here — a clean baseline before we stress-test the CLT next.
+Read the picture. Early on (small $n$) the curve swings widely — a few unlucky long commutes can drag a
+$5$-day average well off $22$. As $n$ climbs into the hundreds and thousands, the curve hugs the dashed line
+at $22$ and the swings shrink toward nothing. That flattening *is* the LLN: $\bar{C}_n \to \mu = 22$. The
+printed values at $n = 10, 100, 1000, 2000$ make the same point numerically — each is closer to $22$ than
+the last, on average, though no single value need be.
 
-**3. Stress-test the CLT on a non-Normal sum (a sum of quiz scores).** Here is the surprising part. Take a
-clearly non-Normal ingredient — a single true/false quiz score, which is *binomial*, not a bell — and look
-at the **sum across several quizzes**. The CLT says the total will drift toward Normal as we add more.
+![**Law of large numbers (rendered from the Step 2 simulation; synthetic, seed 35003).** The running average of 2,000 simulated commute times swings widely for small $n$, then settles onto the dashed line at the expectation $E\lbrack C\rbrack = 22$ as $n$ grows.](../assets/figures/wk13_lln_running_mean.png){#fig-wk13-lln fig-alt="A line plot of the running average commute time against the number of days averaged, from 1 to 2000. The line swings between about 21 and 28 minutes over the first few dozen days, then the swings shrink and the line hugs a dashed horizontal reference at 22 minutes for the rest of the range."}
+
+::: {.callout-note appearance="minimal"}
+**What the figure shows (non-visual equivalent).** The running average is jumpy early and steady late. In
+this synthetic run it is about $22.2$ at $n = 10$, about $21.2$ at $n = 100$, about $21.9$ at $n = 1{,}000$,
+and about $22.1$ at $n = 2{,}000$ — wobbling, but with the swings shrinking as $n$ grows so the average closes
+in on $E[C] = 22$ (no single value need equal it). *Figure generated from the course's own synthetic
+simulation; the numbers are illustrative.*
+:::
+
+### Step 3 — the CLT as a histogram of sample means
+
+Now change what we collect. Instead of one growing average, draw **many independent samples**, each of a
+fixed size $n$, and keep just each sample's mean. The collection of those means is what the CLT describes.
 
 ```{r}
-#| label: wk13-clt-nonnormal-sum
+#| label: clt-sample-means
 #| eval: false
-#| fig-cap: "Histograms of sums of quiz scores for k = 1, 4, 20, approaching a normal shape as more quizzes are added."
-#| fig-alt: "Three histograms of quiz-score totals; the leftmost is lumpy and the rightmost is a smooth bell, each matched by a normal curve."
-# Each quiz score X ~ Binomial(10, 0.5) (mean 5, sd ~ 1.58), which is NOT Normal on its own.
-# Sum scores across k quizzes and watch the total's distribution turn into a bell as k grows (CLT).
 set.seed(35003)
-reps <- 10000
-draw_total <- function(k) sum(rbinom(k, size = 10, prob = 0.5))   # total over k quizzes
 
-par(mfrow = c(1, 3))                      # compare k = 1, 4, 20 side by side
-for (k in c(1, 4, 20)) {
-  totals <- replicate(reps, draw_total(k))
-  hist(totals, breaks = 30, freq = FALSE,
-       xlab = paste("sum of", k, "quiz score(s)"),
-       main = paste("k =", k))
-  curve(dnorm(x, mean = 5 * k, sd = sqrt(2.5 * k)), add = TRUE, lwd = 2)  # CLT target
+reps <- 5000        # number of independent samples (number of sample means we collect)
+
+sample_means <- function(n, reps) {
+  replicate(reps, mean(rcommute(n)))   # one mean per sample, reps of them
 }
-par(mfrow = c(1, 1))
+
+means_n25  <- sample_means(25,  reps)
+means_n100 <- sample_means(100, reps)
+
+# the CLT predicts each set of means is approx Normal(22, 5/sqrt(n))
+c(pred_sd_25  = sigma_C / sqrt(25),    obs_sd_25  = sd(means_n25))
+c(pred_sd_100 = sigma_C / sqrt(100),   obs_sd_100 = sd(means_n100))
+
+hist(means_n25, breaks = 40, freq = FALSE,
+     xlab = "sample mean commute (min)", xlim = c(18, 26),
+     main = "CLT: sample means are ~Normal(22, 5/sqrt(n)) and narrow as n grows")
+hist(means_n100, breaks = 40, freq = FALSE, add = TRUE,
+     col = rgb(0, 0, 0, 0.25))
+abline(v = mu_C, lty = 2)             # both histograms center on 22
 ```
 
-What you are meant to see: at $k = 1$ the histogram is the chunky, slightly blocky binomial; by $k = 4$ it
-is already bell-ish; by $k = 20$ it is a clean Normal hugging the overlaid curve with mean $5k$ and
-standard deviation $\sqrt{2.5k}$ (using the quiz's $\mu = 5$, $\sigma^2 = 2.5$ from Week 8). The ingredient
-never changed — the **sum** is what goes Normal. That is the CLT in one picture.
+Two things to watch. **Center:** both histograms pile up on $22$ — that is the LLN once more, since
+$\bar{C}_n$ is centered at $\mu$. **Spread:** the $n = 100$ histogram is visibly *narrower* than the
+$n = 25$ one, by a factor of two, because $5/\sqrt{100} = 0.5$ is half of $5/\sqrt{25} = 1$. The printed
+`pred_sd` versus `obs_sd` lines confirm the $\sigma/\sqrt{n}$ formula: the standard deviation of the
+simulated means lands right on $1$ and $0.5$. And the bell shape is exactly the Normal the CLT promises.
 
-### Two worked reads of the output
+![**Central limit theorem (rendered from the Step 3 simulation; synthetic, seed 35003).** Histograms of 5,000 sample means at $n = 25$ and $n = 100$, each centered on $22$ (dashed) and tracing its $\text{Normal}(22,\ 5/\sqrt{n})$ overlay; the $n = 100$ histogram is half as wide and twice as tall as the $n = 25$ one.](../assets/figures/wk13_clt_sample_mean_hist.png){#fig-wk13-clt fig-alt="Two overlaid density histograms of sample-mean commute times between 18 and 26 minutes, both centered at 22. The n = 25 histogram is wide with a peak near 0.4; the n = 100 histogram is narrower and taller with a peak near 0.8. Two smooth Normal curves trace the two histograms."}
 
-*Worked read — the recurring commuter's slice.* In step 2 the prediction is fixed in advance:
-$\bar C_{30} \approx \operatorname{Normal}(22,\, 5/\sqrt{30})$, so
+::: {.callout-note appearance="minimal"}
+**What the figure shows (non-visual equivalent).** Both histograms center on $22$ (the LLN again). Their
+spreads match $\sigma/\sqrt{n} = 5/\sqrt{n}$: the simulated standard deviation of the means is about $0.99$ at
+$n = 25$ (predicted $1$) and about $0.50$ at $n = 100$ (predicted $0.5$) — so quadrupling the sample size
+halves the spread of the average. *Figure generated from the course's own synthetic simulation; the numbers
+are illustrative.*
+:::
+
+### Step 4 — transfer: averages of dice rolls
+
+Maya's commute was already Normal, so its average being Normal is unsurprising. The CLT's real claim is that
+the average goes bell-shaped *even when the individual draws are not*. A fair die roll is the perfect
+stress test: its values $1, 2, 3, 4, 5, 6$ are equally likely, so a single roll has a **flat** distribution,
+not a bell. Its mean is
 
 $$
-\operatorname{sd}(\bar C_{30}) \;=\; \frac{5}{\sqrt{30}} \;\approx\; \frac{5}{5.477} \;\approx\; 0.913
-\text{ minutes.}
+E[\text{roll}] = \frac{1 + 2 + 3 + 4 + 5 + 6}{6} = 3.5.
 $$
 
-So averaging just $30$ mornings cuts the day-to-day spread from $\sigma = 5$ minutes down to about $0.91$
-minutes — a roughly five-fold tightening, exactly the $\sqrt{30} \approx 5.48$ factor the formula predicts.
-The simulation's reported `observed_sd` should land right on that $0.913$; if it does, the code and the
-theory agree, which is the whole point of running it.
+```{r}
+#| label: dice-transfer
+#| eval: false
+set.seed(35003)
 
-*Transfer read — sums of quiz scores.* In step 3, one quiz has $\mu = 5$ and $\sigma^2 = 2.5$ (the
-Week-8 binomial numbers). Because the $k$ quizzes are independent, expectation and variance both add:
+roll_die <- function(n) sample(1:6, size = n, replace = TRUE)
 
-$$
-E\!\left[\sum_{i=1}^{k} X_i\right] = 5k,
-\qquad
-\operatorname{Var}\!\left(\sum_{i=1}^{k} X_i\right) = 2.5k,
-\qquad
-\operatorname{sd}\!\left(\sum_{i=1}^{k} X_i\right) = \sqrt{2.5k}.
-$$
+# --- LLN: running average of single rolls flattens onto 3.5 ---
+rolls  <- roll_die(2000)
+runavg <- cumsum(rolls) / seq_along(rolls)
+plot(seq_along(rolls), runavg, type = "l",
+     xlab = "number of rolls averaged (n)", ylab = "running average roll",
+     main = "Dice LLN: the average of rolls settles onto 3.5")
+abline(h = 3.5, lty = 2)
 
-For $k = 20$ that is a center of $5(20) = 100$ and a standard deviation of $\sqrt{2.5 \cdot 20} =
-\sqrt{50} \approx 7.07$ — the very mean and sd fed to the overlaid `dnorm` curve. The histogram matching
-that curve is the CLT making a Normal out of a stack of non-Normal pieces.
+# --- CLT: histogram of the mean of n=30 rolls goes bell-shaped ---
+reps         <- 5000
+mean_of_30   <- replicate(reps, mean(roll_die(30)))
+hist(mean_of_30, breaks = 40, freq = FALSE,
+     xlab = "mean of 30 dice rolls",
+     main = "Dice CLT: averages of a FLAT distribution become bell-shaped")
+abline(v = 3.5, lty = 2)
+mean(mean_of_30)   # close to 3.5
+```
+
+The first plot is the dice LLN: a single roll is flat, but its running average flattens onto $3.5$ exactly
+as the commute average flattened onto $22$.
+
+![**Dice LLN — the transfer example, rendered (synthetic, seed 35003).** The running average of 2,000 simulated die rolls swings widely at first, then settles onto the dashed reference at $E\lbrack\text{roll}\rbrack = 3.5$ — the same flattening behavior as the commute figure above, now starting from a flat rather than a Normal population.](../assets/figures/wk13_dice_lln_running_mean.png){#fig-wk13-dice-lln fig-alt="A line plot of the running average of die rolls against the number of rolls averaged, from 1 to 2000. The line swings between about 3.1 and 4.5 over the first hundred or so rolls, then the swings shrink and the line settles near a dashed horizontal reference at 3.5 for the rest of the range."}
+
+::: {.callout-note appearance="minimal"}
+**What the figure shows (non-visual equivalent).** In this synthetic run the running average of die rolls is
+about $3.50$ at $n = 10$, dips to about $3.30$ at $n = 100$, then reads about $3.45$ at $n = 1{,}000$ and
+about $3.49$ at $n = 2{,}000$ — the LLN pulling it onto $3.5$ regardless of the flat starting population.
+*Figure generated from the course's own synthetic simulation; the numbers are illustrative.*
+:::
+
+The second plot is the dice CLT: even though one roll is flat,
+the **average of $30$ rolls** is a clean bell centered at $3.5$.
+
+![**Dice CLT — a flat population, a bell-shaped average (synthetic, seed 35003).** Left: the exact, perfectly flat pmf of one die roll. Right: a histogram of 5,000 simulated means of 30 rolls, already bell-shaped and tracking its $\text{Normal}(3.5,\ \sigma_D/\sqrt{30})$ overlay, where $\sigma_D=\sqrt{35/12}$ is the die's own standard deviation from Week 8's transfer example.](../assets/figures/wk13_dice_clt_bell_from_flat.png){#fig-wk13-dice-clt fig-alt="Two panels. Left: a flat bar chart with six equal bars for die faces 1 through 6, each at height one sixth. Right: a bell-shaped density histogram of simulated means of 30 rolls, centered near 3.5, with a smooth dashed normal curve tracing its shape."}
+
+::: {.callout-note appearance="minimal"}
+**What the figure shows (non-visual equivalent).** The left panel has no bell shape at all — every face is
+equally likely. The right panel, built only by averaging 30 draws from that same flat population, is already
+close to bell-shaped: in this run the simulated means have mean $\approx 3.50$ and standard deviation
+$\approx 0.311$, matching the predicted $\sigma_D/\sqrt{30}\approx 0.312$ closely. *Figure generated from the
+course's own synthetic simulation; the numbers are illustrative.*
+:::
+
+Nothing about the underlying distribution
+being non-Normal stopped the average from becoming Normal — that universality is the whole point of the CLT,
+and it is why the Normal model shows up so often once averages or sums are involved.
 
 ## Reproducible-file convention
 
-A simulation result that nobody else can reproduce is an anecdote, not evidence. The convention for every
-piece of code on this page and in the lab is small and strict.
+Keep this week's work in **one `.qmd` file** — say `week13-limits.qmd` — so the prose, the code, and the
+plots travel together and anyone (including you, next month) can re-run it from top to bottom and get the
+same figures. A few conventions make that reliability real:
 
-- **One `.qmd` per analysis.** Keep the narrative, the code, and the output in a single Quarto document so
-  the reasoning and the computation never drift apart. You knit the same file to share a result.
-- **Seed at the top, always.** Put `set.seed(35003)` *before* the first random draw in any chunk that uses
-  randomness. The seed makes the pseudo-random stream deterministic: re-knit the file and you get the
-  identical histogram and the identical reported numbers. Without it, every run differs and "I got
-  $0.913$" becomes unverifiable. (We use the same course seed, $35003$, everywhere so results line up
-  across the term.)
-- **End with `sessionInfo()`.** Close the document with a chunk that records your R version and loaded
-  package versions, so a reader can tell *which* environment produced the numbers.
+- **Seed once, near the top, and re-seed each independent simulation.** Every chunk above calls
+  `set.seed(35003)` before it draws. That is deliberate: it makes each chunk reproducible *on its own*, so a
+  reader who runs only the CLT chunk still gets the documented numbers. (The course seed is `35003`
+  throughout; the data are synthetic.)
+- **Name the parameter and the statistic differently in code, too.** `mu_C` is the fixed $\mu = 22$;
+  `runavg`, `sample_means`, and `mean_of_30` are the random statistics. Mirroring the
+  statistic-versus-parameter distinction in your variable names keeps the simulation honest.
+- **Render with Quarto, then record your session.** After the document knits, paste the output of the chunk
+  below into the file so the exact R and package versions that produced your figures are on the record.
 
 ```{r}
-#| label: wk13-session-info
+#| label: session-info
 #| eval: false
-# Record the environment at the end of every reproducible analysis file.
-sessionInfo()
+sessionInfo()   # R version, platform, and loaded packages — paste the output into your file
 ```
 
-Together — one file, a fixed seed, and a recorded session — these three habits mean another person (or
-future-you) can re-run the document and get exactly your figures. That is what "reproducible" means in
-this course, and it is the standard the Week-14 project will be held to.
+In *this* build the chunks are shown for teaching and carry `#| eval: false`, so the site renders the code
+without running it; in your own copy you would set them to evaluate so the plots appear.
 
 ## Debugging
 
-Two snags account for most "my simulation looks wrong" moments this week. Both are quiet — the code runs
-without an error, it just gives the wrong thing — so they are worth recognizing on sight.
+The most common simulation snag this week is a result that looks "wrong" but is really a **reproducibility or
+sample-size** issue rather than a coding error. Three to watch for:
 
-- **Forgetting `set.seed()` → non-reproducible output.** If you omit the seed (or place it *after* the
-  random draw, which is the same as omitting it), every knit produces a different histogram and different
-  reported numbers. The code is not broken, but the result cannot be checked against anyone else's. *Fix:*
-  put `set.seed(35003)` as the first line that runs before any `rnorm`/`rbinom`/`replicate`. If you want to
-  confirm a result is *stable* rather than a seed artifact, deliberately try a couple of different seeds and
-  confirm the picture and the summary numbers barely move — for a large simulation they should not.
-- **`rnorm` takes a standard deviation, not a variance.** This is the single most common numeric bug of the
-  week, and it ties straight back to the course's notation. In R, `rnorm(n, mean = 22, sd = 5)` expects the
-  third argument to be the **standard deviation** $\sigma = 5$. If you instead pass the *variance*
-  $\sigma^2 = 25$, writing `rnorm(n, mean = 22, sd = 25)`, you have silently quintupled the spread — your
-  "commute times" now scatter by $25$ minutes, your running average settles much more slowly, and your CLT
-  histogram is five times too wide. Nothing errors; the numbers are just wrong. *Fix:* read every `sd =`
-  argument as "standard deviation," and sanity-check against the prediction — if step 2 reports an
-  `observed_sd` near $4.6$ instead of $0.913$, you have fed it a variance. (The same trap lurks in `dnorm`
-  and `pnorm`, which also take `sd`, never a variance.)
+- **Your numbers differ from a classmate's.** Almost always a seed problem: either `set.seed(35003)` was not
+  called *immediately before* the draw, or a chunk was run out of order so the random-number stream had
+  already advanced. Fix: put the seed at the top of the chunk that does the drawing, and run the file from a
+  clean session top to bottom. Re-seeding is not cheating — it is what makes the figures reproducible.
+- **The histogram of means does not look Normal.** Usually $n$ is too small. The CLT is a *large-$n$*
+  statement; at $n = 2$ or $n = 5$ the average of dice rolls is still visibly chunky. Increase the
+  per-sample size $n$ (try $30$ and up) — note this is the sample size *inside* each `mean()`, not the number
+  of repetitions `reps`. Those two knobs do different jobs and are easy to swap by accident.
+- **The running-mean curve never settles.** Check that you divided by the *running count*, not by the fixed
+  `n`. The pattern `cumsum(draws) / seq_along(draws)` divides each partial sum by how many terms went into
+  it; writing `cumsum(draws) / n` instead divides everything by the final count and gives a curve that
+  drifts rather than converges. A quick guard: the last value of a correct running mean equals
+  `mean(draws)` exactly.
+
+The second bullet above is easiest to *see*: here is the CLT histogram at a sample size the CLT has not yet
+"kicked in" for, next to one where it clearly has.
+
+![**Debugging bullet 2, seen — sample size too small (synthetic, seed 35003).** Left: the distribution of the mean of only 2 die rolls is visibly chunky (only 11 possible values). Right: the mean of 30 rolls from the same population is already smoothly bell-shaped. Both are centered on the dotted reference at $3.5$.](../assets/figures/wk13_clt_small_n_misconception.png){#fig-wk13-small-n fig-alt="Two panels of bar-like density histograms of dice-roll means, both with a dotted vertical reference near 3.5. The left panel, mean of 2 rolls, has only eleven distinct bars and a visibly triangular, blocky shape. The right panel, mean of 30 rolls, has many bars tracing a smooth bell curve."}
+
+::: {.callout-note appearance="minimal"}
+**What the figure shows (non-visual equivalent).** At $n = 2$ the mean of two die rolls can only take 11
+distinct values ($1, 1.5, 2, \dots, 6$), so its histogram is unavoidably blocky no matter how many
+repetitions you simulate — that blockiness is a sample-size fact, not a bug. At $n = 30$ the same population,
+averaged over more draws, already looks smoothly Normal. *Figure generated from the course's own synthetic
+simulation; the numbers are illustrative.*
+:::
+
+The third bullet is also easiest to *see*: the "bug" version below is not a subtly-wrong line, it visibly
+fails to converge at all until the very last point.
+
+![**Debugging bullet 3, seen — dividing by a fixed $n$ instead of the running count (synthetic, seed 35003).** The correct running mean (solid) settles onto $22$ within the first few hundred draws. The buggy version (dashed), computed as `cumsum(draws) / n` with `n` fixed at 2,000, ramps up almost linearly and only reaches the dotted target at the very last point, $n = 2{,}000$.](../assets/figures/wk13_running_mean_bug_misconception.png){#fig-wk13-bug fig-alt="A line plot with two curves against the number of terms summed, from 1 to 2000. The solid curve settles quickly near a dotted reference at 22. The dashed curve rises nearly in a straight line from 0 and only reaches 22 at the far right edge of the plot."}
+
+::: {.callout-note appearance="minimal"}
+**What the figure shows (non-visual equivalent).** The correct curve (dividing by the running count) and the
+buggy curve (dividing by the fixed final `n = 2000`) are built from the *same* 2,000 simulated commute times —
+only the divisor differs. The two curves agree only at the final point ($n = 2{,}000$, where the running
+count and the fixed `n` happen to coincide); everywhere before that, the buggy curve badly undercounts, which
+is exactly the "drifts rather than converges" symptom named above. *Figure generated from the course's own
+synthetic simulation; the numbers are illustrative.*
+:::
+
+A good habit when a simulation surprises you: print a couple of summary numbers (`mean()`, `sd()`,
+`length()`) before trusting the plot. The plot can mislead; a printed standard deviation compared against the
+predicted $\sigma/\sqrt{n}$ rarely does.
 
 ## AI Use Note
 
-If you use an AI assistant on the simulation work, record it briefly and honestly — the **Verification**
-column is the one that matters, because an AI can produce R that runs cleanly and still computes the wrong
-quantity. *(This table is an example of the format, not an endorsement of any tool; disclose actual use.)*
+Generative AI can speed up the mechanical parts of a simulation, but **you** are responsible for whether the
+output is correct. If you use an AI tool while working this week, keep a short record like the one below —
+the *Verification* column is the load-bearing one, because it is where you confirm the result against the
+theory rather than against the tool's confidence.
 
 | Tool | Purpose | Verification |
 |---|---|---|
-| AI chat assistant | Explain why `replicate()` returns a vector of sample means rather than one number | Re-read R help `?replicate`; confirmed the length equals `reps` by checking `length(means)` |
-| AI chat assistant | Suggest base-R syntax to overlay a Normal curve on a histogram | Checked the overlaid `dnorm` used $\mu$ and $\sigma/\sqrt n$, not $\sigma$; confirmed `observed_sd` matched $5/\sqrt{30}\approx 0.913$ |
-| AI code helper | Draft the cumulative-average line for the LLN plot | Verified `cumsum(C)/seq_len(n)` equals a manual average at $n=10$ by hand before trusting the plot |
+| AI chat assistant | Explain why `cumsum(x) / seq_along(x)` gives a running mean | Re-derived by hand on a 3-element vector; confirmed the last value equals `mean(x)` |
+| AI coding helper | Draft the `replicate()` loop that collects 5000 sample means | Checked `sd(sample_means)` against the predicted $\sigma/\sqrt{n} = 5/\sqrt{n}$; matched at both $n=25$ and $n=100$ |
+| AI chat assistant | Reword the LLN-vs-CLT distinction in plain language | Compared against the statements in the reading (G&S Ch 8–9); kept the statistic-vs-parameter wording exact |
 
-The standing rule: any number an AI helps produce must be checked against a hand calculation or the
-theory from the notes before you rely on it. Disclose AI use on graded work as Blackboard directs.
+The rule of thumb: an AI can propose code or phrasing, but a claim is only trustworthy once *you* have
+checked it against a hand calculation, the simulated numbers, or the named source. Record what you checked,
+not just what you asked.
 
 ## Reading and source pointer
 
-This week is grounded in **Grinstead & Snell** (GNU FDL, free online): **Chapter 7 — Sums of Random
-Variables** for adding random variables and the variance-of-a-sum rule, **Chapter 8 — Law of Large
-Numbers** for the LLN statement, and **Chapter 9 — Central Limit Theorem** for the CLT statement. The
-simulation-as-evidence emphasis — watching a sampling distribution form on screen — echoes the
-computational strand in **MIT OCW 18.05** (CC BY-NC-SA 4.0). *These notes are the course's own synthesis,
-grounded in but not copied from the sources.* The commute model, the quiz-sum example, the R code, and all
-numbers are original to this course; data are synthetic with the seed set to $35003$. We **state** the LLN
-and CLT here and do not prove them; the proofs live in the source chapters for the curious.
+For the law of large numbers, read **Grinstead & Snell, Chapter 8 — *Law of Large Numbers***, which makes
+precise the sense in which a sample mean converges to the expectation. For the central limit theorem, read
+**Grinstead & Snell, Chapter 9 — *Central Limit Theorem***, which develops the Normal approximation to the
+distribution of a sum or average:
+<https://www.dartmouth.edu/~chance/teaching_aids/books_articles/probability_book/book.html>.
+
+This is also a simulation week, so it draws on the secondary course text. See **MIT OpenCourseWare 18.05**
+for its treatment of the central limit theorem and its R/simulation resources — a good second pass on
+watching averages turn Normal and on setting up the kind of repeated-sampling experiment used above:
+<https://ocw.mit.edu/courses/18-05-introduction-to-probability-and-statistics-spring-2022/>.
+
+These notes are the course's own synthesis, grounded in but not copied from the sources.
 
 ## Public vs. graded
 
@@ -341,20 +386,29 @@ checkpoints, quizzes, homework, labs, the midterm, the project, and the final li
 (the LMS)**, which is authoritative for due dates, submissions, and grades. If this page and Blackboard
 ever disagree, follow Blackboard.
 
-## Portfolio connection
+## Looking ahead
 
-The pattern you practiced this week — *define a synthetic model, fix a seed, simulate many trials, and
-compare the simulated summary to a theoretical prediction* — is exactly the engine of the **Week-14
-probability-modeling project**. There the modeling question is "how often does Maya have $\ge 2$ late days
-in a $5$-day week?", and the workflow is the same three moves you just ran: state the model, simulate it
-reproducibly, and check the Monte Carlo estimate against a by-hand probability. The LLN is your license to
-trust the estimate when the number of trials is large; the reproducible-file convention (one `.qmd`, a set
-seed, a recorded session) is the standard the project's deliverable will be expected to meet. Treat this
-week's three chunks as the reusable skeleton you will adapt in Week 14.
+The two laws this week are the bridge from probability to statistics, and the rest of the course leans on
+them. The LLN is the reason a *simulated* probability — counting how often something happens in a long run —
+is trustworthy at all; the CLT is the reason the Normal curve shows up everywhere an average or total is
+involved. Next week's **probability modeling project** puts both to work: you will build a model for a
+question like "how likely is it that Maya has two or more late days in a five-day week?", and when the
+model is too tangled to solve by hand, you will *simulate* it — drawing many synthetic weeks and counting —
+trusting the LLN that the simulated proportion converges to the true probability. Week 15 then ties the
+whole commuter's-morning thread together for the final review.
 
 ## See also
 
-- [Lab 13 — Law of large numbers and CLT](../labs/lab-13-law-of-large-numbers-and-clt.qmd)
-- [Notation glossary](../resources/notation-glossary.qmd)
-- [Distribution reference](../resources/distribution-reference.qmd)
-- [Course syllabus](../syllabus.qmd)
+- Companion lab — [Lab 13: Law of large numbers and CLT](../labs/lab-13-law-of-large-numbers-and-clt.qmd) —
+  build the running-mean curve and the histogram of sample means yourself, for both the commute and the
+  dice, and verify the $\sigma/\sqrt{n}$ shrinkage by simulation.
+- [Notation glossary](../resources/notation-glossary.qmd) — the binding symbols, including $\bar{X}_n$ for
+  the sample mean versus $\mu = E[X]$ for the expectation (statistic versus parameter).
+- [Distribution reference](../resources/distribution-reference.qmd) — the Normal model
+  $\text{Normal}(\mu, \sigma)$ in mean–standard-deviation form and the R `rnorm`/`sample` functions used
+  above.
+- [Week 11 — Common continuous models](week-11-common-continuous-models.qmd) — where the commute model
+  $C \sim \text{Normal}(22, 5)$ was introduced.
+- [Week 14 — Probability modeling project](week-14-probability-modeling-project.qmd) — the next step, where
+  simulation becomes the tool for answering a modeling question end to end.
+- [Course syllabus](../syllabus.qmd) — overall structure, schedule, and where graded work lives.

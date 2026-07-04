@@ -1,312 +1,393 @@
 ---
 title: "Week 10 — Continuous random variables"
-subtitle: "Densities, cumulative distribution functions, and probability as area"
+subtitle: "Densities, cdfs, and probability as area"
 page_mode: math_derivation_week
 week_contract: math_derivation
 source_mode: source-informed
 readings:
-  - "Grinstead & Snell, Ch 2 — Continuous Probability Densities — supports the density/area definition and the cdf"
-  - "MIT OCW 18.05 — continuous random variables, pdf and cdf — supports the area-under-the-curve picture"
+  - "Grinstead & Snell, Ch 2 — Continuous Probability Densities — supports the density/area/cdf machinery"
 toc: true
 ---
 
 ## Mathematical goal
 
-By the end of this week you should be able to read a **continuous** random variable through three linked
-objects and the single idea that ties them together — *probability is area*.
+By the end of this week you should be able to read a continuous random variable through three connected
+objects and move between them without confusion:
 
-The targets for the week are these statements, which we build and then use:
+1. the **density** $f(x)$, a height function that is **not** a probability;
+2. **probability as area**, $P(a\le X\le b)=\int_a^b f(x)\,dx$; and
+3. the **cumulative distribution function (cdf)** $F(x)=P(X\le x)=\int_{-\infty}^{x} f(t)\,dt$, whose
+   slope recovers the density, $f(x)=F'(x)$.
 
-$$
-P(a \le X \le b) \;=\; \int_a^b f(x)\,dx,
-\qquad
-P(X = x) \;=\; 0 ,
-$$
-
-$$
-F(x) \;=\; P(X \le x) \;=\; \int_{-\infty}^{x} f(t)\,dt,
-\qquad
-F'(x) \;=\; f(x)\quad\text{wherever } f \text{ is continuous.}
-$$
-
-Here $f$ is the **density** (probability density function, pdf) and $F$ is the **cumulative distribution
-function** (cdf). A legitimate density is non-negative and encloses total area $1$:
-
-$$
-f(x) \ge 0 \quad\text{for all } x,
-\qquad
-\int_{-\infty}^{\infty} f(x)\,dx \;=\; 1 .
-$$
-
-You should be able to: take a stated density, confirm it is legitimate, compute a probability as a definite
-integral (an area), build the cdf, and recover the density by differentiating the cdf.
+The single most important habit to build is treating $f(x)$ as a *rate of probability per unit of $x$*,
+so that you only ever turn it into an actual probability by integrating — by accumulating area across an
+interval. This is the continuous mirror of the discrete pmf $p(x)$ you met in Weeks 7–9, and getting the
+mirror right is what lets the named models in Week 11 (the exponential and the normal) make sense.
 
 ## The week question
 
-> When the thing we are uncertain about can take **any** value in a continuous range — a waiting time, a
-> length, a temperature — what plays the role of the pmf, and why is the probability of any *exact* value
-> zero?
+So far every random variable we have studied has been **discrete**: the quiz score $X$ took whole-number
+values $0,1,\dots,10$, and we could list a probability $p(x)=P(X=x)$ for each one. But many quantities are
+not like that. Consider Maya's commute again, and this time start a stopwatch the instant she reaches the
+stop: let
 
-Weeks 6–9 lived on **discrete** random variables: the quiz score $X$ could only be $0,1,2,\dots,10$, and the
-pmf $p(x) = P(X = x)$ assigned a chunk of probability to each value. That picture breaks the moment the
-variable is a measurement that can land anywhere on an interval. Maya's wait for the next shuttle is not
-"3 minutes or 4 minutes"; it is some real number like $3.71\ldots$ minutes, and there are infinitely many
-such numbers in any interval. This week answers what replaces $p(x)$ and how we read probability off it.
+$$
+T = \text{the time she waits until the next shuttle arrives.}
+$$
+
+$T$ is a **continuous** quantity — it could be $3$ minutes, or $3.4$, or $3.41719\ldots$; between any two
+possible waits there is always another. The week's question is: **how do we put probabilities on a quantity
+that can take uncountably many values, where listing $P(T=x)$ for every single $x$ is hopeless?** The answer
+reorganizes everything around **area under a curve** rather than a sum over a list, and it forces one
+surprising fact: the probability that $T$ equals any *exact* value is zero, even though $T$ certainly takes
+*some* value.
 
 ## Notation
 
 | Symbol | Meaning |
 |---|---|
-| $X$ | a continuous random variable (capital; a value it takes is lowercase $x$) |
-| $f(x)$, $f_X(x)$ | probability **density** function (pdf) — a *height*, **not** a probability |
-| $F(x)$, $F_X(x)$ | cumulative distribution function (cdf), $F(x) = P(X \le x)$ |
-| $\int_a^b f(x)\,dx$ | area under the density between $a$ and $b$ = $P(a \le X \le b)$ |
-| $f(x) \ge 0$ | densities are never negative |
-| $\int_{-\infty}^{\infty} f = 1$ | total area under a density equals $1$ |
-| $F'(x) = f(x)$ | the density is the derivative of the cdf |
-| $\operatorname{Uniform}(a,b)$ | continuous uniform on $[a,b]$; constant density $1/(b-a)$ |
-| $T$ | this week's recurring variable: Maya's wait (minutes) for the next shuttle |
+| $X,\ T$ | a continuous random variable (here $T$ = wait until the next shuttle) |
+| $f(x)$, $f_X(x)$ | the **probability density function** — a height, **not** a probability; may exceed $1$ |
+| $F(x)$, $F_X(x)$ | the **cumulative distribution function**, $F(x)=P(X\le x)$ |
+| $\displaystyle\int_a^b f(x)\,dx$ | the area under $f$ between $a$ and $b$ — this *is* a probability |
+| $f(x)=F'(x)$ | density is the derivative (slope) of the cdf |
+| $U\sim\text{Uniform}(0,1)$ | the continuous uniform on $[0,1]$ (the spinner) |
+| $\lambda$ | a rate (used loosely this week; formalized for the exponential in Week 11) |
+
+Two reminders carried forward from the [notation glossary](../resources/notation-glossary.qmd): "$\le$"
+versus "$<$" will turn out not to matter for a continuous variable (a single point carries no probability),
+and densities are written with $f$ to keep them visibly distinct from the discrete mass function $p$.
 
 ## Conceptual setup
 
-### From a histogram to a density
+### From a histogram of mass to a curve of density
 
-Start with something familiar. Suppose Maya timed her shuttle wait on many mornings and binned the results.
-A histogram with wide bins is blocky; narrow the bins and collect more mornings, and the staircase of bars
-smooths toward a curve. If we scale the histogram so its **total area** is $1$ (a *density* histogram rather
-than a count histogram), then the area of the bars over an interval already estimates the probability of
-landing in that interval. The limiting smooth curve is the **density** $f(x)$. So a density is the idealized,
-infinitely-fine, area-$1$ histogram — and the rule "probability = area of the bars over the interval" simply
-becomes "probability = area under the curve over the interval."
+Recall how a discrete variable assigns probability: each value $x$ gets a lump $p(x)=P(X=x)$. Picture
+those lumps as the bars of a histogram, each bar's *area* equal to its probability. Now measure the wait
+$T$ more and more finely — to the minute, then the second. The bars get narrower, and to keep each bar's
+**area** equal to the probability of that narrow slice, the bars' **heights** must change. In the limit the
+tops of the bars trace a smooth curve: the **density** $f(x)$. The rule that survives the limit is the one
+that matters — *probability is still area*, but area is now computed by integration instead of by adding up
+finitely many bars.
 
-### Area, not height, carries the probability
+![**Bars narrowing into a curve (synthetic).** The same illustrative wait-time curve from earlier in this
+week, partitioned first into four 15-minute bars, then twelve 5-minute bars, then left as the smooth limit.
+Each bar's *height* changes from panel to panel, but each bar's *area* still equals the exact probability the
+final curve gives over that same stretch of $t$.](../assets/figures/wk10_histogram_to_curve.png){#fig-wk10-histcurve fig-alt="Three side-by-side panels. Left: four wide bars over 0 to 60 minutes, tallest near 0 and shrinking to the right. Middle: twelve narrower bars with the same overall decaying shape. Right: a smooth curve with no bars, the limiting density."}
 
-This is the conceptual hinge of the whole week. For a *discrete* variable, the height $p(x)$ **was** the
-probability $P(X = x)$. For a *continuous* variable the height $f(x)$ is a **density** — probability *per unit
-of $x$* — and only an **area** (height times a width, accumulated by an integral) is an actual probability:
+::: {.callout-note appearance="minimal"}
+**What the figure shows (non-visual equivalent).** Going left to right, the bars get narrower and their
+heights adjust so each bar's area is unchanged; the rightmost panel is what happens when the bars become
+infinitely narrow — a smooth curve whose *area* over any stretch is still the probability of that stretch.
+:::
 
-$$
-P(a \le X \le b) \;=\; \int_a^b f(x)\,dx .
-$$
-
-A height alone tells you nothing about a probability until you sweep it across an interval.
-
-### Why $P(X = x) = 0$, and total area $1$
-
-Take the interval $[a,b]$ and shrink it to a single point by letting $b \to a$. The area under any bounded
-density over a zero-width interval is zero:
+So a density must satisfy two conditions, exactly mirroring "$p(x)\ge 0$ and $\sum_x p(x)=1$" from the
+discrete world:
 
 $$
-P(X = a) \;=\; \int_a^a f(x)\,dx \;=\; 0 .
+f(x)\ge 0 \quad\text{for all } x,
+\qquad\qquad
+\int_{-\infty}^{\infty} f(x)\,dx = 1 .
 $$
 
-So **every exact value has probability zero** for a continuous variable — yet the variable is certain to take
-*some* value, because the total area is $1$. Two consequences worth carrying: (1) because single points carry
-no probability, the endpoints do not matter, so
+The first says the curve never dips below the axis (a negative probability rate would be meaningless). The
+second says the **total area under the whole curve is $1$** — all the probability is accounted for.
+
+### The density is a height, not a probability
+
+Here is the convention this whole week is built to protect. **$f(x)$ is not $P(X=x)$.** For a continuous
+variable, $P(X=x)=0$ for every single value $x$, because a single point is an interval of width $0$, and an
+area of zero width is zero:
 
 $$
-P(a \le X \le b) = P(a < X < b) = P(a \le X < b) = P(a < X \le b);
+P(X=a)=\int_a^a f(x)\,dx = 0 .
 $$
 
-the $\le$-versus-$<$ distinction that mattered for discrete variables **disappears** here. (2) The legitimacy
-conditions $f \ge 0$ and $\int_{-\infty}^{\infty} f = 1$ are the continuous echoes of "$p(x)\ge 0$" and
-"$\sum_x p(x) = 1$."
-
-### The cdf accumulates the density
-
-The cdf is the running total of area from the far left up to $x$:
+That is not a paradox. It says only that *no individual exact value is favored enough to carry positive
+probability on its own*; the probability lives in **intervals**, in stretches of $x$, never in points. A
+direct and useful consequence is that the endpoints do not matter:
 
 $$
-F(x) \;=\; P(X \le x) \;=\; \int_{-\infty}^{x} f(t)\,dt .
+P(a\le X\le b)=P(a< X< b)=P(a\le X< b)=P(a<X\le b)=\int_a^b f(x)\,dx .
 $$
 
-It climbs from $0$ at the far left to $1$ at the far right and never decreases. By the Fundamental Theorem of
-Calculus, differentiating the accumulated area returns the height you started from:
+A second consequence catches almost everyone: **$f(x)$ can be larger than $1$.** A density is a probability
+*per unit of $x$*, not a probability, so its height is unbounded — on a narrow $x$-axis the curve can rise
+well above $1$ and still enclose total area $1$. Only the *area* is a probability, always between $0$ and
+$1$.
+
+![**A density taller than $1$ (synthetic).** A separate, purely illustrative flat density on $[0,0.5]$: to
+enclose total area $1$ over a width of only $0.5$, its height must be $2$ — comfortably above $1$, and
+perfectly legal.](../assets/figures/wk10_density_above_one.png){#fig-wk10-above1 fig-alt="A flat rectangular density of height 2 over the interval 0 to 0.5, shaded, with a dotted reference line at height 1 shown for comparison. A label reads area equals 2 times 0.5 equals 1."}
+
+::: {.callout-note appearance="minimal"}
+**What the figure shows (non-visual equivalent).** Height $2 \times$ width $0.5 = $ area $1$ — the density's
+height ($2$) exceeds $1$, but its *area* is exactly $1$, exactly as required. The height carries no
+probability by itself; only the shaded area does.
+:::
+
+### The cdf accumulates the area
+
+Integrating the density from the far left up to a moving cutoff $x$ defines the **cumulative distribution
+function**:
 
 $$
-F'(x) \;=\; f(x)\quad\text{wherever } f \text{ is continuous.}
+F(x)=P(X\le x)=\int_{-\infty}^{x} f(t)\,dt .
 $$
 
-So $f$ and $F$ are two views of the same object: integrate the density to get the cdf, differentiate the cdf
-to get the density. Any interval probability is then a **difference of cdf values**:
+$F$ answers "how much probability has piled up by the time we reach $x$?" It starts at $0$ on the far left,
+climbs (never decreases, since $f\ge 0$ adds only non-negative area), and levels off at $1$ on the far
+right:
 
 $$
-P(a \le X \le b) \;=\; F(b) - F(a).
+\lim_{x\to-\infty}F(x)=0,
+\qquad
+\lim_{x\to\infty}F(x)=1,
+\qquad
+F \text{ is non-decreasing.}
 $$
+
+The cdf and the density are two views of the same object, linked by the Fundamental Theorem of Calculus.
+Going **forward**, integrate the density to get accumulated probability; going **backward**, differentiate
+the cdf to recover the density:
+
+$$
+F(x)=\int_{-\infty}^{x} f(t)\,dt
+\qquad\Longleftrightarrow\qquad
+f(x)=F'(x) .
+$$
+
+Interval probabilities then drop out of the cdf by subtraction, which is often the fastest route in
+practice:
+
+$$
+P(a\le X\le b)=\int_a^b f(x)\,dx = F(b)-F(a).
+$$
+
+This is the continuous analogue of the discrete "add the relevant masses," with $F(b)-F(a)$ playing the
+role of "the running total at $b$ minus the running total at $a$."
+
+![**Probability is area under the density (synthetic).** An illustrative wait-time density (mean about $15$ minutes); the shaded regions *are* probabilities — at most $15$ minutes ($\approx 0.632$, light) and between $5$ and $10$ ($\approx 0.203$, darker). The curve's *height* is not a probability; only the *area* is.](../assets/figures/wk10_density_area.png){#fig-wk10-area fig-alt="A density curve that starts high at t = 0 and decays toward zero by t = 60 minutes. The area under the curve up to 15 minutes is shaded light; the strip between 5 and 10 minutes is shaded darker. A dotted vertical line marks t = 15."}
+
+::: {.callout-note appearance="minimal"}
+**What the figure shows (non-visual equivalent).** For this illustrative wait $T$ (mean $15$ min):
+$P(T \le 15) \approx 0.632$ (the left area), $P(T > 15) \approx 0.368$ (the right tail), and
+$P(5 \le T \le 10) \approx 0.203$ (the middle strip). A single exact time is a zero-width strip with
+probability $0$. *Synthetic instructional example; numbers are illustrative; the named exponential model for
+$T$ arrives in Week 11.*
+:::
 
 ## Worked example
 
-*Synthetic data; seed set where simulation appears.* We work the recurring **commuter's morning** slice
-symbolically, then numerically, then add a transfer example in a new context.
+We work the recurring slice symbolically first, then put numbers on it. *(All data are synthetic; seed
+35003 set. The numbers here are illustrative — the named distribution for $T$ is introduced next week.)*
 
-### Recurring slice — Maya's wait $T$ for the next shuttle
+### Worked example — the shuttle wait $T$ as area under a density (recurring slice)
 
-Maya arrives at the stop at a random moment. Let $T$ be her wait, in minutes, until the next shuttle. Suppose
-shuttles are most likely to come soon after she arrives but the wait can stretch out to $30$ minutes, and
-model $T$ with a **triangular** density on $[0,30]$ that starts high and falls linearly to zero:
+**Setup.** Maya reaches the stop and waits time $T$ for the next shuttle. Shuttles come at a steady average
+rate, and $T$ is a positive continuous waiting time: $T\ge 0$. Suppose its behavior is captured by a density
+$f(t)$ that is zero for $t<0$ (you cannot wait a negative time), is largest near $t=0$ (short waits
+concentrate there), and tapers off as $t$ grows (long waits get rarer). We do not need the formula yet —
+Week 11 will name it the exponential, $f(t)=\lambda e^{-\lambda t}$. This week we only *read probabilities
+off the curve as areas*.
 
-$$
-f(t) \;=\;
-\begin{cases}
-c\,(30 - t), & 0 \le t \le 30,\\[2pt]
-0, & \text{otherwise.}
-\end{cases}
-$$
-
-**Symbolic — pin down $c$ from total area $1$.** The density must enclose area $1$:
+**Symbolic form.** Whatever the exact $f$, the rules from the setup apply unchanged:
 
 $$
-\int_0^{30} c\,(30 - t)\,dt
-\;=\; c\left[\,30t - \tfrac{t^2}{2}\,\right]_0^{30}
-\;=\; c\left(900 - 450\right)
-\;=\; 450\,c \;=\; 1,
+P(a\le T\le b)=\int_a^b f(t)\,dt,
+\qquad
+F(t)=P(T\le t)=\int_0^{t} f(s)\,ds,
+\qquad
+f(t)=F'(t).
 $$
 
-so $c = \dfrac{1}{450}$. Note the **peak height** is $f(0) = 30c = \tfrac{30}{450} = \tfrac{1}{15} \approx
-0.0667$, well below $1$, but a density is allowed to exceed $1$ in general (see the convention warning).
-
-**Symbolic — build the cdf.** For $0 \le x \le 30$,
-
-$$
-F(x) \;=\; \int_0^{x} \frac{30 - t}{450}\,dt
-\;=\; \frac{1}{450}\left[\,30t - \tfrac{t^2}{2}\,\right]_0^{x}
-\;=\; \frac{30x - \tfrac{x^2}{2}}{450}
-\;=\; \frac{60x - x^2}{900}.
-$$
-
-with $F(x) = 0$ for $x < 0$ and $F(x) = 1$ for $x > 30$. As a check, $F(0) = 0$ and
-$F(30) = \dfrac{1800 - 900}{900} = 1$, and differentiating gives back the density:
-$F'(x) = \dfrac{60 - 2x}{900} = \dfrac{30 - x}{450} = f(x)$. Good.
-
-**Numeric — the probability the wait is at most $10$ minutes.** This is an *area*, equivalently a cdf value:
+The probability that Maya waits **between $a$ and $b$ minutes** is the area under $f$ over the strip
+$[a,b]$. The probability she waits **at most $t$ minutes** is the area from the start out to $t$ — exactly
+$F(t)$. And the chance she waits **more than $t$ minutes** is the complement, the leftover area to the
+right:
 
 $$
-P(T \le 10) \;=\; F(10)
-\;=\; \frac{60(10) - 10^2}{900}
-\;=\; \frac{600 - 100}{900}
-\;=\; \frac{500}{900}
-\;\approx\; 0.556.
+P(T>t)=1-P(T\le t)=1-F(t).
 $$
 
-Reading it the other way — directly as the integral / area under the triangle from $0$ to $10$:
+**Reading off three quantities.** Suppose, for this illustration, that the cdf has the shape
+$F(t)=1-e^{-t/15}$ for $t\ge 0$, with $t$ in minutes (this is the running-total curve that goes with the
+"average wait near 15 minutes" picture; Week 11 derives it). Then probabilities are just differences of
+$F$:
 
-$$
-P(T \le 10) \;=\; \int_0^{10} \frac{30 - t}{450}\,dt
-\;=\; \frac{1}{450}\left(300 - 50\right)
-\;=\; \frac{250}{450}
-\;=\; \frac{5}{9} \;\approx\; 0.556 .
-$$
+- **Wait at most 15 minutes.** The accumulated area out to $t=15$ is
+  $$
+  P(T\le 15)=F(15)=1-e^{-15/15}=1-e^{-1}\approx 0.632 .
+  $$
+- **Wait more than 15 minutes.** The complementary (right-tail) area is
+  $$
+  P(T>15)=1-F(15)=e^{-1}\approx 0.368 .
+  $$
+- **Wait between 5 and 10 minutes.** The strip of area between $5$ and $10$ is
+  $$
+  P(5\le T\le 10)=F(10)-F(5)=\bigl(1-e^{-10/15}\bigr)-\bigl(1-e^{-5/15}\bigr)
+  = e^{-1/3}-e^{-2/3}\approx 0.7165-0.5134 \approx 0.203 .
+  $$
 
-The two routes agree, as they must. And a mid-range window is just a difference of cdf values:
+**Interpretation.** Each answer is a *region of the curve*: a left chunk for "at most," a right tail for
+"more than," a middle strip for "between." Asking for an exact wait — "$P(T=7)$" — gives a strip of zero
+width, hence probability $0$: Maya *will* wait some specific time, but no single exact time carries positive
+probability by itself. We re-meet $F(15)=1-e^{-1}\approx 0.632$ next week as the headline exponential
+result — keep the number in view.
 
-$$
-P(10 \le T \le 20) \;=\; F(20) - F(10)
-\;=\; \frac{1200 - 400}{900} - \frac{500}{900}
-\;=\; \frac{800 - 500}{900}
-\;=\; \frac{300}{900}
-\;=\; \frac{1}{3} \;\approx\; 0.333.
-$$
+The same three answers can also be read off the **cdf** directly, as *heights* rather than areas — a second
+representation of the identical facts:
 
-Finally, the "exact value" point we keep stressing: $P(T = 10) = F(10) - F(10) = 0$, so it makes no
-difference whether we wrote $\le$ or $<$ above.
+![**The same three answers, read as heights on the cdf (synthetic).** $F(t)=1-e^{-t/15}$ climbing from $0$
+toward $1$, with the accumulated heights at $t=5,10,15$ marked.](../assets/figures/wk10_cdf_shuttle_reading.png){#fig-wk10-cdfread fig-alt="An S-shaped cdf curve rising from 0 toward 1 as t grows from 0 to 60 minutes, with dashed guide lines marking the heights F(5) about 0.283, F(10) about 0.487, and F(15) about 0.632."}
 
-We can *check* an area by simulating the wait and counting — shown, not executed here:
+::: {.callout-note appearance="minimal"}
+**What the figure shows (non-visual equivalent).** $F(15)\approx 0.632$ is the same left-chunk area from
+above, now read as a *height* on the accumulating curve; $1-F(15)\approx 0.368$ is how much height is left to
+climb to reach $1$; and $F(10)-F(5)\approx 0.203$ is the *rise* between two heights, matching the middle-strip
+area exactly. Area-under-$f$ and height-on-$F$ are two pictures of the same numbers.
+:::
+
+If we wanted to *see* this rather than integrate by hand, the shown-as-teaching simulation below draws many
+synthetic waits and reports the fraction that land in each region; the fractions track the areas above.
+Code is shown for teaching and is not run in this build.
 
 ```{r}
-#| label: wk10-triangular-wait-area-check
+#| label: shuttle-wait-areas-as-fractions
 #| eval: false
-# Synthetic shuttle-wait T on [0,30] with triangular density f(t) = (30 - t)/450.
-# Sample by the inverse-cdf method, then estimate P(T <= 10) by counting.
 set.seed(35003)
-n  <- 200000
-u  <- runif(n)                      # uniforms on (0,1)
-# Invert F(t) = (60t - t^2)/900 = u  ->  t = 30 - 30*sqrt(1 - u)
-T  <- 30 - 30 * sqrt(1 - u)
-mean(T <= 10)                       # Monte Carlo estimate of P(T <= 10), compare to 0.556
+# Synthetic illustration only; the named model arrives in Week 11.
+# Mean wait near 15 minutes -> rate = 1/15 per minute.
+t <- rexp(100000, rate = 1/15)            # many simulated waits (minutes)
+
+mean(t <= 15)                              # ~ P(T <= 15) ~ 0.632  (area to the left of 15)
+mean(t >  15)                              # ~ P(T > 15)  ~ 0.368  (right-tail area)
+mean(t >= 5 & t <= 10)                     # ~ P(5 <= T <= 10) ~ 0.203 (middle strip)
+mean(t == 7)                               # ~ 0: an exact value has probability 0
 ```
 
-### Transfer example — a constant ("uniform") density in a new context
+This chunk is a run-it-yourself teaching activity, not executed evidence on its own — the figure below is
+what running it produces (same seed, same sample size, same rate), shown here so the connection between code
+and picture does not have to be taken on faith:
 
-Switch contexts to show the machinery is general. A campus sensor reports the next reading at a moment that is
-**equally likely** anywhere in a $5$-second cycle, so the reading time $U$ (seconds into the cycle) is
-$\operatorname{Uniform}(0,5)$ with the **constant** density
+![**What the simulation chunk would produce (synthetic; seed 35003).** A histogram of $100{,}000$ simulated
+waits with the theoretical density overlaid; the dotted line marks $t=15$.](../assets/figures/wk10_sim_hist_shuttle.png){#fig-wk10-simhist fig-alt="A histogram of simulated wait times shaped like a decaying exponential curve, densest near zero and thinning out by 60 minutes, with a smooth theoretical curve overlaid and a dotted vertical line at 15 minutes."}
+
+::: {.callout-note appearance="minimal"}
+**What the figure shows (non-visual equivalent).** The simulated fractions land close to the areas computed
+above — about $0.633$, $0.367$, and $0.204$ against the theoretical $0.632$, $0.368$, and $0.203$ — because a
+large simulated sample's histogram approximates the theoretical density it is drawn from. *Empirical values
+from one run; synthetic and held pending review, not a substitute for the exact areas above.*
+:::
+
+### Worked example — a Uniform(0,1) spinner, area as a rectangle (transfer)
+
+**Setup.** Spin a perfectly balanced pointer that stops at an angle, and rescale the reading so it lands
+somewhere in $[0,1]$ with no part of the dial favored. Call the result $U$, so $U\sim\text{Uniform}(0,1)$.
+"No part favored" means the density is **flat** across $[0,1]$ and zero outside it. *(Synthetic; seed
+35003 set.)*
+
+**Symbolic form.** A flat density on $[0,1]$ must have constant height $c$, and total area $1$ forces
+$c\cdot(1-0)=1$, so $c=1$:
 
 $$
-f(u) \;=\;
+f(u)=
 \begin{cases}
-\dfrac{1}{5}, & 0 \le u \le 5,\\[4pt]
+1, & 0\le u\le 1,\\[2pt]
 0, & \text{otherwise.}
 \end{cases}
 $$
 
-It is legitimate: $f \ge 0$, and the area is the rectangle $\tfrac{1}{5}\times 5 = 1$. The cdf is the
-accumulated rectangle area, a straight ramp:
+Here the density's height is exactly $1$ — a clean reminder that the **height carries no probability by
+itself**; only area does. Probabilities are areas of **rectangles** under this flat top:
 
 $$
-F(u) \;=\; \int_0^{u} \tfrac{1}{5}\,dt \;=\; \frac{u}{5}\quad (0 \le u \le 5),
+P(a\le U\le b)=\int_a^b 1\,du = b-a,
+\qquad 0\le a\le b\le 1 .
 $$
 
-so, for example,
+The cdf is the running area from the left edge, a straight ramp from $0$ to $1$:
 
 $$
-P(1 \le U \le 3) \;=\; F(3) - F(1) \;=\; \frac{3}{5} - \frac{1}{5} \;=\; \frac{2}{5} \;=\; 0.40 .
+F(u)=\int_0^{u} 1\,ds = u,\qquad 0\le u\le 1 .
 $$
 
-Same three moves as the shuttle wait — confirm area $1$, accumulate to get $F$, difference $F$ to get an
-interval probability — now with a flat density instead of a sloped one. The method does not depend on the
-shape of $f$.
+**Numeric form.** The chance the spinner lands between $0.2$ and $0.5$ is the area of the rectangle of
+width $0.5-0.2$ and height $1$:
+
+$$
+P(0.2\le U\le 0.5)=\int_{0.2}^{0.5} 1\,du = F(0.5)-F(0.2)=0.5-0.2 = 0.3 .
+$$
+
+![**The rectangle and the ramp (synthetic).** Left: the flat density with the interval $[0.2,0.5]$ shaded —
+its area is $0.3$. Right: the ramp cdf $F(u)=u$ over the same interval — the identical $0.3$ appears as a
+*rise* in height from $F(0.2)=0.2$ to $F(0.5)=0.5$.](../assets/figures/wk10_uniform_rectangle.png){#fig-wk10-unifrect fig-alt="Two panels. Left: a flat density of height 1 over 0 to 1 with the region from 0.2 to 0.5 shaded, labeled area equals 0.3. Right: a diagonal ramp cdf from (0,0) to (1,1) with dashed guide lines at u = 0.2 and u = 0.5 showing a rise of 0.3."}
+
+::: {.callout-note appearance="minimal"}
+**What the figure shows (non-visual equivalent).** The same number, $0.3$, shows up two ways: as the shaded
+rectangle's area under $f$, and as the vertical rise on the ramp $F$ between $u=0.2$ and $u=0.5$ — the area
+view and the cdf view always agree.
+:::
+
+**Interpretation.** A width-$0.3$ slice of a height-$1$ flat density encloses area $0.3$, so the spinner
+lands in $[0.2,0.5]$ about $30\%$ of the time. Endpoints are irrelevant — $P(0.2<U<0.5)$ is the same $0.3$,
+since each endpoint is a width-$0$ strip with zero area. This is the continuous idea at its simplest:
+probability is the **area of a region** under the density, and a rectangle is the easiest region to measure.
 
 ## A convention warning
 
-**A density is not a probability, and it may exceed $1$.** This is convention-risk #8 for the course, and it
-is the single most common misread of the week. The value $f(x)$ is a *height* — probability **per unit of
-$x$** — not the chance of anything. Three guardrails:
+The convention this week exists to protect — and the one the [notation glossary](../resources/notation-glossary.qmd)
+flags explicitly — is this:
 
-- **Only areas are probabilities.** $f(10) = \tfrac{20}{450} \approx 0.044$ for the shuttle wait is *not*
-  "the probability the wait is $10$ minutes" (that probability is $0$). It is a density value; you must
-  integrate over an interval to get a probability.
-- **Heights can be bigger than $1$.** Concentrate a legitimate density on a narrow interval and its height
-  must rise to keep the enclosed area at $1$. For instance $\operatorname{Uniform}(0, 0.5)$ has constant
-  density $f = 1/0.5 = 2 > 1$ everywhere on its support — perfectly legal, because its *area* is still
-  $2 \times 0.5 = 1$. A pmf value can never exceed $1$; a density value can.
-- **Endpoints don't change the answer.** Since $P(X = x) = 0$, the symbols $\le$ and $<$ give the same
-  probability for continuous $X$. (For the discrete variables of weeks 6–9, they did *not* — there the
-  boundary value carried real mass.) Do not import the discrete habit of fussing over the endpoint.
+> **A density value $f(x)$ is not a probability.** It is a *probability rate per unit of $x$*. You convert
+> it into a probability only by integrating it over an interval (taking an area). Consequences you must keep
+> straight:
+>
+> - $f(x)$ can be **greater than $1$** and that is fine; only an *area* must lie in $[0,1]$.
+> - $P(X=x)=0$ for every exact $x$ — a continuous variable puts no probability on points.
+> - Because points carry no probability, $\le$ and $<$ are **interchangeable**:
+>   $P(a\le X\le b)=P(a<X<b)$.
+> - To get a number, **integrate** $f$ (or, equivalently, **subtract** cdf values $F(b)-F(a)$). Reading a
+>   density height *as if it were* the probability is the classic error this course guards against.
+
+Mirror-image caution in the other direction: do **not** sum a density the way you summed a pmf. There is no
+"$\sum_x f(x)=1$" for a continuous variable — the matching statement is "$\int f(x)\,dx=1$," an area, not a
+sum. The discrete machinery of Weeks 7–9 and the continuous machinery of this week are *analogues*, not the
+same operations; keep "sum the masses" and "integrate the density" in separate mental drawers.
 
 ## Practice (ungraded)
 
-Self-check, no points, no submission. Use the shuttle-wait density $f(t) = (30 - t)/450$ on $[0,30]$ with cdf
-$F(x) = (60x - x^2)/900$ unless noted.
+These are for your own checking — **ungraded, no submission**. Work them symbolically first, then put
+numbers in.
 
-1. Confirm the density is legitimate two ways: that $f(t) \ge 0$ on $[0,30]$, and that the triangle's area
-   equals $1$ using the geometric area $\tfrac{1}{2}\,(\text{base})(\text{height})$.
-2. Compute $P(T \le 5)$ and $P(T \ge 20)$ as cdf values, then sketch each as a region under the triangle.
-3. Explain in one sentence why $P(T = 7)$ and $P(7 \le T \le 7.0001)$ are different in kind, and estimate the
-   second.
-4. For the sensor $U \sim \operatorname{Uniform}(0,5)$, find the value $m$ with $F(m) = 0.5$ (the median), and
-   say in words what "median wait" means in terms of area.
-5. A density is proposed as $g(x) = kx$ on $[0,4]$ and $0$ elsewhere. Find $k$ so the area is $1$, then
-   compute $P(X \le 2)$. Is $g(2)$ a probability? Justify.
-
-(Worked reasoning for self-checks is not posted here; bring your attempts to office hours or a study group.)
-
-## Formula-verification status
-
-**`verified: false`.** The **math correctness gate is BLOCKED** for this page. Every formula above — the
-density-legitimacy conditions, the normalizing constant $c = 1/450$, the cdf
-$F(x) = (60x - x^2)/900$, the area $P(T \le 10) = 5/9 \approx 0.556$, the uniform results, and the
-$F' = f$ relation — is **drafted but unverified**, provisional pending human/source sign-off against the
-course's reference derivations. Render and lint passing are **not** correctness checks: a wrong formula can
-render perfectly. Treat all numeric values as provisional until the gate is signed off.
+1. **Density basics.** A continuous variable has density $f$ on the whole line. State in your own words why
+   each is true: (a) $f(x)\ge 0$ everywhere; (b) the total area under $f$ is $1$; (c) $f(x)$ may exceed $1$;
+   (d) $P(X=3)=0$.
+2. **Uniform rectangle.** For the spinner $U\sim\text{Uniform}(0,1)$, find $P(U\le 0.4)$, $P(U>0.75)$, and
+   $P(0.1\le U\le 0.6)$ by drawing the rectangle and computing its area. Confirm each equals the matching
+   difference of $F(u)=u$.
+3. **Wider uniform.** Suppose a different spinner gives $V\sim\text{Uniform}(0,2)$. What constant height must
+   its density have so the total area is $1$? Is that height above or below $1$? Find $P(0.5\le V\le 1.5)$.
+   *(Self-check: height $=\tfrac12$; the answer is $\tfrac12$.)*
+4. **Shuttle wait as area.** Using the illustrative cdf $F(t)=1-e^{-t/15}$ for the wait $T$ (minutes), set
+   up — and then evaluate — (a) $P(T\le 10)$, (b) $P(T>20)$, (c) $P(10\le T\le 20)$. Which one is a left
+   chunk, which a right tail, which a middle strip?
+5. **Density from a cdf.** If a cdf is the ramp $F(x)=x$ on $[0,1]$, recover the density by differentiating,
+   $f(x)=F'(x)$. What familiar density do you get, and what is its height?
+6. **Endpoints don't matter.** Argue, using $P(X=a)=0$, why $P(a\le X\le b)$ and $P(a<X<b)$ are equal for
+   any continuous $X$. Where does this *fail* for a discrete variable, and why?
 
 ## Reading and source pointer
 
-This week is grounded in **Grinstead & Snell, Chapter 2 — Continuous Probability Densities** (GNU FDL, free
-online), which introduces densities, the area-as-probability definition, and the cdf. The supporting
-treatment in **MIT OCW 18.05** (CC BY-NC-SA 4.0) — its continuous-random-variable material on the pdf/cdf and
-the area picture — reinforces the same ideas with a complementary emphasis. *These notes are the course's own
-synthesis, grounded in but not copied from the sources.* The triangular shuttle-wait density, the sensor
-example, all numbers, and the prose are original to this course; data are synthetic with seeds set.
+- **Grinstead & Snell, *Introduction to Probability*, Chapter 2 — Continuous Probability Densities** —
+  grounds the density/area/cdf machinery and the "probability as area" picture at the right first-course
+  depth.
+  [Free online text](https://www.dartmouth.edu/~chance/teaching_aids/books_articles/probability_book/book.html).
+
+(No MIT 18.05 pointer this week; the standard continuous *models* — exponential and normal — are pointed to
+in Week 11.)
+
+These notes are the course's own synthesis, grounded in but not copied from the sources.
 
 ## Public vs. graded
 
@@ -318,16 +399,21 @@ Blackboard.
 
 ## Looking ahead
 
-We built the continuous machinery generically this week: any non-negative, area-$1$ curve is a density, and
-probability is the area underneath. **Week 11** fills that frame with the *named* continuous models you will
-reach for most. The shuttle wait $T$ becomes $T \sim \operatorname{Exponential}(\text{rate } \lambda = 4/\text{hr})$
-with mean $1/\lambda = 15$ minutes and $P(T \le 15\ \text{min}) = 1 - e^{-1} \approx 0.632$, and Maya's whole
-commute time becomes $C \sim \operatorname{Normal}(\mu = 22, \sigma = 5)$ with $P(C \le 30) = \Phi(1.6)
-\approx 0.945$. Same definition of probability-as-area — just specific, repeatedly useful densities and their
-cdfs.
+This week built the *general* continuous machinery — density, area, cdf — without committing to a
+particular curve. **Week 11** names two specific densities and puts them to work: the **exponential**
+$f(t)=\lambda e^{-\lambda t}$ for the shuttle wait $T$ (with rate $\lambda=4$ per hour, so a mean wait of
+$15$ minutes and $P(T\le 15\text{ min})=1-e^{-1}\approx 0.632$ — the very number we previewed above), and
+the **normal** $\mathcal N(\mu,\sigma)$ for Maya's commute time. With named models in hand, "probability as
+area" becomes "look up or compute a specific area," and the cdf becomes a tool you reach for constantly.
 
 ## See also
 
-- [Notation glossary](../resources/notation-glossary.qmd)
-- [Distribution reference](../resources/distribution-reference.qmd)
-- [Course syllabus](../syllabus.qmd)
+- [Week 9 — Common discrete models](week-09-common-discrete-models.qmd) — the discrete pmf side this week
+  mirrors (Poisson counts of shuttle arrivals).
+- [Week 11 — Common continuous models](week-11-common-continuous-models.qmd) — names the exponential and
+  normal densities and revisits the shuttle wait $T$.
+- [Notation glossary](../resources/notation-glossary.qmd) — the binding meanings of $f(x)$, $F(x)$, and the
+  "density is not a probability" convention.
+- [Distribution reference](../resources/distribution-reference.qmd) — the continuous models (uniform,
+  exponential, normal) and their parameterizations.
+- [Course syllabus](../syllabus.qmd) — schedule, policies, and how the public site relates to Blackboard.

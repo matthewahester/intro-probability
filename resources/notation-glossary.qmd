@@ -5,133 +5,218 @@ page-type: reference
 toc: true
 ---
 
-Probability has more than one perfectly respectable way to write almost everything: complements,
-distributions, and even the humble Normal all come in competing notations. Different textbooks make
-different choices, and the disagreements are quiet — a wrong reading of a symbol renders just as cleanly
-as a right one. This page collects the choices **this course** commits to, so that when you meet a symbol
-in the week notes you can look it up here and know exactly what it means and what it does *not* mean.
+Probability has more than one popular way to write almost everything. One book writes the complement of an
+event as $A^{c}$, another writes $A'$, a third writes $\bar A$; one author calls a distribution "Exponential
+with rate $\lambda$" while the next calls it "Exponential with mean $\lambda$" — and the two mean opposite
+things. None of these choices is wrong, but a course that drifts between them quietly becomes harder to read
+than the mathematics deserves. So this page fixes one choice for each symbol and keeps it for the whole
+semester.
 
-> **This mirrors the instructor's private notation ledger; it is an original reference, not reproduced from
-> any source.** The conventions are the course's own synthesis, grounded in but not copied from
-> Grinstead & Snell or any other text.
+This glossary is the **public mirror of the instructor's private notation ledger** for STAT 35003. The
+ledger is a build-internal file; what you read here is its student-facing version, written in the course's
+own words. It is not reproduced from either course text — it simply states, in one place, the conventions
+the weekly notes already use. When a week note introduces a symbol, you can come here to see exactly what it
+commits to and why that particular form was chosen over the alternatives.
+
+The notation choices below are stable across the whole semester; the numeric instances used to illustrate
+them are synthetic teaching examples (seed 35003 set), consistent with the recurring case used throughout
+the weekly notes.
+
+## How to read this page
+
+The page has three parts. **Core symbols** is the master table — every piece of notation, its meaning, and
+the convention chosen when a symbol has competitors. **The parameterizations we fix** pins down what each
+named distribution's parameters actually mean (where first-course probability most often goes silently
+wrong) and ties each one to the recurring "commuter's morning" numbers. **Words we keep distinct** addresses
+the word-pairs that are routinely blurred — independent versus mutually exclusive, a density versus a
+probability — where the confusion is conceptual rather than typographic.
 
 ## Core symbols
 
-Read this table as the course's working dictionary. The middle column says what the symbol means; the right
-column flags the choice we made when more than one was on the table.
+Every symbol below appears in the weekly notes with exactly this meaning. Where a symbol has common
+alternatives, the "Convention chosen" column says which form this course uses and excludes the others.
 
 | Symbol | Meaning | Convention chosen |
 |---|---|---|
-| $P(\cdot)$ | the probability of an event | always $P(\cdot)$, never $\Pr$ |
-| $A^{c}$ | the complement of event $A$ — everything in $\Omega$ that is not in $A$ | $A^{c}$, never $A'$ or $\bar{A}$ |
-| $A\cup B,\; A\cap B$ | union ("$A$ or $B$") and intersection ("$A$ and $B$") | "or" is **inclusive** — $A\cup B$ allows both |
-| $P(A\mid B)$ | the conditional probability of $A$ given that $B$ happened | defined **only when** $P(B)>0$ |
-| $A \perp B$ | $A$ and $B$ are independent | independence, **not** mutual exclusivity |
-| $X,\, Y$ | random variables | capitals for the variable; lowercase $x,y$ for values |
-| $p(x)$ | probability mass function of a discrete $X$ | $p(x)=P(X=x)$ |
-| $f(x)$ | probability density function of a continuous $X$ | a **density**, not a probability |
-| $F(x)$ | cumulative distribution function | $F(x)=P(X\le x)$ |
-| $E[X]$ | the expectation (long-run average) of $X$ | call the value $\mu$ when you name it |
-| $\operatorname{Var}(X),\; \sigma^{2}$ | the variance of $X$ | the two notations mean the same thing |
+| $\Omega,\ \omega$ | the sample space and a single outcome in it | outcomes $\omega$ are elements of $\Omega$ |
+| $A,\ B,\ E$ | events (subsets of the sample space) | capital letters for events |
+| $P(A)$ | the probability of event $A$ | written $P(\cdot)$, never $\Pr$ |
+| $A^{c}$ | the complement of $A$ — everything in $\Omega$ that is not in $A$ | $A^{c}$ only (not $A'$, not $\bar A$) |
+| $A\cup B$ | the union — $A$ or $B$ (or both) | "or" is **inclusive** |
+| $A\cap B$ | the intersection — $A$ and $B$ together | both events occur |
+| $P(A\mid B)$ | the conditional probability of $A$ given $B$ | defined **only** when $P(B)>0$ |
+| $A\perp B$ | $A$ is independent of $B$ | independence, **not** mutual exclusivity |
+| $X,\ Y$ | random variables | capitals for the variable, lowercase $x,y$ for values |
+| $p(x),\ p_X(x)$ | a probability mass function (pmf) | $p(x)=P(X=x)$, for a discrete $X$ |
+| $f(x),\ f_X(x)$ | a probability density function (pdf) | a **density**, not a probability |
+| $F(x)$ | a cumulative distribution function (cdf) | $F(x)=P(X\le x)$ |
+| $E[X]$ | the expectation (mean) of $X$ | named $\mu$ when we refer to the value |
+| $\operatorname{Var}(X),\ \sigma^2$ | the variance of $X$ | same quantity, two notations |
 | $\sigma$ | the standard deviation | $\sigma=\sqrt{\operatorname{Var}(X)}$ |
-| $\operatorname{Cov}(X,Y),\; \rho$ | covariance and correlation | $\rho\in[-1,1]$; covariance is unbounded |
-| $X\sim \text{Dist}(\cdot)$ | "$X$ is distributed as" the named distribution | parameterizations fixed below |
+| $\operatorname{Cov}(X,Y),\ \rho$ | covariance and correlation | correlation $\rho\in[-1,1]$ always |
+| $X\sim\text{Dist}(\cdot)$ | "$X$ is distributed as" | parameter forms fixed in the next section |
+| $\lambda$ | a rate | Poisson count rate / Exponential rate |
+| $\mu,\ \sigma$ | the Normal parameters | **mean and standard deviation** (R's `rnorm`) |
 
-A few of these are worth saying out loud. The bar in $P(A\mid B)$ is not division — it is the word
-"given," and the whole expression only makes sense when the conditioning event has positive probability. The
-symbol $p(x)$ and the phrase $P(X=x)$ are interchangeable for a discrete variable, but $f(x)$ and a
-probability are **not** interchangeable: a density can exceed $1$, and only the *area* under it is a
-probability. And $A\perp B$ (independent) and "$A$ and $B$ can't both happen" (mutually exclusive) are
-genuinely different ideas — the course keeps them apart deliberately, and so should you.
+A few of these deserve a sentence beyond the table.
+
+The choice of $P(\cdot)$ rather than $\Pr$ is purely for a clean line; the two are identical in meaning. The
+complement choice — $A^{c}$ throughout — matters more than it looks: $\bar A$ collides with the overbar
+statistics later uses for a sample mean $\bar X$, and $A'$ collides with the prime calculus uses for a
+derivative. Reserving one symbol per idea keeps later weeks readable.
+
+The conditional bar carries a precondition that is easy to forget: $P(A\mid B)$ is **only defined when
+$P(B)>0$**, because the definition divides by $P(B)$ — you cannot condition on something that cannot happen.
+
+The pmf and the cdf use deliberately different letters from the density. For a discrete variable,
+$p(x)=P(X=x)$ is a genuine probability — the chance that $X$ lands exactly on $x$. The density $f(x)$ is
+**not** a probability; it is a height, and only an area under it is a probability. The cdf $F(x)=P(X\le x)$
+is always a probability, discrete or continuous. Keeping $p$, $f$, and $F$ visually distinct reminds you
+which object you are holding.
 
 ## The parameterizations we fix
 
-Several standard distributions can be written with more than one parameter, and the choices contradict each
-other across textbooks and software. To avoid silent mistakes, the course fixes one parameterization for
-each and states it again at the point of use.
+Naming a distribution is not enough. "Exponential," "Normal," and "Geometric" each have two equally popular
+parameterizations in circulation, and choosing the wrong one flips a mean into a rate or a standard
+deviation into a variance. This section states the single form the course uses for each model and anchors it
+to the recurring commuter scenario.
 
-- **$\text{Binomial}(n,p)$** — $n$ independent trials, each a success with probability $p$. Mean $np$,
-  variance $np(1-p)$. In the recurring case, the $10$-question guessing quiz is $X\sim\text{Binomial}(10,0.5)$,
-  so the mean is $5$ and the variance is $2.5$.
-
-$$
-p(x)=\binom{n}{x}\,p^{x}\,(1-p)^{\,n-x}, \qquad x=0,1,\dots,n.
-$$
-
-- **$\text{Geometric}(p)$** — the **number of trials up to and including the first success**, so the
-  support is $\{1,2,3,\dots\}$ (it cannot be $0$ under our convention) and the mean is $1/p$. This is the
-  "trials-to-first-success" reading, **not** the "failures-before-the-first-success" reading.
+**Bernoulli and Binomial.** A Binomial counts successes in a fixed number of independent trials, each with
+the same success probability $p$:
 
 $$
-p(x)=(1-p)^{\,x-1}\,p, \qquad x=1,2,3,\dots, \qquad E[X]=\frac{1}{p}.
+X \sim \text{Binomial}(n,p), \qquad E[X] = np, \qquad \operatorname{Var}(X) = np(1-p).
 $$
 
-- **$\text{Poisson}(\lambda)$** — $\lambda$ is the **mean count**, and a defining feature is that the mean
-  and the variance are *equal*: mean $=$ variance $=\lambda$. In the recurring case, shuttle arrivals over
-  an hour are $\text{Poisson}(\lambda=4)$.
+The recurring instance is the quiz-guessing thread: a ten-question true/false quiz answered by pure guessing
+is $X\sim\text{Binomial}(10,\,0.5)$, so its mean is $np = 10(0.5) = 5$ correct and its variance is
+$np(1-p) = 10(0.5)(0.5) = 2.5$, giving a standard deviation of about $1.58$. (These hold the course's locked
+numbers; data are synthetic, seed 35003 set.)
+
+**Geometric.** This is the parameterization most often gotten "off by one." The course counts the **number
+of trials up to and including the first success**, so the support starts at $1$:
 
 $$
-p(x)=\frac{e^{-\lambda}\,\lambda^{\,x}}{x!}, \qquad x=0,1,2,\dots, \qquad E[X]=\operatorname{Var}(X)=\lambda.
+X \sim \text{Geometric}(p), \qquad x \in \{1, 2, 3, \dots\}, \qquad E[X] = \frac{1}{p}.
 $$
 
-- **$\text{Exponential}(\lambda)$** — $\lambda$ is a **rate**, not a mean. The mean is its reciprocal,
-  $1/\lambda$. In the recurring case, the wait for the next shuttle is $\text{Exponential}(\lambda=4/\text{hr})$,
-  so the mean wait is $1/\lambda = 15$ minutes.
+Some texts and some software instead count the number of failures *before* the first success, which starts
+the support at $0$ and changes the mean. The course always uses the trials version (support
+$\{1,2,\dots\}$); the labs flag where R's built-in `*geom` functions use the failures version instead, so
+you are never surprised by the shift.
+
+**Poisson.** A Poisson models a count of events in a fixed window, with a single rate parameter $\lambda$
+that is simultaneously the mean and the variance:
 
 $$
-f(x)=\lambda\,e^{-\lambda x}, \qquad x\ge 0, \qquad E[X]=\frac{1}{\lambda}.
+N \sim \text{Poisson}(\lambda), \qquad E[N] = \operatorname{Var}(N) = \lambda.
 $$
 
-- **$\text{Normal}(\mu,\sigma)$** — the two parameters are the **mean** $\mu$ and the **standard
-  deviation** $\sigma$ — **not** the variance. This matches R's `rnorm(n, mean, sd)`. When a textbook writes
-  $\text{Normal}(\mu,\sigma^{2})$ it means the same distribution but lists the variance second; this course
-  always lists the standard deviation second and says so. In the recurring case, commute time is
-  $C\sim\text{Normal}(\mu=22\text{ min},\,\sigma=5\text{ min})$.
+The recurring instance is shuttle arrivals: shuttles arrive at rate $\lambda = 4$ per hour, so the number
+of arrivals in an hour is $N\sim\text{Poisson}(4)$, with both mean and variance equal to $4$.
+
+**Uniform.** The continuous Uniform spreads probability evenly across an interval:
 
 $$
-f(x)=\frac{1}{\sigma\sqrt{2\pi}}\;\exp\!\left(-\frac{(x-\mu)^{2}}{2\sigma^{2}}\right).
+X \sim \text{Uniform}(a,b), \qquad f(x) = \frac{1}{b-a} \ \text{ for } a \le x \le b.
 $$
 
-The single most common parameterization mistake is reading the second Normal slot as a variance when this
-course intends a standard deviation (or vice versa). When in doubt, the rule here is: **the second number is
-the SD.** All numbers in the examples above are synthetic; seeds are set wherever simulation appears.
+Unless a note explicitly says "discrete uniform," "Uniform" means this continuous version on $[a,b]$.
+
+**Exponential.** This is the parameterization that most often reverses its meaning between sources. The
+course uses the **rate** form, where the parameter $\lambda$ is a rate and the mean is its reciprocal:
+
+$$
+T \sim \text{Exponential}(\lambda), \qquad f(t) = \lambda e^{-\lambda t} \ \text{ for } t \ge 0,
+\qquad E[T] = \frac{1}{\lambda}.
+$$
+
+The recurring instance is the wait for the next shuttle. With shuttles arriving at rate $\lambda = 4$ per
+hour, the wait $T\sim\text{Exponential}(4/\text{hr})$ has mean $1/\lambda = \tfrac14$ hour, which is
+**15 minutes**. A mean-parameterized "Exponential(15 min)" would describe the same physical situation but
+would read the number differently — which is exactly why the course pins the rate form and states it each
+time.
+
+**Normal.** The course parameterizes the Normal by its **mean and standard deviation**, matching R's
+`rnorm(n, mean, sd)`, not by mean and variance:
+
+$$
+X \sim \text{Normal}(\mu, \sigma), \qquad f(x) = \frac{1}{\sigma\sqrt{2\pi}}\,
+e^{-\,(x-\mu)^2 / (2\sigma^2)}.
+$$
+
+The recurring instance is the morning commute time $C\sim\text{Normal}(\mu = 22\text{ min},\,
+\sigma = 5\text{ min})$ — that is a mean of $22$ minutes and a standard deviation of $5$ minutes, not a
+variance of $5$. Whenever a note writes $N(22,5)$, the second number is the **standard deviation**.
 
 ## Words we keep distinct
 
-Some pairs of terms get blurred in casual speech but mean different things in probability. The course keeps
-each pair separate on purpose, and most graded misunderstandings trace back to collapsing one of them.
+Some confusions are not about which symbol to write but about which idea you actually mean. These five
+word-pairs are the ones a first probability course most often blurs, and the weekly notes keep them strictly
+apart.
 
-- **Probability vs. conditional probability.** $P(A)$ is the probability of $A$ with no extra information;
-  $P(A\mid B)$ is the probability of $A$ *once you know $B$ happened*. They can be wildly different. In the
-  recurring case $P(\text{on time})=0.81$, but $P(\text{on time}\mid\text{rain})=0.60$ — conditioning on rain
-  changes the answer, which is exactly why the two events are not independent.
+**Probability versus conditional probability.** $P(A)$ is the chance of $A$ with no information assumed;
+$P(A\mid B)$ is the chance of $A$ once you know $B$ has occurred. They are usually different numbers. In the
+shuttle thread, the unconditional chance the shuttle is on time is $P(\text{on time}) = 0.81$, but once you
+know it is raining the chance drops to $P(\text{on time}\mid\text{rain}) = 0.60$. The conditioning bar
+changes the question, so it changes the answer.
 
-- **Independent vs. mutually exclusive.** $A\perp B$ (independent) means knowing one tells you nothing about
-  the other: $P(A\cap B)=P(A)P(B)$. Mutually exclusive means the two **cannot both occur**, so
-  $P(A\cap B)=0$. These are not the same — in fact two events with positive probability that are mutually
-  exclusive are *necessarily dependent*, because one happening rules the other out.
+**Independent versus mutually exclusive.** These are not the same property, and they are not even close.
+Two events are **independent** ($A\perp B$) when knowing one happened tells you nothing about the other —
+formally, $P(A\cap B) = P(A)\,P(B)$. Two events are **mutually exclusive** when they cannot both happen, so
+$P(A\cap B) = 0$. Two mutually exclusive events with positive probability are about as far from independent
+as possible, since learning one occurred tells you the other definitely did not. In the shuttle thread, "on
+time" and "rain" are **not** independent: $P(\text{on time}\mid\text{rain}) = 0.60$ differs from
+$P(\text{on time}) = 0.81$, so rain carries information about being on time. They are also not mutually
+exclusive — the shuttle can be on time on a rainy day. The two ideas are simply different axes.
 
-- **pmf vs. density.** A probability mass function $p(x)=P(X=x)$ gives an actual probability at each value
-  of a discrete variable, and these probabilities sum to $1$. A density $f(x)$ for a continuous variable is
-  **not** a probability — it can be larger than $1$, and a single point carries probability $0$. Only the
-  *area under $f$* over an interval is a probability: $P(a\le X\le b)=\int_a^b f(x)\,dx$.
+**A pmf versus a density.** For a discrete variable, $p(x) = P(X=x)$ is an honest probability: it is the
+chance $X$ equals exactly $x$, and these values sum to $1$. For a continuous variable, the density $f(x)$ is
+**not** a probability — the chance of any single exact value is $0$. The density is a height; probability is
+the **area** under that height across an interval, $P(a\le X\le b) = \int_a^b f(x)\,dx$. A density can even
+exceed $1$ at a point (a tall, narrow peak) without anything being wrong, because no single height is a
+probability. Reading $f(x)$ as if it were $P(X=x)$ is the classic continuous-variable error, and the
+distinct letters $p$ and $f$ exist precisely to head it off.
 
-- **Variance vs. standard deviation.** The variance $\operatorname{Var}(X)=\sigma^{2}$ is measured in
-  squared units; the standard deviation $\sigma=\sqrt{\operatorname{Var}(X)}$ is in the original units and is
-  the one you can compare directly to the values of $X$. For the guessing quiz, $\operatorname{Var}(X)=2.5$
-  while $\sigma\approx 1.58$.
+**Variance versus standard deviation.** These measure the same spread on two different scales. The variance
+$\operatorname{Var}(X) = \sigma^2$ is in squared units; the standard deviation
+$\sigma = \sqrt{\operatorname{Var}(X)}$ is back on the variable's own scale. For the quiz thread,
+$\operatorname{Var}(X) = 2.5$ (in "squared questions," which is not a natural unit), while the standard
+deviation $\sigma = \sqrt{2.5}\approx 1.58$ is in questions, the same units as $X$ itself. When you want a
+number you can compare to the variable directly, you want $\sigma$.
 
-- **Covariance vs. correlation.** Covariance $\operatorname{Cov}(X,Y)=E[XY]-E[X]E[Y]$ measures whether two
-  variables move together, but its scale depends on the units, so its size alone says little. Correlation
-  $\rho=\operatorname{Cov}(X,Y)/(\sigma_X\sigma_Y)$ rescales it to the fixed range $[-1,1]$, where the sign
-  is the direction and the magnitude is the strength. For the (rain, late) pair in the recurring case the
-  covariance is $0.063$ and the correlation is $\rho\approx 0.35$ — same story, but correlation is the one
-  you can interpret on a universal scale.
+**Covariance versus correlation.** Both describe how two variables move together, but on very different
+scales. The covariance $\operatorname{Cov}(X,Y) = E[XY] - E[X]\,E[Y]$ is **unbounded** — its size depends on
+the units and spread of $X$ and $Y$, so its magnitude alone tells you little. The correlation rescales it,
+$\rho = \operatorname{Cov}(X,Y)\,/\,(\sigma_X\,\sigma_Y)$, and is **always** trapped in $[-1, 1]$. In the
+joint rain-and-lateness thread, the covariance is $\operatorname{Cov}(X,Y) = 0.063$ — a small number hard to
+interpret on its own — while the correlation $\rho \approx 0.35$ reads at a glance as a moderate positive
+relationship: rain and lateness tend to go together. The sign is the same in both; the **interpretability**
+is what the correlation buys you.
+
+## How this connects to the rest of the course
+
+This glossary is a reference, not a lesson — the ideas behind these symbols are developed, with full worked
+examples, in the weekly notes. The complement and the inclusive "or" arrive in
+[Week 2 — sample spaces, events & rules](../notes/week-02-sample-spaces-events-rules.qmd); the conditional
+bar and its $P(B)>0$ precondition in
+[Week 3 — conditional probability](../notes/week-03-conditional-probability.qmd); and the independence
+symbol $A\perp B$, with the contrast against mutual exclusivity, in
+[Week 4 — independence & information](../notes/week-04-independence-and-information.qmd). Expectation,
+variance, and standard deviation are built in
+[Week 8 — expectation & variance](../notes/week-08-expectation-and-variance.qmd); covariance and correlation
+in [Week 12 — joint distributions & dependence](../notes/week-12-joint-distributions-and-dependence.qmd).
+
+For the parameter forms, the companion [distribution reference](distribution-reference.qmd) lays out each
+model's pmf or density, mean, and variance side by side, and the
+[R & Quarto setup](r-quarto-setup.qmd) page shows how R's argument order lines up (or, for the Geometric,
+deliberately does not) with the conventions here. You can also return to the
+[resources index](index.qmd) or the [syllabus](../syllabus.qmd).
 
 ## Public vs. graded
 
 These notes, the examples, and the practice here are **public and ungraded** — study material only. No
-graded prompts, answer keys, rubrics, point values, or due dates appear on this site. Graded
-checkpoints, quizzes, homework, labs, the midterm, the project, and the final live in **Blackboard
-(the LMS)**, which is authoritative for due dates, submissions, and grades. If this page and Blackboard
-ever disagree, follow Blackboard.
+graded prompts, answer keys, rubrics, point values, or due dates appear on this site. Graded checkpoints,
+quizzes, homework, labs, the midterm, the project, and the final live in **Blackboard (the LMS)**, which is
+authoritative for due dates, submissions, and grades. If this page and Blackboard ever disagree, follow
+Blackboard.

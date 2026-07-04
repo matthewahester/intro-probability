@@ -1,321 +1,471 @@
 ---
 title: "Week 7 — Discrete random variables"
-subtitle: "From events to numbers: probability mass functions"
+subtitle: "Turning outcomes into numbers: random variables and pmfs"
 page_mode: normal_week
 week_contract: public_note
 source_mode: source-informed
 readings:
-  - "Grinstead & Snell, Ch 1 / Ch 5 — Random variables & distributions — supports the move from outcomes to a numerical summary and the probability mass function"
-  - "MIT OCW 18.05 — Discrete random variables & probability mass functions — supports the pmf/cdf framing and the distribution-table picture"
+  - "Grinstead & Snell, Ch 1 — Discrete probability distributions — supports the random-variable and pmf definitions"
+  - "Grinstead & Snell, Ch 5 — Important distributions — supports recognizing a named pmf such as the binomial"
 toc: true
 ---
 
 ## The week question
 
-For five weeks we have asked questions about *events* — will the shuttle be on time, did it rain, is
-the test positive. Each answer was a yes-or-no statement about the world, and probability attached a
-number to it. But many questions we actually care about are not yes-or-no. They are *counts* and
-*measurements*: how many of the ten quiz questions did Maya get right, how many minutes did she wait,
-how many late days will she rack up this week. These are still uncertain, but the uncertain thing is now
-a **number**, not just an event.
+Last week you learned to count outcomes: how many ways the chips can land, how many ways a hand can be
+dealt, how many ways to get exactly $k$ correct on a quiz. Counting tells you *how many* outcomes there are
+and *how likely* each one is, but it leaves the answer scattered across a list of possibilities. This week
+we ask a tidier question.
 
-This week's question is: **how do we describe the probability of a quantity that varies randomly?** The
-answer is the **random variable** — a rule that turns each outcome into a number — together with its
-**probability mass function**, a single table or formula that says how the total probability of 1 is
-spread across the values that number can take. Once we have that table, every event question we used to
-ask becomes a question we can read straight off it.
+**When the thing we actually care about is a number — a count, a total, a score — how do we package the
+whole probability picture for that number in one place?**
+
+The answer is the *random variable*. A random variable does one simple, powerful thing: it attaches a number
+to each outcome of an experiment. Once outcomes become numbers, we can line them up on a number line, ask
+"what is the probability the number equals 3?", and collect every such answer into a single object called a
+*probability mass function*. By the end of the week you should be able to take a chance experiment, define a
+random variable for it, write down its pmf, and read off probabilities of the form "exactly this many" and
+"this many or fewer."
 
 ## Why this matters
 
-Almost every later idea in this course is a sentence about a random variable. The *expected value* in
-Week 8 is the long-run average of a random variable. The *binomial* and *Poisson* models in Week 9 are
-named random variables with named formulas. The continuous models in Weeks 10 and 11 are random
-variables whose values are measured rather than counted. Joint distributions in Week 12 are about two
-random variables at once. So the random variable is not just one more topic — it is the object the rest
-of the course is built on.
+Almost every probability question a person actually asks in the wild is about a *number*: how many shuttles
+will be late this week, how many of the ten quiz questions you will get right, how many heads in a handful
+of coin flips, how long until the next bus. The random variable is the bridge between the messy list of
+outcomes you built in Weeks 1 through 6 and the numeric questions that come next.
 
-This is also the week the course pivots from *counting outcomes* to *summarizing a quantity*. In Week 6
-we counted: there are $2^{10} = 1024$ equally likely answer patterns on the guessing quiz, and
-$\binom{10}{k}$ of them give exactly $k$ correct. That counting was the hard part. This week we package
-all of that work into one compact object — the probability mass function — so that "what is the chance
-of exactly $7$ correct?" becomes a single lookup instead of a fresh counting problem each time.
+It also sets up everything that follows. Once a number has a probability distribution, you can ask for its
+*average* (Week 8, expectation) and its *spread* (Week 8, variance). You can notice that many different
+experiments share the *same* distribution and give it a name (Week 9, the binomial and Poisson; Weeks 10–11,
+the continuous models). The pmf you meet this week is the discrete ancestor of the density curve you will
+meet for continuous quantities. Getting comfortable now with "outcome in, number out, probability attached"
+makes the rest of the course feel like variations on one idea rather than a parade of new ones.
 
-A scheduling note for the term: the **midterm is Friday, October 9, in class**, and it covers Weeks 1
-through 7 — uncertainty and probability models, sample spaces and events, conditional probability,
-independence, Bayes' rule, counting, and this week's discrete random variables. That is the full span of
-ideas that the midterm draws on. No specific items, point values, or rubric appear here; those live in
-Blackboard, which is authoritative for the assessment itself.
+This week also sits at a natural checkpoint. We have finished building the discrete-probability toolkit, so
+it is a good moment to consolidate before the course turns toward averages, named models, and continuous
+quantities. See **Looking ahead** for how that checkpoint frames your studying.
 
 ## Learning goals
 
 By the end of this week you should be able to:
 
-- State what a **random variable** is — a function from the sample space $\Omega$ to the real numbers —
-  and give the random variable behind a question in your own words.
-- Write the **probability mass function** $p(x) = P(X = x)$ and identify the **support**: the set of
-  values where $p(x) > 0$.
-- Check that a pmf is legitimate: every value is between $0$ and $1$, and the values **sum to $1$**.
-- Build a **distribution table** for a small example and use it to answer event questions like
-  $P(X \ge 8)$.
-- Write the **cumulative distribution function** $F(x) = P(X \le x)$ and read it off the pmf.
+- Define a **discrete random variable** as a rule that assigns a number to each outcome of an experiment.
+- Write the **probability mass function** $p(x)=P(X=x)$ for a simple experiment and check that it is a valid
+  pmf (each value in $[0,1]$, and all values summing to $1$).
+- Build and read the **cumulative distribution function** $F(x)=P(X\le x)$ from a pmf.
+- Translate a plain-language question ("at least 8 correct", "fewer than 2 heads") into a statement about
+  $X$ and evaluate it from the pmf or cdf.
+- Distinguish a random variable $X$ (the rule / the capital letter) from a particular value $x$ (a number it
+  can take), and read $p(x)$ and $P(X=x)$ as two names for the same thing.
 
 ## Core vocabulary
 
-- **Random variable** — a function $X : \Omega \to \mathbb{R}$ that assigns a number to every outcome.
-  We write capital letters ($X$, $Y$) for the variable and lowercase ($x$) for a particular value.
-- **Discrete** — the random variable takes values from a list you can enumerate (here, the integers
-  $0, 1, \dots, 10$), as opposed to a continuous sweep of values.
-- **Probability mass function (pmf)** — the function $p(x) = P(X = x)$ giving the probability that the
-  variable equals each value.
-- **Support** — the set of values $x$ for which $p(x) > 0$; the only values worth listing.
-- **Cumulative distribution function (cdf)** — the function $F(x) = P(X \le x)$, the accumulated
-  probability up to and including $x$.
-- **Distribution table** — a two-row layout pairing each value in the support with its probability.
+- **Random variable** $X$ — a rule that assigns a real number to every outcome $\omega$ in the sample space
+  $\Omega$. We write random variables with capital letters; the values they take are lowercase $x$.
+- **Discrete random variable** — a random variable whose possible values form a list you can write out
+  (finite, like $0,1,\dots,10$, or a countable sequence). This week is entirely about the discrete kind.
+- **Support** — the set of values $x$ for which $p(x)>0$; the numbers $X$ can actually take.
+- **Probability mass function (pmf)** $p(x)=P(X=x)$ — the function that reports the probability that $X$
+  equals each value $x$. Sometimes written $p_X(x)$ when we need to say *which* variable. A valid pmf has
+  $0\le p(x)\le 1$ for every $x$ and $\sum_x p(x)=1$.
+- **Cumulative distribution function (cdf)** $F(x)=P(X\le x)$ — the running total of the pmf: the probability
+  that $X$ is at most $x$. It climbs from $0$ up to $1$ as $x$ moves left to right.
+- **Distribution** — the whole package: the support together with the probabilities attached to it. The pmf
+  (or the cdf) *is* the distribution of a discrete random variable.
 
 ## Concept development
 
-### From an outcome to a number
+### From outcomes to numbers
 
-In Weeks 1–6 the basic object was the **outcome** $\omega$, a single point in the sample space $\Omega$.
-For the guessing quiz, an outcome is a whole answer pattern — one specific way of being right or wrong on
-all ten questions, like "right, wrong, wrong, right, …". There are $2^{10} = 1024$ such patterns, and
-under pure guessing each is equally likely.
+Up to now an outcome has been a thing — a "heads," a "rain-then-late morning," a particular pattern of right
+and wrong quiz answers. A random variable is the small, deliberate act of replacing each such thing with a
+number we care about.
 
-A **random variable** is a *function* laid over that sample space. It reads an outcome and reports a
-number. For the quiz, let
+Formally, a random variable $X$ is a function from the sample space to the real numbers: feed it an outcome
+$\omega$, and it returns a number $X(\omega)$. That sounds abstract, but the move is one you make
+instinctively. Flip three coins and you might not care about the exact pattern HTH versus THH; you care that
+*two heads* came up. The phrase "number of heads" *is* a random variable: it takes each three-flip outcome
+and returns $0$, $1$, $2$, or $3$.
 
-$$
-X(\omega) = \text{the number of questions answered correctly in pattern } \omega .
-$$
-
-So $X$ collapses each of the 1024 detailed outcomes down to a single integer between $0$ and $10$. Many
-different outcomes share the same number — every pattern with exactly seven correct answers maps to
-$X = 7$. That collapsing is the whole point: we stop tracking *which* questions were right and track only
-*how many*, because that count is what the question asked about.
-
-This is worth saying plainly because the word "variable" is misleading. A random variable is not an
-unknown to solve for, the way $x$ is in algebra. It is a **rule**, fixed and known, that turns randomness
-in $\Omega$ into randomness in numbers. The randomness lives in *which outcome occurs*; $X$ just
-translates it.
+The point of the function is that it lets several different outcomes collapse onto the same number. Both HTH
+and THH and HHT return the value $2$. That is exactly what we want: the number of heads does not care which
+particular pattern produced it. The probabilities of those outcomes then *pile up* on the value $2$, and that
+pile is what the pmf records.
 
 ### The probability mass function
 
-Once $X$ is a number, we want to know how likely each possible value is. That is the **probability mass
-function**:
+Once $X$ turns outcomes into numbers, we can ask a clean question for each possible value: *what is the
+probability that $X$ equals this number?* The function that answers it for every value at once is the
+probability mass function,
 
 $$
-p(x) = P(X = x) .
+p(x) = P(X = x).
 $$
 
-The event $\{X = x\}$ is shorthand for "the set of all outcomes $\omega$ with $X(\omega) = x$." So $p(x)$
-is just the ordinary probability of that event — we are not inventing new probability, only repackaging
-old probability by the value of $X$. For the quiz, the event $\{X = 7\}$ is the set of all answer
-patterns with exactly seven correct, and its probability is the number of such patterns divided by 1024.
+Read it as "the probability mass sitting at the value $x$." For a discrete variable, all of the probability
+in the experiment gets distributed — as discrete lumps — onto the values in the support. To find $p(x)$ you
+gather every outcome that $X$ sends to $x$ and add up their probabilities:
 
-The set of values where $p(x) > 0$ is the **support** of $X$. For the quiz the support is
-$\{0, 1, 2, \dots, 10\}$: you cannot get $-1$ correct or $11$ correct, so those get probability $0$ and
-we do not list them. A pmf is a complete description of the random variable — give me $p(x)$ on its
-support and you have told me everything probabilistic about $X$.
+$$
+p(x) = P(X = x) = \sum_{\omega : X(\omega) = x} P(\{\omega\}).
+$$
 
-### Two rules every pmf obeys
+Two conditions make a function a *legitimate* pmf, and they are worth checking every time you write one
+down. First, no value can carry negative or impossible probability:
 
-A function $p(x)$ is a legitimate pmf exactly when it satisfies two conditions:
+$$
+0 \le p(x) \le 1 \quad \text{for every } x.
+$$
 
-1. **Non-negativity.** $p(x) \ge 0$ for every $x$ — probabilities are never negative. (Each is also at
-   most $1$, since it is a probability.)
-2. **Total mass one.** Summing over the support gives
-   $$
-   \sum_{x} p(x) = 1 .
-   $$
+Second, the masses must account for *all* of the probability — the experiment certainly produces *some*
+value — so they sum to one over the support:
 
-The second rule is the random-variable echo of an idea you have used since Week 1: *something* happens,
-so the probabilities of all the mutually exclusive possibilities add to $1$. Because the events
-$\{X = 0\}, \{X = 1\}, \dots$ are mutually exclusive and together cover the whole sample space, their
-probabilities must sum to $1$. The name "mass function" comes from this picture: there is one unit of
-probability "mass," and the pmf says how that unit is parceled out among the values in the support.
+$$
+\sum_{x} p(x) = 1.
+$$
+
+If a pmf you have written fails the sum-to-one check, you have either missed a value or mis-counted one;
+the check is your first line of defense against an arithmetic slip.
+
+A small but important notation note from the course ledger: for a discrete random variable, $p(x)$ and
+$P(X=x)$ are simply two names for the same number. We use $p(x)$ when we want to emphasize the *function*
+(the whole table of probabilities) and $P(X=x)$ when we want to emphasize a *single* probability we are
+computing. Do not let the two notations make you think they are different objects.
+
+![**A pmf as lumps of mass (synthetic).** $X \sim \text{Binomial}(10, 0.5)$, the number correct when guessing a ten-question true/false quiz: the probability mass is symmetric about and tallest at $x = 5$, tapering to near zero at $0$ and $10$.](../assets/figures/wk07_pmf_bars.png){#fig-wk07-pmf fig-alt="A symmetric bar chart of probabilities for x from 0 to 10. The bars rise to a peak at x = 5 of about 0.246 and fall away symmetrically to near zero at 0 and 10."}
+
+::: {.callout-note appearance="minimal"}
+**What the figure shows (non-visual equivalent).** Each bar is the mass $p(x) = \binom{10}{x}(0.5)^{10}$. The
+most likely value is $5$, with $p(5) = 252/1024 \approx 0.246$; the bars are symmetric and the masses sum to
+$1$. *Synthetic instructional example; numbers are illustrative.* (We build this quiz pmf in the worked example
+below.)
+:::
 
 ### The cumulative distribution function
 
-Sometimes the natural question is not "exactly this value" but "this value or fewer." For that we
-accumulate the pmf into the **cumulative distribution function**:
+The pmf answers "exactly this value." Many real questions instead ask "this value *or fewer*": at most two
+late shuttles, fewer than five correct, no more than one defect. For these we accumulate the pmf from the
+bottom up. The cumulative distribution function is
 
 $$
-F(x) = P(X \le x) = \sum_{t \le x} p(t) .
+F(x) = P(X \le x) = \sum_{t \le x} p(t),
 $$
 
-You build $F$ by walking up the support and adding masses as you go: $F$ starts at $0$ below the support,
-takes a step up at each value in the support by exactly that value's pmf, and reaches $1$ at the top. It
-is non-decreasing and never exceeds $1$. The cdf is handy because tail and interval questions read off it
-directly — for instance $P(X \le 5) = F(5)$, and $P(a < X \le b) = F(b) - F(a)$. The pmf and the cdf
-carry the same information in two shapes: the pmf is the *step sizes*, the cdf is the *running total*.
+the total probability mass at or below $x$. Because we are piling up non-negative lumps as $x$ increases,
+$F$ has three features that hold for *every* discrete random variable:
+
+- It starts at $0$ (below the smallest value, no mass has accumulated) and ends at $1$ (above the largest
+  value, all the mass is in).
+- It never decreases as $x$ moves right — adding more lumps can only keep the total the same or raise it.
+- For a discrete variable it is a **step function**: flat between the support values, jumping up by exactly
+  $p(x)$ at each value $x$. The size of each jump *is* the pmf at that point, which means you can recover the
+  pmf from the cdf and vice versa.
+
+The cdf earns its keep on "tail" questions. The probability of "more than $a$" is the complement of "at most
+$a$":
+
+$$
+P(X > a) = 1 - F(a),
+$$
+
+and the probability of landing in a block of values is a difference of cdf values,
+
+$$
+P(a < X \le b) = F(b) - F(a).
+$$
+
+Be careful with the boundary: $P(X \ge a)$ for an integer-valued variable is $1 - F(a-1)$, not $1-F(a)$,
+because $F(a)$ already includes the mass *at* $a$. That one-step boundary care is the most common place a
+correct pmf still yields a wrong tail probability.
+
+![**The cdf is a step function (synthetic).** $F(x)$ for the quiz variable $X\sim\text{Binomial}(10,0.5)$:
+flat between integers, jumping up by exactly $p(x)$ at each value, from $0$ up to $1$.](../assets/figures/wk07_cdf_step_quiz.png){#fig-wk07-cdf-step fig-alt="A step function starting at 0, jumping up at each integer from 0 to 10, reaching 1 at x = 10. A dashed guide marks F(2) at about 0.0547. A tallest jump occurs at x = 5."}
+
+::: {.callout-note appearance="minimal"}
+**What the figure shows (non-visual equivalent).** Each dot is $F(x)$ at an integer $x$; the flat segment
+after it is $F$ holding steady until the next jump. The jump size at each $x$ equals $p(x)$ — the biggest
+jump is at $x=5$, matching the tallest bar in the pmf figure above. The dashed guide marks
+$F(2)\approx 0.0547$, a value we compute exactly in the worked example below. *Synthetic instructional example; numbers are illustrative.*
+:::
 
 ## Worked examples
 
-### Worked example — the guessing quiz pmf (the recurring slice)
+Each example moves from the symbolic pmf to specific numbers. The data are synthetic; seed 35003 is set for
+any simulation a student might run.
 
-*Synthetic; seed set.* Recall Maya's setup: a ten-question true/false quiz answered by pure guessing,
-each question right with probability $0.5$, independently. Let $X$ be the number correct.
+### Worked example — the quiz, as a random variable (recurring case)
 
-**Symbolic.** From Week 6, the number of answer patterns with exactly $x$ correct is $\binom{10}{x}$, out
-of $2^{10} = 1024$ equally likely patterns. Each pattern has probability $\left(\tfrac{1}{2}\right)^{10}$.
-So the probability mass function is
+Throughout the course we follow **Maya**, a commuter student. Last week we counted her ten-question true/false
+quiz: with pure guessing, each question is right with probability $0.5$, the $2^{10}=1024$ answer keys are
+equally likely, and the number of keys giving exactly $k$ correct answers is $\binom{10}{k}$. This week we
+name the quantity she actually cares about and package it.
 
-$$
-p(x) = P(X = x) = \binom{10}{x}\left(\tfrac{1}{2}\right)^{10} = \frac{\binom{10}{x}}{1024},
-\qquad x = 0, 1, 2, \dots, 10 .
-$$
-
-The support is $\{0, 1, \dots, 11\text{-many}\}$ — that is, the eleven integers $0$ through $10$. Notice
-the pmf is built entirely from the counting you already did; the random variable just organizes it.
-
-**Check the total.** The binomial coefficients across a row sum to a power of two,
-$\sum_{x=0}^{10} \binom{10}{x} = 2^{10} = 1024$, so
+**Define the random variable.** Let
 
 $$
-\sum_{x=0}^{10} p(x) = \frac{1}{1024}\sum_{x=0}^{10}\binom{10}{x} = \frac{1024}{1024} = 1 .
+X = \text{the number of the ten questions Maya gets correct by guessing.}
 $$
 
-The pmf passes both rules: each term is non-negative, and they sum to $1$.
+Each outcome of the experiment is one full answer key (one of the $1024$ equally likely right/wrong
+patterns); $X$ sends each key to its count of correct answers. The support is $0,1,2,\dots,10$.
 
-**Numeric — a slice of the table.** Computing $\binom{10}{x}/1024$ for a few values:
-
-| $x$ (number correct) | $\binom{10}{x}$ | $p(x) = \binom{10}{x}/1024$ |
-|---:|---:|---:|
-| 0 | 1 | $\approx 0.0010$ |
-| 5 | 252 | $\approx 0.2461$ |
-| 7 | 120 | $\approx 0.1172$ |
-| 8 | 45 | $\approx 0.0439$ |
-| 9 | 10 | $\approx 0.0098$ |
-| 10 | 1 | $\approx 0.0010$ |
-
-The table is symmetric (because $p = 0.5$): $p(0) = p(10)$, $p(1) = p(9)$, and so on, with the peak at
-$x = 5$. Reading an event off the pmf, the chance of guessing at least eight correct is
+**Build the pmf symbolically.** All $1024$ keys are equally likely, and $\binom{10}{x}$ of them have exactly
+$x$ correct. So the probability mass at $x$ is the fraction of keys that hit $x$:
 
 $$
-P(X \ge 8) = p(8) + p(9) + p(10) = \frac{45 + 10 + 1}{1024} = \frac{56}{1024} \approx 0.0547 .
+p(x) = P(X = x) = \frac{\binom{10}{x}}{2^{10}} = \binom{10}{x}\left(\tfrac{1}{2}\right)^{10},
+\qquad x = 0,1,2,\dots,10.
 $$
 
-And the cdf at $7$ is the complementary accumulation, $F(7) = P(X \le 7) = 1 - P(X \ge 8) \approx
-0.945$. We could equally have summed $p(0)$ through $p(7)$; the running total reaches the same place.
+(You will meet this exact shape again in Week 9 under its proper name, the binomial pmf. For now it is just
+"equally likely keys, counted.")
 
-You can display this pmf with base R without doing any new probability by hand. The chunk below is shown
-as teaching, not executed here.
+**Put numbers on it.** Since $(1/2)^{10} = 1/1024$, the pmf is each binomial coefficient over $1024$. The
+coefficients across the row are $1,10,45,120,210,252,210,120,45,10,1$ — symmetric, because guessing has no
+bias toward right or wrong. Reading off a few values:
 
-```{r}
-#| label: quiz-pmf-table
-#| eval: false
+| $x$ | $\binom{10}{x}$ | $p(x)=P(X=x)$ |
+|----:|----------------:|--------------:|
+| 0 | 1 | $1/1024\approx 0.001$ |
+| 1 | 10 | $10/1024\approx 0.010$ |
+| 2 | 45 | $45/1024\approx 0.044$ |
+| 5 | 252 | $252/1024\approx 0.246$ |
+| 8 | 45 | $45/1024\approx 0.044$ |
+| 9 | 10 | $10/1024\approx 0.010$ |
+| 10 | 1 | $1/1024\approx 0.001$ |
 
-set.seed(35003)
+The masses are largest in the middle, around $x=5$ — which already hints that pure guessing tends to land
+near half-right, the average we will pin down precisely in Week 8.
 
-# X = number correct on a 10-question true/false quiz, pure guessing p = 0.5.
-# pmf p(x) = C(10, x) * (0.5)^10, for x = 0, 1, ..., 10.
-x  <- 0:10
-px <- choose(10, x) * (0.5)^10      # base-R: choose() gives the binomial coefficient
+**Check the pmf.** Every value is between $0$ and $1$, and the coefficients sum to $1+10+45+120+210+252+
+210+120+45+10+1 = 1024$, so
 
-dist_table <- data.frame(x = x, p_x = round(px, 4))
-print(dist_table)
+$$
+\sum_{x=0}^{10} p(x) = \frac{1024}{1024} = 1. \checkmark
+$$
 
-cat("sum of pmf:", sum(px), "\n")            # must be 1
-cat("P(X >= 8):", sum(px[x >= 8]), "\n")      # the tail event, ~0.0547
-```
+**Read the cdf for a tail question.** Suppose Maya wants the probability she scores *at most* $2$ correct.
+That is a cdf value:
 
-This same $X$ is the bridge to the next two weeks. In **Week 8** we ask for its long-run average,
-$E[X]$, and its spread, $\mathrm{Var}(X)$. In **Week 9** we give this pmf its proper name — $X$ follows
-the **Binomial$(10, 0.5)$** model — and recognize $p(x) = \binom{10}{x}(0.5)^{10}$ as the binomial
-formula. Everything later sits on the object we built here.
+$$
+F(2) = P(X \le 2) = p(0)+p(1)+p(2) = \frac{1+10+45}{1024} = \frac{56}{1024} \approx 0.0547.
+$$
+
+And the complementary "she gets at least $8$ correct" question reads off the symmetric upper tail:
+
+$$
+P(X \ge 8) = p(8)+p(9)+p(10) = \frac{45+10+1}{1024} = \frac{56}{1024} \approx 0.0547,
+$$
+
+equal to the lower tail because the distribution is symmetric. (We revisit exactly this $P(X\ge 8)\approx
+0.0547$ in Week 9 once the variable wears its binomial name.) Notice the boundary care from the concept
+section: "$X\ge 8$" is $1-F(7)$, *not* $1-F(8)$.
+
+![**Two tails, the same size (synthetic).** The quiz pmf with $x\le 2$ shaded on the left and $x\ge 8$
+shaded on the right: both shaded regions total the same mass, $56/1024\approx 0.0547$, because the
+distribution is symmetric about $5$.](../assets/figures/wk07_quiz_tail_shade.png){#fig-wk07-tail-shade fig-alt="A symmetric bar chart of the quiz pmf from 0 to 10, with the bars at 0, 1, 2 shaded one color and the bars at 8, 9, 10 shaded a second color; both shaded groups are visibly the same total height."}
+
+::: {.callout-note appearance="minimal"}
+**What the figure shows (non-visual equivalent).** The lower shaded group is $p(0)+p(1)+p(2)=F(2)$; the
+upper shaded group is $p(8)+p(9)+p(10)=P(X\ge 8)$. Both sum to $56/1024\approx 0.0547$ — the picture is the
+symmetry argument made visible, the same fact the table above computes in numbers. *Synthetic instructional example; numbers are illustrative.*
+:::
+
+So the move this week is not new probability — it is repackaging. The counting you did in Week 6 *is* the
+pmf; the random variable just gives the count a name and a number line to live on.
 
 ### Worked example — number of heads in three coin flips (transfer)
 
-*Synthetic; seed set.* Now a fresh context: flip a fair coin three times and let $Y$ be the number of
-heads. This is a smaller world, so we can list it completely and watch the pmf assemble itself from raw
-outcomes.
-
-**Symbolic.** The sample space has $2^3 = 8$ equally likely outcomes, each an ordered triple of H/T. The
-random variable is $Y(\omega) = $ (number of H in $\omega$), with support $\{0, 1, 2, 3\}$, and
+Now carry the same machinery to a fresh, smaller experiment so the pattern stands on its own. Flip a fair
+coin three times and let
 
 $$
-p(y) = P(Y = y) = \frac{\text{number of outcomes with } y \text{ heads}}{8}
-= \frac{\binom{3}{y}}{8}, \qquad y = 0, 1, 2, 3 .
+X = \text{the number of heads in three flips.}
 $$
 
-**Numeric — from outcomes to a table.** Listing the eight outcomes and the value of $Y$ for each:
-
-| Outcomes (each probability $1/8$) | $y$ | $p(y)$ |
-|:---|---:|---:|
-| TTT | 0 | $1/8 = 0.125$ |
-| HTT, THT, TTH | 1 | $3/8 = 0.375$ |
-| HHT, HTH, THH | 2 | $3/8 = 0.375$ |
-| HHH | 3 | $1/8 = 0.125$ |
-
-The probabilities sum to $\tfrac{1 + 3 + 3 + 1}{8} = 1$, so this is a valid pmf. Building the cdf by
-accumulating from the bottom:
+**Symbolic setup.** The sample space is the eight equally likely flip patterns,
+$\{\text{HHH}, \text{HHT}, \text{HTH}, \text{THH}, \text{HTT}, \text{THT}, \text{TTH}, \text{TTT}\}$, each of
+probability $1/8$. The random variable $X$ counts the heads in each pattern, so its support is
+$\{0,1,2,3\}$. The mass at $x$ is the number of patterns with exactly $x$ heads, divided by $8$:
 
 $$
-F(0) = \tfrac{1}{8}, \quad F(1) = \tfrac{4}{8}, \quad F(2) = \tfrac{7}{8}, \quad F(3) = \tfrac{8}{8} = 1 .
+p(x) = P(X = x) = \frac{\binom{3}{x}}{2^{3}} = \frac{\binom{3}{x}}{8}, \qquad x = 0,1,2,3.
 $$
 
-So, for example, $P(Y \le 1) = F(1) = 0.5$ and $P(Y \ge 2) = 1 - F(1) = 0.5$. The same machinery as the
-quiz — a function from outcomes to a count, a mass function summing to $1$, a running-total cdf — just at
-a scale small enough to see every outcome. The structural echo is no accident: both are counts of
-successes in independent fair trials, which is exactly the binomial family we name in Week 9.
+**Numeric pmf.** The coefficients $\binom{3}{0},\binom{3}{1},\binom{3}{2},\binom{3}{3}$ are $1,3,3,1$, so
+the pmf is the tidy table
+
+| $x$ | patterns | $p(x)$ |
+|----:|---------:|-------:|
+| 0 | TTT | $1/8 = 0.125$ |
+| 1 | HTT, THT, TTH | $3/8 = 0.375$ |
+| 2 | HHT, HTH, THH | $3/8 = 0.375$ |
+| 3 | HHH | $1/8 = 0.125$ |
+
+— the famous $\{1,3,3,1\}/8$. It passes both validity checks: every entry lies in $[0,1]$, and
+$\tfrac{1}{8}+\tfrac{3}{8}+\tfrac{3}{8}+\tfrac{1}{8}=\tfrac{8}{8}=1$.
+
+![**The coin's own pmf (synthetic).** $X=$ number of heads in three flips: the bars are $1/8, 3/8, 3/8,
+1/8$ over $x=0,1,2,3$ — smaller and coarser than the quiz's, but the same shape idea.](../assets/figures/wk07_coin_pmf_bars.png){#fig-wk07-coin-pmf fig-alt="A bar chart with four bars over x = 0, 1, 2, 3, heights 1/8, 3/8, 3/8, 1/8, symmetric with two equal tallest bars in the middle."}
+
+::: {.callout-note appearance="minimal"}
+**What the figure shows (non-visual equivalent).** The bars are exactly the table's four values,
+$\{1,3,3,1\}/8$; the two middle bars ($x=1,2$) are tied for tallest, matching the transfer example's small
+support. *Synthetic instructional example; numbers are illustrative.*
+:::
+
+**Build the cdf.** Accumulate the pmf from the left:
+
+$$
+F(0)=\tfrac{1}{8}=0.125,\quad F(1)=\tfrac{4}{8}=0.5,\quad F(2)=\tfrac{7}{8}=0.875,\quad F(3)=\tfrac{8}{8}=1.
+$$
+
+This is the step function of the concept section made concrete: it is $0$ below $0$, jumps to $0.125$ at
+$x=0$, to $0.5$ at $x=1$, to $0.875$ at $x=2$, to $1$ at $x=3$, and stays flat between. Each jump height is
+exactly the pmf value, so you could rebuild the table $\{1,3,3,1\}/8$ just by reading the jump sizes.
+
+![**The coin's own cdf (synthetic).** Four flat steps climbing from $0$ to $1$, jumping by $0.125,\,0.375,\,
+0.375,\,0.125$ at $x=0,1,2,3$ — the same step shape as the quiz's cdf above, just four steps instead of
+eleven.](../assets/figures/wk07_coin_cdf_step.png){#fig-wk07-coin-cdf fig-alt="A four-step staircase function labeled F(0)=0.125, F(1)=0.500, F(2)=0.875, F(3)=1.000, rising from left to right."}
+
+::: {.callout-note appearance="minimal"}
+**What the figure shows (non-visual equivalent).** Each labeled point is one of the four cdf values computed
+above; the flat stretch after each point is $F$ holding steady until the next jump. *Synthetic instructional example; numbers are illustrative.*
+:::
+
+**Use it.** "At least two heads" is an upper-tail question:
+
+$$
+P(X \ge 2) = p(2) + p(3) = \tfrac{3}{8} + \tfrac{1}{8} = \tfrac{4}{8} = 0.5,
+$$
+
+or, via the cdf with the integer boundary, $P(X\ge 2) = 1 - F(1) = 1 - 0.5 = 0.5$. The two routes agree —
+a quick way to catch a boundary slip.
+
+The three-flip coin and the ten-question quiz are the *same idea* at two sizes: equally likely outcomes,
+count what you care about, divide the counts by the total to get the pmf, accumulate to get the cdf. The only
+difference is $\binom{3}{x}/8$ versus $\binom{10}{x}/1024$.
+
+![**Same idea, two sizes (synthetic).** The coin's pmf ($n=3$ flips) beside the quiz's pmf ($n=10$
+questions): both are symmetric, single-peaked, and centered at the halfway point of their
+support.](../assets/figures/wk07_quiz_coin_comparison.png){#fig-wk07-comparison fig-alt="Two side-by-side bar charts: the left, four bars over 0 to 3, symmetric and peaked in the middle; the right, eleven bars over 0 to 10, symmetric and peaked at 5. Both have the same overall shape at different scales."}
+
+::: {.callout-note appearance="minimal"}
+**What the figure shows (non-visual equivalent).** Placed side by side, the two pmfs make the shared shape
+obvious without needing to compare the tables line by line: both are symmetric and tallest at the middle of
+their support ($x=1.5$-ish for the coin, $x=5$ for the quiz). This is the visual version of the sentence
+above it. *Synthetic instructional example; numbers are illustrative.*
+:::
+
+If you want to *see* a pmf rather than only compute it, the chunk below shows how a student could simulate
+many quizzes and compare the empirical proportions to $p(x)$. It is shown for teaching and not run in this
+build; run it in your own R session.
+
+```{r}
+#| label: quiz-pmf-simulation
+#| eval: false
+set.seed(35003)
+n_quizzes <- 100000
+# each quiz: 10 true/false questions, guessed; count the correct ones
+correct <- replicate(n_quizzes, sum(sample(c(0, 1), size = 10, replace = TRUE)))
+empirical <- table(factor(correct, levels = 0:10)) / n_quizzes
+theoretical <- choose(10, 0:10) / 2^10
+round(rbind(empirical, theoretical), 3)   # the two rows should nearly match
+```
 
 ## A common mistake
 
-The most frequent slip is confusing the random variable $X$ with one of its values $x$, or treating
-$p(x)$ as if it were the random variable itself. $X$ is the *rule* (a function on $\Omega$); $x$ is a
-*number* you plug in; $p(x)$ is the *probability* that the rule outputs that number. Writing "$P(X)$"
-with no value, or "the probability of $X$," is a sign the distinction has blurred — probability attaches
-to an event like $\{X = 7\}$, not to the variable in the abstract.
+The mistake to watch for this week is **confusing the random variable $X$ with a value $x$ it can take, and
+the related slip of mishandling the integer boundary in the cdf.**
 
-A close second is forgetting the **sum-to-one** check. It is tempting to compute one or two values of
-$p(x)$ and move on, but a pmf is only legitimate if its values cover the whole support and add to exactly
-$1$. If your probabilities sum to more or less than $1$, you have either missed a value in the support or
-miscounted — the total-mass rule is your built-in error check. A related version: confusing $P(X = x)$
-with $P(X \le x)$. The first is a single mass (one step); the second is the accumulated cdf (the running
-total). On the quiz, $p(8) \approx 0.044$ but $F(8) = P(X \le 8) \approx 0.989$ — very different numbers
-answering very different questions.
+The first half: $X$ is the *rule* — the capital letter, the whole machine that turns any outcome into a
+number, with an entire distribution attached. A lowercase $x$ is one *specific number* it can land on.
+Writing "$P(X)$" with no value is meaningless; you must say *which* value, as in $P(X=3)$, or *which* range,
+as in $P(X\le 2)$. Likewise, $p(x)$ for a single $x$ is one probability, while the pmf as a whole is the
+function across all $x$. Keep the capital/lowercase distinction crisp and most of the confusion evaporates.
+
+The second half bites in tail probabilities. Because the cdf $F(x)=P(X\le x)$ *includes* the mass at $x$, the
+two events "$X>a$" and "$X\ge a$" are not the same for an integer-valued variable. The correct complements
+are $P(X>a)=1-F(a)$ but $P(X\ge a)=1-F(a-1)$. On the quiz, $P(X\ge 8)$ uses $1-F(7)$, giving the
+$56/1024\approx 0.0547$ above; using $1-F(8)$ would wrongly drop the mass at $x=8$. When a tail probability
+comes out "almost right but a little off," check this boundary first.
+
+![**The off-by-one boundary, drawn (synthetic).** The quiz's cdf zoomed to $x=5,\dots,10$, with $F(7)$ and
+$F(8)$ marked: the correct route to $P(X\ge 8)$ is $1-F(7)$; using $1-F(8)$ silently drops the mass sitting
+right at $x=8$.](../assets/figures/wk07_boundary_misconception.png){#fig-wk07-boundary fig-alt="A zoomed step function of the quiz's cdf from x = 5 to 10, with two dashed horizontal guides labeled F(7) at about 0.9453 and F(8) at about 0.9893, and text stating the correct and wrong tail computations."}
+
+::: {.callout-note appearance="minimal"}
+**What the figure shows (non-visual equivalent).** $F(7)\approx 0.9453$ sits on the plateau just *before*
+the jump at $x=8$; $F(8)\approx 0.9893$ sits just *after* it. Subtracting from $1$ the wrong one
+($1-F(8)\approx 0.0107$) throws away exactly the mass at $x=8$ that "at least 8" is supposed to include; the
+right subtraction ($1-F(7)\approx 0.0547$) matches $P(X\ge 8)$ from the worked example above. *Synthetic instructional example; numbers are illustrative.*
+:::
 
 ## Low-stakes self-checks (ungraded)
 
-These are for your own understanding only — nothing here is collected or graded.
+These are for your own practice — nothing here is collected or graded.
 
-1. In one sentence, describe the random variable behind the question "how many of Maya's five weekday
-   commutes are late this week?" What is its support?
-2. For the three-coin-flip $Y$, confirm $P(1 \le Y \le 2)$ two ways: by adding pmf values, and as
-   $F(2) - F(0)$. Do they agree?
-3. Suppose someone proposes a pmf with $p(0) = 0.4$, $p(1) = 0.4$, $p(2) = 0.3$ on support $\{0,1,2\}$.
-   Without computing anything fancy, why is this not a valid pmf?
-4. For the quiz $X$, which is larger, $p(5)$ or $F(5)$? Explain in words what each one means.
+1. For Maya's quiz, write $P(X=5)$ as a binomial coefficient over $1024$, then as a decimal. Is it the single
+   largest value in the pmf? Why does symmetry make $p(4)=p(6)$?
+2. Using the three-flip coin, confirm that the four pmf values sum to $1$, then state $P(X=1)$ in words ("the
+   probability of exactly one head") and check it equals $3/8$.
+3. From the coin cdf, compute $P(1 < X \le 3)$ as $F(3)-F(1)$. Does it match $p(2)+p(3)$ directly?
+4. Explain in one sentence why $F(x)$ can never go *down* as $x$ increases. What would a decrease imply about
+   some $p(x)$?
+5. A small support: let $Y$ be the number of late shuttles Maya catches in two independent mornings, where
+   each morning is late with probability $0.19$. Write the support of $Y$, and set up (do not finish) the pmf
+   for $Y=0$, $Y=1$, $Y=2$ by counting the ways. (We will finish exactly this kind of pmf in Week 9.)
 
 ## Reading and source pointer
 
-This week tracks **Grinstead & Snell, Chapter 1** (where random variables and distribution functions are
-introduced for discrete experiments) and looks ahead to **Chapter 5** (specific distributions). The
-**MIT OCW 18.05** notes on discrete random variables and probability mass functions are a good parallel
-reading for the pmf-and-cdf framing and the distribution-table picture. These notes are the course's own
-synthesis, grounded in but not copied from the sources. All data here are synthetic with seeds set.
+For this week's spine, read **Grinstead & Snell, Chapter 1 (Discrete probability distributions)** for the
+definition of a random variable and its distribution, and **Chapter 5 (Important distributions)** for how a
+specific counting pmf — like our quiz's $\binom{10}{x}(1/2)^{10}$ — gets recognized as a named distribution.
+The free online text is at
+<https://www.dartmouth.edu/~chance/teaching_aids/books_articles/probability_book/book.html>.
+
+No MIT 18.05 pointer this week; the named-model and simulation strands where 18.05 is genuinely used arrive
+in Weeks 9 and 13.
+
+These notes are the course's own synthesis, grounded in but not copied from the sources.
 
 ## Public vs. graded
 
 These notes, the examples, and the practice here are **public and ungraded** — study material only. No
 graded prompts, answer keys, rubrics, point values, or due dates appear on this site. Graded checkpoints,
-quizzes, homework, labs, the midterm, the project, and the final live in **Blackboard (the LMS)**, which
-is authoritative for due dates, submissions, and grades. If this page and Blackboard ever disagree,
-follow Blackboard.
+quizzes, homework, labs, the midterm, the project, and the final live in **Blackboard (the LMS)**, which is
+authoritative for due dates, submissions, and grades. If this page and Blackboard ever disagree, follow
+Blackboard.
+
+As a preparation note only: this week sits at the course's midpoint, and the **midterm is Friday, October 9,
+in class**, covering the first half of the term — the probability-model, sample-space, conditional-probability,
+independence, Bayes, counting, and now random-variable material of Weeks 1 through 7 or so. Treat that purely
+as orientation for how to pace your review. The official scope, format, timing, and everything that counts
+toward your grade live in Blackboard, which is authoritative; nothing on this public page sets or changes any
+graded contract.
 
 ## Looking ahead
 
-We now have a random variable and its pmf, but we have not yet asked the two summary questions everyone
-eventually wants answered: *on average*, how many does Maya get right, and *how much* does that number
-bounce around? **Week 8** introduces **expectation** $E[X]$ and **variance** $\mathrm{Var}(X)$ — weighted
-summaries of the pmf — and we will find $E[X] = 5$ and $\mathrm{Var}(X) = 2.5$ for the guessing quiz.
-**Week 9** then names the pattern: this pmf is the **Binomial$(10, 0.5)$** distribution, and we will meet
-its siblings, including the Poisson model for shuttle arrivals. The pmf you built this week is the seed
-for all of it. (And remember the **midterm, Friday October 9**, spans Weeks 1–7.)
+You now have a random variable, its pmf, and its cdf — the full description of a discrete number's behavior.
+**Week 8** asks the two summary questions every distribution invites: where is its *center* (the expectation
+$E[X]=\sum_x x\,p(x)$) and how *spread out* is it (the variance $\operatorname{Var}(X)$ and standard
+deviation $\sigma$)? We will compute both for exactly the quiz variable you built today and find its center
+sits at $5$ and its spread at $2.5$ — confirming the "guessing lands near half-right" hunch from the pmf.
+**Week 9** then notices that the quiz pmf, the coin pmf, and many others share one shape, gives that shape
+its name — the **binomial** — and adds the **Poisson** for counts like shuttle arrivals. The "outcome in,
+number out, probability attached" habit you build this week is the foundation for all of it.
 
 ## See also
 
-- [Notation glossary](../resources/notation-glossary.qmd) — symbols for $X$, $p(x)$, $F(x)$, and support.
-- [Distribution reference](../resources/distribution-reference.qmd) — the named pmfs this week's quiz
-  variable is heading toward.
-- [Syllabus](../syllabus.qmd) — course arc, the midterm date, and where graded work lives.
+- The notation glossary, for the capital-$X$-versus-lowercase-$x$ and $p(x)=P(X=x)$ conventions used above:
+  [../resources/notation-glossary.qmd](../resources/notation-glossary.qmd).
+- The distribution reference, for how this week's counting pmf becomes a named model:
+  [../resources/distribution-reference.qmd](../resources/distribution-reference.qmd).
+- Where the counting that powers this week's pmf was built:
+  [week-06-counting-and-discrete-probability.qmd](week-06-counting-and-discrete-probability.qmd).
+- Where the pmf's center and spread are computed next:
+  [week-08-expectation-and-variance.qmd](week-08-expectation-and-variance.qmd).
+- Where this pmf earns its name and the binomial/Poisson models arrive:
+  [week-09-common-discrete-models.qmd](week-09-common-discrete-models.qmd).
+- The course syllabus, for the term's structure and the authoritative pointer to Blackboard:
+  [../syllabus.qmd](../syllabus.qmd).

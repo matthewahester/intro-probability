@@ -9,7 +9,7 @@ These are the reference pages to keep open while you read the notes and work the
 the standard distributions, and the software setup, all in one place.
 
 - **[Notation glossary](notation-glossary.qmd)** — the symbols and conventions used throughout the
-  course, from $P(A \mid B)$ to $\mathrm{Var}(X)$, with a plain-language meaning for each.
+  course, from $P(A \mid B)$ to $\operatorname{Var}(X)$, with a plain-language meaning for each.
 - **[Distribution reference](distribution-reference.qmd)** — a one-page summary of the standard
   models (binomial, geometric, Poisson, exponential, normal): their parameters, means, and variances,
   with the parameterizations this course uses.
@@ -17,4 +17,4 @@ the standard distributions, and the software setup, all in one place.
   Quarto, and how to run the shown lab code in your own session.
 
 These pages are orientation and study aids. For graded specifics — deadlines, submissions, and the
-operational details of the course — more lives in **Blackboard (the LMS)**, which is authoritative.
+operational details of the course — **Blackboard (the LMS)** is authoritative.

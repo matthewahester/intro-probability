@@ -1,319 +1,386 @@
 ---
 title: "Week 14 — Probability modeling project"
-subtitle: "Modeling a question with simulation and theory — a workshop orientation"
+subtitle: "Building, simulating, and defending a small probability model"
 page_mode: overview_review_week
 week_contract: public_note
 source_mode: source-informed
-depth_rationale: "Project workshop week — this public note orients the modeling process; it is lighter than a concept week by design and carries no graded contract."
+depth_rationale: "Project workshop week — lighter new theory; emphasis is on assembling and defending a model students already have the tools to build, not on introducing fresh machinery."
 readings:
-  - "Grinstead & Snell, course-original (no single chapter) — supports the modeling process synthesized across the semester's chapters"
-  - "MIT OCW 18.05 — simulation and model-checking themes — supports comparing simulated to theoretical results"
+  - "Grinstead & Snell — Introduction to Probability — general modeling reference for the whole project arc"
+  - "MIT OCW 18.05 — Introduction to Probability and Statistics — general modeling and simulation reference"
 toc: true
 ---
 
 ## The week question
 
-By now you have built quite a toolkit. You can lay out a sample space, condition on information, update
-with Bayes' rule, name a discrete or continuous model, summarize it with a mean and variance, and watch
-averages settle down by simulation. The project week asks a different kind of question — not "can you apply
-the right formula?" but **"given a question you care about, can you build a probability model for it,
-reason with it honestly, and report what it does and does not tell you?"**
+Almost everything so far has handed you the model. The problem said "a fair coin," or "shuttles arrive
+Poisson at rate four per hour," or "commute time is Normal with mean 22 and standard deviation 5," and your
+job was to compute from there. That is the right way to *learn* the machinery, but it hides the hardest and
+most useful step in real probability work: **nobody hands you the model.** You start with a vague question
+about an uncertain situation, and you have to decide what random variable to use, what distribution to put
+on it, and what assumptions you are quietly buying when you do.
 
-This is a workshop, not a new chapter. There is no fresh distribution to memorize. The content this week
-*is the modeling process itself*: how to take a vague real question, turn it into something a probability
-model can answer, check the model against a simulation, and communicate the conclusion together with its
-uncertainty and its assumptions. The skill you are practicing is the one that outlasts any single formula —
-the move from a messy question to a defensible, clearly-stated answer.
+So this week's question is a working one rather than a new piece of theory: **how do you take a fuzzy
+real-world question, turn it into a small probability model, check that model against a simulation, and then
+honestly say what it does and does not capture?** This is a workshop week. The math is lighter than usual
+and almost all of it is machinery you already own — Bernoulli trials, the binomial, expectation, simulation.
+What is new is the *loop* that ties them together into a defensible little argument, and the discipline of
+saying out loud where your model could be wrong.
 
 ## Why this matters
 
-Every formula you have learned this semester answers a question someone first had to *pose* as a
-probability question. That posing step — deciding what the random thing is, what counts as the sample
-space, which assumptions you are willing to make — is where most of the real reasoning happens, and it is
-exactly the part a textbook problem usually does for you. The project hands that part back to you.
+A probability model is a deliberate simplification of the world, built to answer one question. Its value is
+never that it is "true" — it is always an approximation — but that it is *useful and honest*: it gives you a
+number you can act on, together with a clear statement of the assumptions that number rests on. The whole
+craft is choosing assumptions that are simple enough to compute with and faithful enough to trust.
 
-It matters because the honest version of any quantitative answer is never just a number; it is a number
-*plus the assumptions that produced it*. A model that says "about a 24% chance" is only as trustworthy as
-the assumptions underneath it, and a careful modeler names those assumptions out loud so that a reader can
-judge them. Learning to say "here is my estimate, here is how I got it, and here is where it might be
-wrong" is the most transferable thing in this course. It is what separates a calculation from a
-conclusion.
+That craft is exactly what this week practices, because it is the step that does not show up in a final
+answer. A wrong arithmetic step gets caught when the numbers look strange. A wrong *model* produces numbers
+that look perfectly reasonable and are quietly meaningless — you can compute $P(L \ge 2)$ to four decimals
+from a binomial that never should have been a binomial. The defense against that is not more algebra; it is
+the habit of stating assumptions before you compute and stress-testing them after.
 
-The process also travels far beyond probability. The same loop — pose, assume, model, check, communicate —
-is how questions get answered in public health, engineering, finance, and research. You are practicing a
-general way of thinking that happens to use the probability machinery you already built.
+There is a second payoff. When you build the model *and* simulate it, you get two independent routes to the
+same answer. If the theoretical probability and the simulated frequency agree, your confidence in both goes
+up; if they disagree, you have found a bug — in the formula, the code, or your understanding of the model —
+before it costs you anything. Maya's commuter world gives us a small, concrete question to run the whole
+loop on, and then we sketch a second model in a fresh setting so you can see that the loop, not the example,
+is the transferable thing.
 
 ## Learning goals
 
 By the end of this week you should be able to:
 
-- Take an informal question and **frame it as a precise probabilistic question**, naming the random
-  variable and the event you actually want the probability of.
-- **State the sample space and the modeling assumptions** explicitly, including the simplifications you are
-  knowingly making.
-- Build either a **probability model** (a named distribution or an explicit pmf/density) **or a
-  simulation** that estimates the same quantity — and ideally both.
-- **Compare a simulated estimate to a theoretical value** where one is available, and explain why they
-  should agree.
-- **Communicate a conclusion with its uncertainty and its assumptions**, naming at least one limitation of
-  the model in plain language.
+- Take an informal question about an uncertain situation and **restate it as a precise probability question**
+  about a named random variable.
+- **List the modeling assumptions** a chosen distribution commits you to, and name at least one assumption
+  that is most likely to fail.
+- Build a small model from familiar pieces (Bernoulli trials, a binomial count, an expectation) and compute
+  the quantity of interest **symbolically first, then numerically**.
+- **Simulate** the same model in base R and compare the simulated frequency against the theoretical value as
+  a check on both.
+- **Communicate** a conclusion in plain language together with its limits — what the number means, and where
+  the model could mislead.
 
 ## Core vocabulary
 
-- **Probabilistic question** — a question phrased so that its answer is a probability, an expectation, or a
-  distribution: "what is $P(\text{at least two late days})$?", not "is Maya often late?"
-- **Modeling assumption** — a claim you adopt to make the model tractable (independence, a constant rate, a
-  particular distribution). Assumptions are not facts; they are choices you are responsible for naming.
-- **Simplification** — an assumption you know is not exactly true but adopt anyway because it makes the
-  problem solvable and is "close enough" for the question. The honest move is to *flag* it, not hide it.
-- **Theoretical result** — a probability obtained by reasoning from the model's structure (a pmf, a
-  formula).
-- **Simulated estimate** — a probability obtained by generating many synthetic outcomes and counting the
-  fraction in which the event occurs. It approximates the theoretical value and improves with more draws
-  (the Week 13 law of large numbers).
-- **Limitation** — a specific, named way the model could be wrong or could mislead, stated so a reader can
-  weigh it.
+- **Model** — a deliberately simplified probabilistic description of a situation, chosen to answer one
+  question. Always an approximation, judged by usefulness and honesty, not truth.
+- **Modeling assumption** — a condition you adopt so the math is tractable (for example, that trials are
+  independent and identically distributed). Every distribution name carries a bundle of these.
+- **The modeling loop** — choose a question → state assumptions → build the model → simulate → compare
+  simulated vs theoretical → communicate the conclusion and its limits. The spine of this week.
+- **Theoretical value** — the probability or expectation computed exactly from the model's formula.
+- **Simulated estimate** — the same quantity approximated by generating many random draws and taking a
+  frequency or average; it should land near the theoretical value, with sampling wobble that shrinks as the
+  number of draws grows (this is the law of large numbers from Week 13 doing its job).
+- **Sensitivity** — how much the answer moves when you nudge an assumption or a parameter; a model whose
+  conclusion flips under a small, plausible change deserves a caveat.
 
 ## Concept development
 
-### Step one — pose a precise question and name the sample space
+### The modeling loop, step by step
 
-The hardest and most important step comes first: turning a vague question into a precise one. "How often is
-Maya late?" is not yet answerable, because "often" is undefined and the time frame is unstated. A
-modeler sharpens it into something a model can answer — for instance, **"Over a five-day school week, what
-is the probability she is late on at least two of the days?"** Now there is a clear random quantity (the
-number of late days in a week, $0$ through $5$) and a clear event of interest ($\{\text{late days} \ge 2\}$).
+Treat a model as a short argument with six moves, taken in order. Skipping a step is how silent errors get
+in, so it is worth naming each one.
 
-With the question sharp, the sample space follows. Here an outcome is a five-day record of late/on-time —
-something like (late, on time, on time, late, on time) — and the number of late days is a count from $0$ to
-$5$. Naming the sample space forces you to decide what an "outcome" even is, which in turn surfaces the
-assumptions you are about to make. Skipping this step is how people end up computing the right formula for
-the wrong question.
+1. **Choose the question.** Pin down *exactly* what you want a probability or an expectation of. "Will Maya
+   be late a lot?" is not yet a probability question; "what is the chance she is late on at least two of five
+   weekday mornings?" is.
+2. **State the assumptions.** Decide what random variable describes the situation and what distribution to
+   put on it — and say, in words, what that choice commits you to. This is the step that does the real work
+   and the one most often skipped.
+3. **Build the model.** Write the random variable, its distribution, and the formula for the target quantity.
+   Keep it symbolic at first so the structure is visible before any number goes in.
+4. **Simulate.** Generate many draws from the model and estimate the same quantity as a frequency or an
+   average. This is an independent check that does not rely on your formula being right.
+5. **Compare.** Put the theoretical value next to the simulated estimate. Agreement is reassurance; a gap is
+   a flag to debug the formula, the code, or the assumptions.
+6. **Communicate.** State the conclusion in a sentence a non-specialist could act on, and immediately state
+   its limits — which assumption is shakiest and which way the answer would move if it failed.
 
-### Step two — choose a model: theory, simulation, or both
+Before the words, here is the same six moves as a picture — the loop shape both worked examples below walk:
 
-Once the question and sample space are fixed, you build something that produces probabilities. You have two
-routes, and a strong project uses both as a cross-check.
+![**The modeling loop (synthetic).** The six moves of the week, drawn as a snake: choose, assume, build, then
+simulate, compare, and communicate. The dashed arrow marks the one place the loop can send you
+backward.](../assets/figures/wk14_modeling_loop.png){#fig-wk14-modeling-loop fig-alt="A flow diagram of six boxes arranged in two rows of three, numbered 1 through 6: Choose the question, State the assumptions, Build the model, Simulate, Compare, Communicate with limits. Solid arrows connect them in order 1 to 2 to 3, down to 4, then 4 to 5 to 6. A dashed arrow points from box 5 (Compare) back up to box 2 (State the assumptions), labeled 'if theory and simulation disagree.'"}
 
-The **theoretical route** asks: does a named model fit? If the five days are independent and each has the
-same probability $p$ of a late arrival, then the number of late days is a *count of successes in a fixed
-number of independent yes/no trials* — exactly the binomial recognition from Week 9. That gives a pmf you
-can compute directly.
+::: {.callout-note appearance="minimal"}
+**What the figure shows (non-visual equivalent).** The same six steps named above, arranged so the sequence
+reads left-to-right then right-to-left, plus one addition the numbered list only implies: a dashed feedback
+arrow from Step 5 (Compare) back to Step 2 (assumptions), because a mismatch between theory and simulation is
+usually a sign that an assumption — not the arithmetic — needs a second look. *Synthetic instructional example; numbers are illustrative.*
+:::
 
-The **simulation route** asks: can I generate many synthetic weeks and just count? You draw, say, ten
-thousand five-day weeks under the same assumptions, count how often at least two days are late, and report
-that fraction. No closed form is required; the law of large numbers (Week 13) says the fraction converges
-to the true probability as the number of simulated weeks grows.
+The loop is deliberately humble. Steps 2 and 6 are about *honesty*, not computation, and they are what
+separate a usable model from a number with no warranty.
 
-When both routes are available, run both. If the simulated fraction lands close to the theoretical
-probability, that agreement is strong evidence you implemented both correctly. If they disagree, you have
-found a bug in one of them — which is itself a useful result.
+### Where independence is the load-bearing assumption
 
-### Step three — compare, then communicate with uncertainty and assumptions
+Most small first-course models lean hardest on **independence** and on **identical distribution** across
+trials — the "iid" assumption. It is load-bearing because it is exactly what lets you multiply probabilities
+and stack Bernoulli trials into a binomial. It is also the assumption most likely to be only approximately
+true.
 
-A number alone is not a conclusion. The final step is to put the result in words a reader can act on, and to
-attach to it the things that could change it.
+In Maya's world, "each weekday morning is an independent lateness trial with the same probability" is a
+clean modeling choice, but you can already feel where it might bend. A snowstorm that parks itself over the
+city for three days makes consecutive mornings *positively* dependent — a late Monday raises the chance of a
+late Tuesday — and it makes the per-day probability non-constant across that stretch. Neither failure makes
+the model useless; both make it a place to add a caveat. The discipline is to notice the assumption *while
+you are choosing it*, not after a reviewer points it out.
 
-Communicating *uncertainty* means acknowledging that a simulated estimate is itself approximate (a
-different seed gives a slightly different fraction) and that the underlying probability is a modeled
-quantity, not a measured one. Communicating *assumptions* means stating, in plain language, what you
-assumed and where it might fail. The single most valuable sentence in a probability project is often the
-one that begins "this answer assumes that..." — because it tells the reader exactly how much to trust the
-number and under what conditions it would break.
+![**Independent versus dependent mornings (synthetic).** Left: the model's assumption — five separate
+0.19-probability draws with nothing linking them. Right: a storm week — a clustered run where a late morning
+raises the next morning's chance, a link the independence assumption cannot
+see.](../assets/figures/wk14_independence_assumption_diagram.png){#fig-wk14-independence-assumption fig-alt="Two side-by-side panels, each showing five circles labeled Mon through Fri. Left panel: no arrows connect the circles, and each is labeled 0.19, illustrating independent identical mornings. Right panel: a shaded box surrounds Monday, Tuesday, and Wednesday, with arrows from Monday to Tuesday and Tuesday to Wednesday, labeled 'a late Monday raises the chance of a late Tuesday,' illustrating a positively dependent clustered run."}
 
-That habit — answer, then caveat — is what we practice in the worked examples below. The project on
-Blackboard asks you to carry the same loop through on a question of your own.
+::: {.callout-note appearance="minimal"}
+**What the figure shows (non-visual equivalent).** The left panel has five unconnected mornings, each
+carrying the same 0.19 late-probability with no arrows between them — the picture of "independent and
+identical." The right panel shades a three-day run and draws arrows Monday-to-Tuesday-to-Wednesday: a late
+morning raises the next morning's chance, which is exactly the link the iid Bernoulli model assumes away.
+*Synthetic instructional example; numbers are illustrative.*
+:::
+
+### Why simulate something you can already compute
+
+It can feel redundant to simulate a probability you can get exactly from a formula. The point is precisely
+that you *can* check it, and the checking is the training. When the formula is simple, simulation confirms
+you applied it correctly and that your mental model of the random process matches the code. When you later
+meet a model whose probability has *no* tidy closed form — and you will — simulation will be the only route,
+and you will trust it because you watched it agree with the formula in cases you could verify by hand. A
+simulation that *disagrees* with a correct formula is just as valuable: it has caught a real mistake cheaply.
 
 ## Worked examples
 
-### Worked example — Maya's late days, theory then simulation (recurring slice)
+All numbers below are **synthetic; seed 35003 is set** for any simulation. The first example runs the full
+modeling loop on Maya's commuter world; the second sketches a fresh model so you can see the loop transfer.
 
-Take the sharpened question: **over a five-day week, what is the probability Maya is late on at least two
-days?** We model it two ways.
+### Worked example — "at least two late days in a five-day week" (recurring slice)
 
-**Theory.** Suppose — and this is an assumption we will scrutinize in a moment — that the five days are
-independent and each has the same late probability $p = 0.19$, the marginal $P(\text{late})$ from our
-recurring shuttle case. Then the number of late days $L$ is a count of "successes" (late = success here) in
-$n = 5$ independent, identical yes/no trials, which is binomial:
+**Step 1 — the question.** Maya rides the campus shuttle on five weekday mornings. We want the probability
+that the shuttle is late on *at least two* of those five mornings. Write $L$ for the number of late mornings
+in the week; the target is $P(L \ge 2)$.
+
+**Step 2 — the assumptions.** From the recurring shuttle thread, a single morning is late with probability
+$0.19$. To build a weekly model we assume each morning is its own lateness trial, that the trials are
+**independent**, and that the per-morning late probability is the **same** $0.19$ every day. That is the iid
+Bernoulli assumption, and it is exactly the thing to flag later: weather and schedule effects can link
+consecutive mornings, so independence is the assumption most at risk.
+
+**Step 3 — build the model.** A single morning is a Bernoulli trial,
 
 $$
-L \sim \text{Binomial}(5,\ 0.19), \qquad p(k) = \binom{5}{k}\,(0.19)^{k}\,(0.81)^{5-k},
-\quad k = 0, 1, 2, 3, 4, 5.
+D_i \sim \text{Bernoulli}(0.19), \qquad i = 1, \dots, 5,
 $$
 
-The event "at least two late days" is easiest by the complement — subtract the chances of zero or one late
-day from $1$:
+with "late" coded as success. The count of late mornings is the sum of five independent identical Bernoulli
+trials, which is exactly the binomial setting from Week 9:
+
+$$
+L = \sum_{i=1}^{5} D_i \sim \text{Binomial}(5,\, 0.19),
+\qquad p(\ell) = \binom{5}{\ell}(0.19)^{\ell}(0.81)^{5-\ell}.
+$$
+
+It is easier to find $P(L \ge 2)$ through its complement than to add three terms, since "at least two" is
+everything except zero or one late morning:
 
 $$
 P(L \ge 2) = 1 - P(L = 0) - P(L = 1).
 $$
 
-Compute the two small terms:
+**Numeric.** The two small terms come straight from the pmf. A week with *no* late mornings needs all five to
+be on time:
 
 $$
-P(L = 0) = (0.81)^{5} \approx 0.3487, \qquad
-P(L = 1) = \binom{5}{1}(0.19)(0.81)^{4} = 5(0.19)(0.4305) \approx 0.4090.
+P(L = 0) = \binom{5}{0}(0.19)^{0}(0.81)^{5} = (0.81)^{5} \approx 0.349.
 $$
 
-So
+A week with *exactly one* late morning can place that one late day in any of five positions:
 
 $$
-P(L \ge 2) = 1 - 0.3487 - 0.4090 \approx 0.24.
+P(L = 1) = \binom{5}{1}(0.19)^{1}(0.81)^{4} = 5\,(0.19)(0.81)^{4} \approx 0.409.
 $$
 
-About a **24%** chance — roughly one week in four — that Maya is late on two or more days, *under the
-independence assumption*. (Synthetic scenario; numbers fixed for the course.)
+Subtracting both from one gives the target:
 
-**Simulation.** We can estimate the same probability without the pmf by generating many synthetic weeks and
-counting. The chunk below is shown as teaching, not run here; when executed it draws ten
-thousand five-day weeks and reports the fraction with at least two late days, which should land near
-$0.24$.
+$$
+P(L \ge 2) = 1 - 0.349 - 0.409 = 1 - 0.758 \approx 0.242.
+$$
+
+So under the iid Bernoulli model, Maya faces a roughly **24%** chance of two or more late mornings in a given
+five-day week — not rare at all. That already tells you something useful: "the shuttle is on time 81% of
+mornings" does *not* translate into "late weeks are unusual," because the chances compound across five tries.
+
+![**The pmf of L, with the target event picked out (synthetic).** The full pmf of L ~ Binomial(5, 0.19),
+with the two complement bars (L = 0, L = 1) in gray and the target event's bars (L >= 2) in
+color.](../assets/figures/wk14_late_days_pmf_highlight.png){#fig-wk14-late-days-pmf fig-alt="Bar chart of the Binomial(5, 0.19) pmf over 0 through 5 late mornings, tallest at 0 and 1, with bars at 0 and 1 shown in gray and bars at 2 through 5 highlighted in color, their combined height labeled P(L >= 2) approximately 0.242."}
+
+::: {.callout-note appearance="minimal"}
+**What the figure shows (non-visual equivalent).** $P(L\ge 2)$ is not a separate calculation from the pmf —
+it is literally everything except the two gray bars: $p(0)+p(1) \approx 0.349 + 0.409$, so the colored bars'
+combined height is about $1 - 0.349 - 0.409 \approx 0.242$, matching the complement computed above up to the
+last rounding digit. *Synthetic instructional example; numbers are illustrative.*
+:::
+
+**Step 4 — simulate.** Generate many synthetic weeks, count late mornings in each, and estimate the same
+probability as a frequency (shown as teaching; not executed in this build):
 
 ```{r}
-#| label: wk14-sim-late-days
+#| label: late-days-week-sim
 #| eval: false
-
 set.seed(35003)
-weeks <- 10000                  # number of synthetic 5-day weeks (synthetic; seed set)
-p_late <- 0.19                  # modeled P(late) per day, from the recurring shuttle case
-
-# each row is a week; rbinom counts late days in 5 independent trials with prob p_late
-late_days <- rbinom(weeks, size = 5, prob = p_late)
-
-# fraction of weeks with at least two late days — the simulated estimate of P(L >= 2)
-est <- mean(late_days >= 2)
-est                             # should be near the theoretical 0.24
-
-# theoretical value for comparison, via the complement on the binomial pmf
-theory <- 1 - dbinom(0, 5, p_late) - dbinom(1, 5, p_late)
-theory                          # ~0.2423; compare to est above
+n_weeks <- 100000
+# each week: 5 independent mornings, each late with probability 0.19
+late_counts <- rbinom(n_weeks, size = 5, prob = 0.19)
+mean(late_counts == 0)   # close to 0.349
+mean(late_counts == 1)   # close to 0.409
+mean(late_counts >= 2)   # close to 0.242
+mean(late_counts)        # close to the mean 5 * 0.19 = 0.95
 ```
 
-The point of running it both ways is the comparison. Theory gives $\approx 0.24$ exactly from the model;
-the simulation gives an estimate that wobbles slightly with the seed but lands close. Agreement is the
-cross-check that says both the formula and the code encode the *same* model.
+**Step 5 — compare.** The three simulated frequencies should sit right on top of the theoretical $0.349$,
+$0.409$, and $0.242$, with only small sampling wobble that shrinks as `n_weeks` grows — the law of large
+numbers from Week 13 at work. Agreement here means the formula and the code tell the same story; a gap would
+send you back to check whether the complement was set up correctly or whether `rbinom` was called with the
+right `size` and `prob`.
 
-**Now the limitation — and this is the key teaching point of the week.** The whole calculation rests on the
-assumption that the five days are **independent** with the **same** $p = 0.19$. But back in Weeks 3 and 4
-we established that lateness in our world is *not* independent of rain: $P(\text{late} \mid \text{rain}) =
-0.40$ while $P(\text{late} \mid \text{no rain}) = 0.10$, and rain itself tends to come in multi-day
-stretches. If it rains Monday it is more likely to rain Tuesday, so late days will **cluster** rather than
-fall independently. Treating the days as independent is therefore a **modeling simplification**, not a fact
-about the world. Naming it changes how we report the answer: rather than "the probability is 24%," the
-honest statement is *"under the simplifying assumption that days are independent with a constant 19% late
-rate, the model gives about 24%; because rain makes late days cluster, the true chance of two-or-more late
-days in a rainy stretch is probably somewhat higher than this figure suggests."* That caveat is not a
-weakness in the project — it is the project. A reader who knows the assumption can judge the number; a
-reader who does not is being misled by a tidy-looking 24%.
+![**Theory and simulation, side by side (synthetic).** The three theoretical probabilities next to the
+frequencies from 100,000 simulated weeks of the same model (`set.seed(35003)`) — the bars are close to the
+same height in every
+pair.](../assets/figures/wk14_late_days_sim_vs_theory.png){#fig-wk14-sim-vs-theory fig-alt="Grouped bar chart comparing theoretical binomial probabilities against simulated relative frequencies for three outcomes: L equals 0, L equals 1, and L at least 2. In every pair the theoretical and simulated bars are nearly the same height, close to 0.35, 0.41, and 0.24 respectively."}
 
-### Worked example — a help-desk staffing question (transfer)
+::: {.callout-note appearance="minimal"}
+**What the figure shows (non-visual equivalent).** Running the shown simulation code produces relative
+frequencies of about $0.346$, $0.411$, and $0.243$ for $L=0$, $L=1$, and $L\ge 2$ — each within about a
+thousandth of the theoretical $0.349$, $0.409$, and $0.242$. That closeness *is* the check: the formula and
+100,000 rounds of simulated weeks tell the same story. *Synthetic instructional example; numbers are illustrative.*
+:::
 
-Now carry the same loop to a new context. A small IT help desk wants to know: **on a given morning, what is
-the probability that more than six support requests arrive in the first hour?** We frame and model it.
+**Step 6 — communicate, with limits.** The headline: *under a model where each of five mornings is an
+independent, equally-likely 19%-late trial, the chance of two or more late mornings in a week is about 24%.*
+The honest caveat lives in Step 2's assumption. If mornings are **positively dependent** — a storm spanning
+several days, a recurring schedule conflict — late mornings would cluster, and the true chance of a multi-late
+week would be **higher** than the independence model says. The model gives a clean baseline; the caveat tells
+the reader which way reality is likely to bend it.
 
-*Pose.* The random quantity is the number of requests in one hour; the event is $\{\text{count} > 6\}$.
+### Worked example — expected buses caught in a week (transfer)
 
-*Sample space and assumptions.* An outcome is a count $0, 1, 2, \dots$. We assume requests arrive at a
-steady average rate and do not coordinate with one another — the Poisson assumptions from Week 9 — with a
-historical average of $\lambda = 5$ per hour. Then the count $N \sim \text{Poisson}(5)$.
+Now move the loop to a fresh question to show that the *process*, not the shuttle story, is what transfers.
+Suppose Maya also tries to catch a connecting city bus on each of the five weekday mornings, and on any given
+morning she makes it onto the bus with probability $0.70$, independently across mornings. **How many buses
+should she expect to catch in a week?**
 
-*Theory.* "More than six" is again cleanest by the complement, $P(N > 6) = 1 - P(N \le 6)$, summing the
-Poisson pmf from $0$ through $6$:
+Run the same loop in miniature. The **question** is an expectation, $E[B]$, where $B$ is the number of buses
+caught in the week. The **assumptions** are again iid Bernoulli: five mornings, each a catch-or-miss trial
+with the same probability $0.70$, independent of the others — and again, independence is the part to flag,
+since a single overslept morning could spill into the next. The **model** is therefore
 
 $$
-P(N > 6) = 1 - \sum_{k=0}^{6} \frac{e^{-5}\,5^{k}}{k!} \approx 1 - 0.762 = 0.238.
+B \sim \text{Binomial}(5,\, 0.70), \qquad E[B] = np = 5\,(0.70) = 3.5.
 $$
 
-So about a **24%** chance of a busier-than-usual first hour. (The numerical resemblance to Maya's answer is
-a coincidence of the chosen numbers — synthetic scenario, numbers fixed for the course.)
+So Maya should expect to catch about **3.5 buses** in a typical five-day week.
 
-*Simulation.* Drawing many synthetic hours from `rpois(hours, lambda = 5)` and counting the fraction above
-six would estimate the same $0.238$, converging as the number of simulated hours grows — the same
-theory-versus-simulation cross-check as before.
+![**The pmf of B, with the mean marked (synthetic).** The full pmf of B ~ Binomial(5, 0.70); the dashed line
+at $3.5$ falls between the two tallest bars because a mean need not land on an achievable
+count.](../assets/figures/wk14_buses_pmf_mean.png){#fig-wk14-buses-pmf fig-alt="Bar chart of the Binomial(5, 0.70) pmf over 0 through 5 buses caught, rising to a peak at 4 and dropping at 5, with a dashed vertical line at 3.5 falling between the bars for 3 and 4, labeled E[B] = 3.5."}
 
-*Communicate, with the limitation.* The honest report names the assumption: *"assuming requests arrive at a
-steady rate of 5 per hour and independently, roughly one morning in four sees more than six in the first
-hour."* And the limitation is real — if requests spike right after a system outage or at the start of a
-semester, the rate is **not** constant, the Poisson model understates the busy mornings, and staffing
-planned on the 24% figure would be caught short. Same loop, new question: pose, assume, model, check,
-communicate the number *with* its caveat.
+::: {.callout-note appearance="minimal"}
+**What the figure shows (non-visual equivalent).** The tallest bars are at $b=3$ and $b=4$; the mean
+$E[B]=3.5$ sits exactly between them, on a value $B$ can never actually take — a reminder that "expect 3.5
+buses" describes a long-run balance point, not a typical week's exact count. *Synthetic instructional example; numbers are illustrative.*
+:::
+
+You could **simulate** it the same way — `rbinom(n_weeks, size = 5, prob = 0.70)` and take `mean(...)`, which
+should land near $3.5$ — and **compare** that average to the formula. The **conclusion with limits**: the iid
+model says about three and a half catches per week on average, but if missed mornings tend to come in runs (a
+rough week throwing off the whole routine), the count would be more variable than the independence model
+suggests even though its average stays near $3.5$. Same six moves, brand-new setting. **Synthetic; seed set.**
 
 ## A common mistake
 
-The most common mistake this week is **reporting the number and stopping** — handing over "24%" as if it
-were a measured fact rather than a modeled estimate that depends on assumptions you chose. The fix is a
-discipline: every probability answer in this project should be followed by a sentence that names at least
-one assumption and one way the model could be wrong. A close cousin of this mistake is **hiding a
-simplification** — quietly assuming independence (as in Maya's late days) without telling the reader, which
-makes the answer look more solid than it is.
+The signature Week-14 mistake is **computing past a broken assumption** — reaching for the binomial because
+the surface story has "five mornings" in it, without pausing to ask whether those mornings are really
+independent and identically distributed. The binomial $P(L \ge 2) \approx 0.242$ is exactly right *given*
+iid mornings; it can be badly wrong if a storm makes consecutive mornings dependent, and nothing in the
+arithmetic will warn you. The number will look just as clean either way.
 
-A second, more technical slip is **treating a simulated estimate as exact**. The simulation gives an
-approximation that depends on the seed and the number of draws; running it again with a different seed
-gives a slightly different fraction. That is not a flaw — it is the law of large numbers in action — but it
-means you should describe the simulated result as "about" a value, not as the value, and lean on the
-theoretical computation when one is available. The two routes are partners: theory gives the exact answer
-*for the model*, and simulation confirms you built the model correctly.
+A close cousin is **reporting the point estimate with no caveat at all** — handing over "about 24%" as if it
+were a fact about the world rather than a fact about a model. The whole reason Steps 2 and 6 bracket the
+computation is that the assumptions and the limits are part of the answer, not optional decoration. A third
+slip is **mismatching the simulation to the model**: simulating with the wrong `prob`, the wrong `size`, or
+the wrong event (counting `>= 2` when you meant `> 2`), so the check silently "passes" against a model you
+did not intend. When the simulated frequency and the formula disagree, resist the urge to trust whichever one
+you like better; line up the model, the formula, and the code until you find which of the three is lying.
 
 ## Low-stakes self-checks (ungraded)
 
-These are for your own practice — ungraded, no submission, just a way to rehearse the modeling moves before
-you take them into a project of your own.
+These are for your own practice — nothing here is collected or graded.
 
-1. Rewrite the vague question "is the bus usually crowded?" as a precise probabilistic question. (One good
-   version: "on a weekday afternoon, what is $P(\text{more than 40 riders})$?" — it names a random
-   quantity and an event.)
-2. In Maya's late-days model, we used the complement to get $P(L \ge 2)$. Why is the complement easier than
-   adding $P(L=2) + P(L=3) + P(L=4) + P(L=5)$? (Only two small terms, $P(L=0)$ and $P(L=1)$, versus four.)
-3. Name one assumption in the help-desk Poisson model and one realistic situation that would break it.
-   (Constant rate; a post-outage spike or a first-day-of-class rush makes the rate non-constant.)
-4. If your simulation of Maya's weeks returned $0.241$ and your theory gave $0.2423$, is that a problem?
-   (No — the simulated estimate is expected to wobble near the theoretical value; close agreement is the
-   cross-check working.)
-5. State, in one sentence, the conclusion of Maya's late-days model *with* its main limitation. (For
-   example: "about a 24% chance of two-or-more late days, assuming days are independent — likely an
-   underestimate during rainy stretches when late days cluster.")
-
-You can rehearse the simulation half of this loop in the Week 13 simulation lab, [Lab 13 — Law of large
-numbers and the CLT](../labs/lab-13-law-of-large-numbers-and-clt.qmd), where the same draw-many-and-count
-pattern appears.
+1. Restate each fuzzy question as a precise probability or expectation about a named random variable: (a)
+   "does Maya usually have a smooth commute week?"; (b) "how often does she catch every bus?"; (c) "is a
+   three-late-morning week common?" For each, name the random variable and the distribution you would use.
+2. For $L \sim \text{Binomial}(5, 0.19)$, explain in one sentence why computing $P(L \ge 2)$ through the
+   complement $1 - P(L=0) - P(L=1)$ is easier than summing $p(2) + p(3) + p(4) + p(5)$, and confirm
+   $0.349 + 0.409 \approx 0.758$.
+3. State, in plain words, the two modeling assumptions the binomial model of late mornings commits you to,
+   and describe one realistic situation in Maya's world that would break each.
+4. For the bus model $B \sim \text{Binomial}(5, 0.70)$, the mean is $E[B] = 3.5$. Without simulating, say
+   which way you would expect the *variance* of the weekly count to move if missed mornings tended to cluster
+   rather than occur independently, and why.
+5. Sketch the six steps of the modeling loop for a brand-new question of your own — for example, the number
+   of rainy days in a five-day week, given a per-day rain probability of $0.30$. You do not need to compute
+   it; just name the random variable, the distribution, the target quantity, and the assumption you would
+   flag in Step 6.
 
 ## Reading and source pointer
 
-This workshop week does not track a single Grinstead & Snell chapter; it is **course-original**, weaving
-together the modeling ideas spread across the semester's reading — sample spaces (Ch 1), independence and
-conditioning (Ch 4), the named discrete models (Ch 5), and the law of large numbers (Ch 8) that justifies
-estimating a probability by simulation. The "build a model, then check it against a simulation" posture is
-supported by the simulation and model-checking themes in **MIT OCW 18.05**. *These notes are the course's
-own synthesis, grounded in but not copied from the sources.* All scenario data are synthetic, with the seed
-`set.seed(35003)` fixed in the shown simulation.
+This week is **course-original** — a modeling workshop rather than a single textbook chapter — so it does not
+map to one specific reading. The skills it assembles come from earlier weeks, so the best "reading" is to
+revisit the notes that built each piece: [Week 9 — Common discrete models](week-09-common-discrete-models.qmd)
+for the binomial as a count of Bernoulli trials, [Week 8 — Expectation and variance](week-08-expectation-and-variance.qmd)
+for $E[X] = np$, and [Week 13 — Sums, simulation & limit behavior](week-13-sums-simulation-limit-behavior.qmd)
+for why a simulated frequency settles near the theoretical value.
+
+For a general second pass on modeling and simulation, both course texts are useful background. **Grinstead &
+Snell, *Introduction to Probability***, develops the binomial and the simulation viewpoint that underpin this
+week's loop: <https://www.dartmouth.edu/~chance/teaching_aids/books_articles/probability_book/book.html>. The
+secondary course text, **MIT OpenCourseWare 18.05**, frames probability modeling and the use of simulation in
+a similar spirit and is a good companion for the build-and-check habit:
+<https://ocw.mit.edu/courses/18-05-introduction-to-probability-and-statistics-spring-2022/>.
+
+These notes are the course's own synthesis, grounded in but not copied from the sources.
 
 ## Public vs. graded
 
 These notes, the examples, and the practice here are **public and ungraded** — study material only. No
-graded prompts, answer keys, rubrics, point values, or due dates appear on this site. Graded checkpoints,
-quizzes, homework, labs, the midterm, the project, and the final live in **Blackboard (the LMS)**, which is
-authoritative for due dates, submissions, and grades. If this page and Blackboard ever disagree, follow
-Blackboard.
-
-This page describes the modeling *process* and what a thoughtful project looks like, in qualitative terms
-only. The actual project — its specific deliverable, expectations, and timeline — lives in Blackboard, which
-is the authoritative source for everything graded.
+graded prompts, answer keys, rubrics, point values, or due dates appear on this site. Graded
+checkpoints, quizzes, homework, labs, the midterm, the project, and the final live in **Blackboard
+(the LMS)**, which is authoritative for due dates, submissions, and grades. If this page and Blackboard
+ever disagree, follow Blackboard.
 
 ## Looking ahead
 
-Next week is the final synthesis. Week 15 steps back across the whole semester and follows the recurring
-commuter's-morning thread from end to end — from "what does $P(\text{on time}) = 0.81$ mean?" in Week 1,
-through conditioning and Bayes, the discrete and continuous models, joint dependence, and the limit
-behavior — to see how the pieces fit into one coherent way of reasoning under uncertainty. The modeling loop
-you practiced this week — pose, assume, model, check, communicate — is the frame that holds all of it
-together.
+This week pulled the term's tools together into a single workflow: pose a question, choose and *defend* a
+model, simulate it, compare, and report the answer with its limits. Next week is the term's last, and it
+turns that same integrative spirit on the whole course — a final review and synthesis that walks back through
+Maya's commuter world from the meaning of $P(\text{on time}) = 0.81$ all the way to dependence, the standard
+models, and the limit theorems, so the separate pieces read as one connected story. Bring the modeling loop
+with you: the questions worth reviewing are the ones where you can say not just *what* the probability is, but
+*which model* produced it and *which assumption* it rests on.
 
 ## See also
 
-- [Notation glossary](../resources/notation-glossary.qmd) — the symbols, from $p(x)$ to $\lambda$, used
-  across the modeling examples here.
-- [Distribution reference](../resources/distribution-reference.qmd) — a one-page summary of the binomial,
-  Poisson, and other models you might reach for in a project.
-- [Lab 13 — Law of large numbers and the CLT](../labs/lab-13-law-of-large-numbers-and-clt.qmd) — the
-  simulation pattern (draw many, count) that the project's simulation route reuses.
-- [Syllabus](../syllabus.qmd) — course structure, calendar, and where graded work actually lives.
+- [R · Quarto setup](../resources/r-quarto-setup.qmd) — how to open R, RStudio or Posit Cloud, and Quarto so
+  you can run the shown simulation code in your own session while you build a model.
+- [Lab 9: Simulating discrete models](../labs/lab-09-simulating-discrete-models.qmd) — practice generating
+  binomial draws and checking means and tail probabilities, the simulation pattern this week's loop reuses.
+- [Lab 13: Law of large numbers and the CLT](../labs/lab-13-law-of-large-numbers-and-clt.qmd) — why a
+  simulated frequency settles near the theoretical value as the number of draws grows.
+- [Notation glossary](../resources/notation-glossary.qmd) — the binding symbols and the model
+  parameterizations, including $\text{Binomial}(n, p)$ and $\text{Bernoulli}(p)$.
+- [Distribution reference](../resources/distribution-reference.qmd) — a one-stop table of each standard
+  model's pmf, mean, variance, support, and R functions, handy when you are deciding which distribution a
+  question calls for.
+- [Course syllabus](../syllabus.qmd) — overall structure, schedule, and where graded work lives.

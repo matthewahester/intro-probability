@@ -15,8 +15,8 @@ specific week.
 
 Every lab is built the same way, so you always know where you are:
 
-1. **Goal.** What the simulation is meant to show, stated in one or two sentences and linked back to
-   the companion week.
+1. **The idea & goal.** What the simulation is meant to show, stated in one or two sentences and
+   linked back to the companion week.
 2. **Setup.** The small bit of preparation you need — the random seed, any quantities to define, and
    the situation you are modeling.
 3. **Steps.** The simulation itself, broken into numbered steps with shown R code. You read the code,
@@ -32,16 +32,16 @@ in your own R session. See the [R · Quarto setup](../resources/r-quarto-setup.q
 
 ## The labs
 
-The four labs accompany the simulation-heavy weeks:
+The four labs accompany the simulation-friendly weeks:
 
-- **Lab 2 — Monte Carlo basics.** Estimating a probability by repeated trials and counting.
-  (Accompanies Week 2.)
-- **Lab 5 — Bayes by simulation.** Recovering a posterior probability by simulating the population.
-  (Accompanies Week 5.)
-- **Lab 9 — Simulating discrete models.** Generating draws from binomial and Poisson models and
-  comparing to the formulas. (Accompanies Week 9.)
-- **Lab 13 — Law of large numbers and CLT.** Watching averages settle and sums turn bell-shaped.
-  (Accompanies Week 13.)
+- **[Lab 2 — Monte Carlo basics](lab-02-monte-carlo-basics.qmd).** Estimating a probability by
+  repeated trials and counting. (Accompanies Week 2.)
+- **[Lab 5 — Bayes by simulation](lab-05-bayes-by-simulation.qmd).** Recovering a posterior
+  probability by simulating the population. (Accompanies Week 5.)
+- **[Lab 9 — Simulating discrete models](lab-09-simulating-discrete-models.qmd).** Generating draws
+  from binomial and Poisson models and comparing to the formulas. (Accompanies Week 9.)
+- **[Lab 13 — Law of large numbers and CLT](lab-13-law-of-large-numbers-and-clt.qmd).** Watching
+  averages settle and sums turn bell-shaped. (Accompanies Week 13.)
 
 ## Public vs. graded
 

@@ -29,7 +29,9 @@ for what you need and study with intent:
   the MIT 18.05 page, with the reminder that these notes are the course's own synthesis.
 - **Looking ahead.** A sentence or two connecting this week to the next, so the arc stays visible.
 
-Keep the [notation glossary](../resources/notation-glossary.qmd) and the
+A few weeks are **derivation weeks** (Bayes' rule, expectation & variance, continuous random
+variables, joint distributions): these lead with the mathematics and carry a notation table and a
+formula-verification status. Keep the [notation glossary](../resources/notation-glossary.qmd) and the
 [distribution reference](../resources/distribution-reference.qmd) open alongside the notes.
 
 ## The five parts

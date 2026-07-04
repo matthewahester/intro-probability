@@ -5,175 +5,174 @@ page-type: reference
 toc: true
 ---
 
-This page gets you to a working setup for the simulation strand of the course: a copy of R, a place to
-write and run it, and Quarto to turn a plain-text file into a small report. Once it is running, you will
-not think about it again — the labs assume only that you can open a `.qmd`, run a code chunk, and read the
-result.
+This page gets your software working so you can run the simulation code that appears in the labs. Read
+it once near the start of the term, get a "hello, probability" report to render, and then come back to it
+whenever something breaks.
 
-Keep one thing in view the whole time. In this course, **simulation supports probability reasoning; it is
-not the center.** A lab never replaces a derivation — it lets you *watch* a result you reasoned about by
-hand emerge from generated data, and so it is a check on your thinking and a way to build intuition. The
-software exists to serve the probability, not the other way around. If a setup detail ever feels like more
-trouble than the idea it is meant to illustrate, you are spending effort in the wrong place; come back to
-the idea.
+One framing first, because it shapes everything below. In this course, **simulation supports probability
+reasoning — it is not the center.** The mathematics is the point: a probability is a number you reason
+about, and a simulation is a way to *check your reasoning* by letting the computer play out the random
+process many times and counting. When you write that the shuttle is late with probability $0.19$, a short
+simulation that comes back near $0.19$ is reassurance that you set the problem up correctly. It is never a
+substitute for understanding *why* the number is $0.19$. So the software here stays deliberately small: a
+few base-R functions, one file per task, and a habit of writing down what you expected before you run
+anything.
+
+A second framing about cost. **Everything you need is free and open.** This course does not use Cengage,
+WebAssign, MyLab, or any paid statistics platform. R is free, the editors below are free (one of them runs
+entirely in a browser with nothing to install), and Quarto is free. If a site ever asks you to pay to do
+the coursework, that is not part of this class — check Blackboard and ask.
 
 ## What to install
 
-You need three free pieces. None of them costs anything, and **no paid platform is required for this
-course** — the syllabus does not use Cengage, WebAssign, or MyLab, so you will not be asked to buy or
-register for a publisher's homework system. Everything below is open and free.
+You need three pieces. They stack: R does the computing, the editor is where you write and run code, and
+Quarto turns a plain-text document with code in it into a clean report.
 
-1. **R** — the language that actually does the computing. This is the engine. Download it from the
-   Comprehensive R Archive Network (CRAN) at <https://cran.r-project.org>, choosing the build for your
-   operating system. You install R once and rarely touch it directly afterward.
+**1. R — the language that does the probability.**
+R is the engine. Download it from CRAN, the Comprehensive R Archive Network, at
+<https://cran.r-project.org>. Pick the build for your operating system (Windows, macOS, or Linux), install
+it with the defaults, and you are done — you will rarely open R directly, because the editor below talks to
+it for you. We use only **base R** in this course: the functions that ship with R itself, no add-on
+packages to install. That keeps setup short and keeps the focus on the probability rather than on tooling.
 
-2. **A place to write and run R.** Pick one of two paths:
-   - **RStudio Desktop** (now published by Posit) — a free editor that runs on your own machine. Get it
-     from <https://posit.co/download/rstudio-desktop/>. Install R *first*, then RStudio; RStudio finds the
-     R you already installed.
-   - **Posit Cloud** — the same editor in a web browser, nothing installed locally. Sign up at
-     <https://posit.cloud>. The free tier is enough for this course, and it is the simplest route if
-     installing software on your computer is awkward (a shared machine, a locked-down laptop, a tablet).
-     Posit Cloud comes with R and Quarto already in place, so if you go this way you can skip most of the
-     "discoverable" snag below.
+**2. An editor — where you actually work.** Choose one of two. You do not need both.
 
-   Either path is fine. Use whichever you will actually open. Many students start on Posit Cloud and never
-   leave; that is a perfectly good outcome.
+- **RStudio Desktop** (recommended if you want everything on your own machine). It is a free, friendly
+  front end for R: a place to type code, a console that runs it, a panel that shows your plots, and the
+  one-button rendering you will use for reports. Download it from
+  <https://posit.co/download/rstudio-desktop/> and install R first (step 1), then RStudio — RStudio finds
+  your R installation automatically.
+- **Posit Cloud** (recommended if you would rather not install anything). It is RStudio running in your web
+  browser, hosted by Posit. Create a free account at <https://posit.cloud>, start a new project, and you
+  have R, the editor, and Quarto already set up and connected — nothing to download. This is the easiest
+  path if you are on a managed or borrowed computer, and the free tier is enough for this course's small
+  simulations.
 
-3. **Quarto** — the tool that takes a `.qmd` document (prose plus code) and *renders* it into a finished
-   report, running the code as it goes. Recent versions of RStudio ship Quarto inside them, so you may
-   already have it. If you need it on its own, install it from <https://quarto.org/docs/get-started/>. On
-   Posit Cloud, Quarto is already there.
+Either choice gives you the same experience for our purposes. Pick the one that fits your machine and move
+on.
 
-That is the whole stack: R does the math, RStudio or Posit Cloud is where you sit, and Quarto turns your
-work into a document. You do not need anything else — no LaTeX install, no paid account, no extra package
-beyond base R, since every lab in this course is written in base R on purpose.
+**3. Quarto — the document system that makes the report.** Quarto takes a plain-text file (a `.qmd` file)
+that mixes your writing and your code, runs the code, and produces a tidy HTML or PDF report with the
+results and figures dropped in. Get it from <https://quarto.org/docs/get-started/>. **If you installed a
+current RStudio Desktop, Quarto came bundled** and you can skip the separate download; install it on its own
+only if `quarto check` (below) says it is missing. On Posit Cloud, Quarto is already there.
 
 ## Make R discoverable by Quarto
 
-This is the snag that trips people up, so it gets its own section. Symptom: you have R, you have Quarto,
-but when you try to render a `.qmd` with an R chunk in it, Quarto reports that it cannot find R, or it
-renders the prose but skips the code. The cause is almost always that **Quarto does not know where R is
-installed** — the two were installed separately and have not been introduced.
+"Discoverable" just means Quarto can find your R installation so it can run the code in your document. In
+the common setups this is automatic, but here is how to confirm it and what to do if it is not.
 
-The fix, in order of how often it works:
+- **Working in RStudio Desktop or Posit Cloud (the usual case).** Open your `.qmd` file and click the
+  **Render** button at the top of the editor. RStudio hands the file to Quarto, Quarto runs the R code
+  through the R that RStudio already knows about, and a preview appears. If a report renders, R is
+  discoverable — you are set, and you can stop here.
+- **Confirming from a terminal.** Open a terminal (in RStudio: the *Terminal* tab next to the Console) and
+  run `quarto check`. It reports the Quarto version, whether it found R, and whether the small support
+  package it needs for R is in place. Green checks mean you are ready. If it reports a missing piece, the
+  message names it, and on RStudio the fix is usually to let it install the support package when prompted.
+- **Posit Cloud is pre-connected.** A new Posit Cloud project already has R, the editor, and Quarto wired
+  together, so `quarto check` there is mostly a sanity confirmation rather than a fix-it step.
 
-- **Render from inside RStudio.** When you open a `.qmd` in RStudio and click **Render**, RStudio hands
-  Quarto the location of the R it is already using. This alone resolves most cases, and it is the workflow
-  the labs assume. If you only ever render from inside RStudio, you may never see this problem.
-- **Check the install order.** If you installed RStudio before R, RStudio may be pointing at nothing.
-  Reinstall or repoint: in RStudio, look under **Tools → Global Options → General** for the R version it
-  has selected.
-- **Confirm Quarto can see R from a terminal.** Open a terminal (the **Terminal** tab in RStudio works)
-  and run:
-
-  ```bash
-  quarto check
-  ```
-
-  This prints what Quarto found — including whether it located R. If R shows up as missing here but you
-  know it is installed, the two are installed in places that do not know about each other; the RStudio
-  route above sidesteps it.
-- **On Posit Cloud, this section usually does not apply** — R and Quarto arrive pre-connected, which is
-  exactly why the cloud route is the low-friction option.
-
-You do not need to memorize any of this. You need it once, and then it stays fixed.
+If you are stuck on this step, do not spend an evening on it alone — bring it to office hours or the class
+help channel. Getting one report to render is the only setup milestone that matters.
 
 ## Your first reproducible report
 
-Here is a complete, minimal `.qmd` you can copy into a new file to confirm the whole chain works. It writes
-a one-line front matter, a sentence of prose, and a single simulation chunk with a fixed seed. The chunk
-estimates a probability by simulation — the kind of thing every lab does — using the recurring commuter
-case from the notes: the shuttle is on time with probability $0.81$, so being late has probability
-$0.19$. The simulation just flips a weighted coin many times and counts.
+Here is a minimal Quarto document. Create a new file called `hello-probability.qmd`, paste this in, and
+render it. It estimates the chance the shuttle is **late**, which in our running "commuter's morning"
+example is $P(\text{late}) = 0.19$ (these are synthetic numbers, seed set), and checks that a simulation
+lands nearby.
 
-Copy the block below (everything between the dashed fences) into a file named, say, `first-report.qmd`,
-then click **Render** in RStudio.
+The block below is shown as text so you can read it as a whole; copy it into your own `.qmd` and render
+there.
 
 ````markdown
 ---
-title: "My first report"
+title: "Hello, probability"
 format: html
 ---
 
-This report estimates the probability the shuttle is **late** by simulation. The theory says
-$P(\text{late}) = 0.19$; the simulation should land near that. Data are synthetic; seed set.
+We model each weekday as a single trial that is "late" with probability 0.19,
+then simulate a term's worth of mornings and compare the simulated rate to 0.19.
 
 ```{r}
-#| label: first-sim
+#| label: simulate-late-shuttle
 #| eval: false
 set.seed(35003)
-n <- 100000
-# 1 = late with probability 0.19, 0 = on time otherwise
-late <- rbinom(n, size = 1, prob = 0.19)
-mean(late)   # proportion late — should be close to 0.19
+days   <- 75                         # mornings in a term
+late   <- rbinom(n = days, size = 1, prob = 0.19)   # 1 = late, 0 = on time
+c(simulated_late_rate = mean(late), expected = 0.19)
 ```
 ````
 
-A few things to notice, because they recur in every lab:
+A few things to understand, because you will see this pattern in every lab.
 
-- The `#| label:` line names the chunk. A label makes errors easier to find and keeps the document
-  organized. Every chunk in this course gets one.
-- The `#| eval: false` line means *show this code but do not run it* — that is the convention for the
-  notes and lab pages on this site, so the page displays the code as teaching rather than executing it.
-  **In your own copy you will want the code to run**, so when you are working a lab yourself you remove
-  `#| eval: false` (or change it to `true`) and click Render.
-- `set.seed(35003)` fixes the random-number stream so the result is the same every time you run it. More
-  on why this matters next.
+- **`#| label: simulate-late-shuttle`** gives the code chunk a name. Labels make error messages point at
+  the right place and let you refer to a result later; get in the habit of naming every chunk something
+  descriptive.
+- **`#| eval: false`** tells Quarto **not** to run this chunk when *this site* is built — that is why the
+  code on the course pages is shown but never executed here. **In your own copy you set it to
+  `#| eval: true`** (or simply delete the line, since chunks run by default) so the code actually runs and
+  you see the result. Reading code is not the same as running it; you learn the probability by running it.
+- **`set.seed(35003)`** fixes R's random-number generator to a known starting point. `rbinom` produces
+  "random" draws from a deterministic stream, and seeding it means *you* and *anyone else who runs the same
+  file* get the *same* draws — so the report is reproducible. `rbinom(n = days, size = 1, prob = 0.19)`
+  asks for `days` independent yes/no trials, each late with probability $0.19$; `mean()` of those zeros and
+  ones is the simulated late rate, which should sit near $0.19$.
 
-If the rendered report shows a number near $0.19$, your R, RStudio/Posit Cloud, and Quarto are all talking
-to each other, and you are ready for the labs.
+When you render your copy with `#| eval: true`, the simulated rate will be close to $0.19$ but not exactly
+$0.19$ — that gap *is* the lesson. A simulation estimates a probability; it does not replace the exact
+calculation. The exact value comes from the model, and we keep the simulation as a check.
 
 ## Reproducibility habits we keep all term
 
-Three small habits make your work trustworthy — to a grader, to a classmate, and to *you* a week later
-when you reopen a file and cannot remember what you did. We keep all three from day one.
+These three habits make your work trustworthy — to your future self, to a classmate, and to anyone
+reading your report. They cost almost nothing and they pay off the first time something looks surprising.
 
-- **Always `set.seed(35003)` before any simulation.** A simulation uses random numbers, so without a seed
-  it gives a slightly different answer each run, and no one can reproduce exactly what you saw. Setting the
-  seed pins the random stream: same seed, same draws, same number. Every simulation chunk in this course
-  starts with `set.seed(35003)` so results are repeatable. The point of a seed is not that $0.19$ becomes
-  exact — it is that *your* run and *my* run agree.
+- **Always `set.seed(35003)` before any simulation.** We use the same seed across the whole course so that
+  the numbers in your session match the numbers discussed in class and in the notes. If you change the
+  seed, your draws change, and your "0.19-ish" result will be a *different* 0.19-ish result — fine in
+  principle, confusing when you are comparing notes. Seed first, simulate second, every time.
+- **End each report with `sessionInfo()`.** This prints your R version and platform, so if a result cannot
+  be reproduced later, the record of *what you ran it on* is right there in the report. Include it as a
+  final chunk (shown here, as everywhere on this site, with `#| eval: false`; in your copy let it run):
 
-- **End a working session with `sessionInfo()`.** This one call prints your R version and the packages in
-  use. Pasting that output at the bottom of a report records the exact environment that produced it, so a
-  result can be traced and re-run later. It is a one-line insurance policy:
+```{r}
+#| label: session-info
+#| eval: false
+sessionInfo()
+```
 
-  ```{r}
-  #| label: session-info
-  #| eval: false
-  sessionInfo()
-  ```
+- **One file per task.** Keep each lab or exploration in its own `.qmd` with a clear name
+  (`hello-probability.qmd`, `lab-02-monte-carlo.qmd`, and so on). One file, one question, one set of
+  results. It is far easier to debug, to re-run, and to hand in than a single sprawling file that does
+  five things. When a task is done, its file stands on its own and renders from top to bottom without you
+  having to remember a hidden step.
 
-- **One file per task.** Keep each lab — and each separate question — in its own `.qmd`, named for what it
-  does (`lab-02-monte-carlo.qmd`, not `untitled (3).qmd`). One file per task keeps a stray edit in one
-  place from breaking everything else, and it makes your folder readable at a glance. Small, named,
-  single-purpose files are easier to debug and easier to trust.
-
-These habits cost a few seconds each and save hours. They are the difference between a number you got and
-a number you can stand behind.
+Together these habits mean any report on your machine can be re-run by you next month, or by a classmate
+on a different computer, and produce the same numbers. That reproducibility is the whole reason we bother
+with code in a probability course.
 
 ## AI Use Note (when you use an assistant)
 
-If you use an AI assistant — for a syntax reminder, an error message you cannot parse, a nudge on
-structure — you record it briefly, with three parts. The same three-part note appears in every lab, so it
-is worth getting comfortable with here. The first two parts say what happened; the third is the one that
-matters.
+You may use an AI assistant (a chatbot or a coding helper) to get unstuck — to explain an error message,
+suggest why a chunk will not render, or remind you what an R function does. The expectation is simple:
+**you remain responsible for everything in your file, and you verify what the tool gives you.** An
+assistant can produce code that runs cleanly and is still wrong about the probability — a simulation that
+estimates the wrong quantity renders perfectly. So treat assistant output the way you treat your own first
+draft: check it against the model and against a simulation before you trust it.
+
+When you lean on an assistant, jot down a one-line record of how. Capturing it keeps you honest and makes
+it easy to explain your process if asked.
 
 | Field | What it captures |
-|-------|------------------|
-| **Tool** | Which assistant you used (name and, if you know it, version). |
-| **Purpose** | What you asked it for, in a sentence — e.g. "explain why `rbinom` returned all zeros." |
-| **Verification** | *How you checked the output yourself* — and this is the load-bearing field. |
+|---|---|
+| **Tool** | Which assistant you used (name and, if relevant, the version). |
+| **Purpose** | What you asked it for — e.g. "explain a Quarto render error," "remind me of `rbinom`'s arguments." |
+| **Verification** | **How you confirmed the result is correct** — the load-bearing part: which exact calculation or simulation you checked it against, and whether it agreed. Output you did not verify is output you cannot rely on. |
 
-**Verification is the part that does the work.** An assistant can produce code that runs and is still
-wrong for your problem, or prose that sounds right and is not. The note is not complete because you wrote
-down a tool name; it is complete because you can say *how you confirmed the answer was correct* — you ran
-the code and the simulated probability matched the theory in the notes, you re-derived the formula by hand,
-you checked a small case where you already knew the answer. If you cannot describe how you verified
-something, you have not finished using the assistant — you have only started. Use AI as a tutor you
-double-check, never as an authority you copy. The understanding has to end up in your head, because the
-reasoning, not the code, is what this course is about.
+The Verification row is the one that matters. If you cannot say how you checked an assistant's answer, you
+do not yet know whether it is right, and you should not put it in your report.
 
 ## Public vs. graded
 
@@ -185,6 +184,8 @@ Blackboard.
 
 ## See also
 
-- [Labs](../labs/index.qmd) — the four simulation labs this setup is for.
-- [Notation glossary](notation-glossary.qmd) — the symbols used across the notes.
-- [Distribution reference](distribution-reference.qmd) — the standard models and their parameters.
+- [Labs overview](../labs/index.qmd) — the simulation labs where you put this setup to work.
+- [Notation glossary](notation-glossary.qmd) — the symbols used across the course, including
+  $P(\text{late})$ and the distribution names you will pass to R's random-number functions.
+- [Distribution reference](distribution-reference.qmd) — the standard models and the exact
+  parameterizations this course uses, which match the arguments you give functions like `rbinom`.

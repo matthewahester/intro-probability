@@ -1,324 +1,484 @@
 ---
 title: "Week 4 — Independence & information"
-subtitle: "When knowing one thing tells you nothing about another"
+subtitle: "When knowing one event tells you nothing about another"
 page_mode: normal_week
 week_contract: public_note
 source_mode: source-informed
 readings:
-  - "Grinstead & Snell, Ch 4 — Conditional Probability — supports the definition of independence and its relationship to conditioning"
-  - "MIT OCW 18.05 — Conditional Probability, Independence, and Bayes' Theorem — supports the contrast between independence and mutual exclusivity"
+  - "Grinstead & Snell, Ch 4 — Conditional Probability — supports the definition of independence and its link to conditioning"
+  - "MIT OCW 18.05 — conditional probability & independence — supports the independence intuition and base-rate framing"
 toc: true
 ---
 
 ## The week question
 
-Last week we learned to *condition*: to ask how the chance of one event changes once we
-learn that another has happened. Conditioning is powerful precisely because learning
-something usually *moves* a probability. This week we study the opposite situation — the
-special, clean case where learning one thing changes nothing at all.
+Last week we learned to *update*: once we learn that an event $B$ has occurred, the conditional
+probability $P(A\mid B)$ tells us how likely $A$ is in that smaller, reweighted world. The natural next
+question is the one this week answers: **are there pairs of events where learning $B$ changes nothing?**
 
-The week question is this: **when does knowing that $B$ happened tell you nothing about
-whether $A$ will happen?** When that is true, we call $A$ and $B$ *independent*. The whole
-point of the week is to make that intuition precise, to test it against numbers rather than
-gut feeling, and — most importantly — to see how badly things go wrong when we *assume*
-independence that is not actually there.
+That is the whole idea of independence. Two events are independent when knowing that one happened leaves
+your probability for the other exactly where it started — no nudge up, no nudge down. The week question is
+therefore simple to state and surprisingly easy to get wrong: **when does one event carry information about
+another, and when does it carry none at all?**
 
 ## Why this matters
 
-Independence is the quiet assumption hiding inside almost every probability calculation you
-will ever do. When you multiply probabilities together — "the chance of three heads in a row
-is $0.5 \times 0.5 \times 0.5$" — you are *assuming independence*. When that assumption is
-correct, the multiplication is exact and the math is easy. When it is wrong, the same easy
-multiplication produces an answer that can be off by a wide margin, and nothing in the
-arithmetic warns you.
+Independence is the hinge on which most of the rest of the course turns. Almost every formula you will meet
+later — the binomial counting in Week 9, the variance-of-a-sum bookkeeping in Week 12, the law of large
+numbers and the central limit theorem in Week 13 — quietly assumes that certain events or measurements are
+independent. When that assumption holds, probabilities *multiply*, and a hard joint question collapses into
+a product of easy ones. When it fails, the same multiplication gives a confidently wrong answer.
 
-This is not a minor footnote. Wrongly assuming independence is one of the most common — and
-most costly — mistakes in all of applied probability. It is the error behind underestimated
-risks: if several things can only go wrong *together*, treating them as independent makes a
-joint failure look far rarer than it is. The course syllabus flags this in its AI-use policy
-for a reason. A chatbot will happily multiply probabilities for you and present a confident
-number, but it cannot know whether the events in *your* problem are actually independent —
-that is a modeling judgment about the real world, not a fact you can read off the page. The
-arithmetic is the easy part; deciding whether you are *allowed* to multiply is the hard part,
-and it is yours to make.
+So independence is doing two jobs at once. It is a **modeling assumption** — a claim about the world that
+you choose to make and should be ready to defend — and it is a **computational shortcut** that only earns
+its keep when the assumption is true. A large part of becoming fluent in probability is learning to tell the
+difference between "these events have nothing to do with each other" and "I would *like* them to have
+nothing to do with each other because it makes my arithmetic easier."
+
+This week also clears up the single most common confusion in a first probability course: independence is
+**not** the same thing as two events not being able to happen together. Those are opposite phenomena, and we
+will see exactly why.
 
 ## Learning goals
 
 By the end of this week you should be able to:
 
-- State the definition of independence two equivalent ways — as a product rule
-  $P(A \cap B) = P(A)\,P(B)$ and as a conditioning statement $P(A \mid B) = P(A)$ — and
-  explain why they say the same thing.
-- Explain clearly why **independence is not the same as mutual exclusivity**, and give an
-  example of each.
-- Extend independence to several events and recognize that pairwise independence is weaker
-  than full (mutual) independence.
-- Test a claim of independence against actual numbers instead of trusting intuition, using
-  the commuter's-morning world.
-- Recognize when an independence assumption is doing dangerous, unstated work in a
-  calculation.
+- State the definition of independence three equivalent ways: as a product rule
+  $P(A\cap B)=P(A)\,P(B)$, and as the two "no information" conditions $P(A\mid B)=P(A)$ and
+  $P(B\mid A)=P(B)$.
+- Decide whether two specific events are independent by checking the product rule directly, rather than by
+  intuition.
+- Explain why "on time" and "rain" in our commuter world are **not** independent, using the actual numbers.
+- Explain why two flips of a fair coin **are** independent.
+- Distinguish independence from mutual exclusivity, and explain why two disjoint events of positive
+  probability are necessarily *dependent*.
+- Recognize when independence is a reasonable physical assumption and when it must instead be checked
+  against probabilities.
 
 ## Core vocabulary
 
-- **Independent events.** Two events $A$ and $B$ are *independent* when the occurrence of one
-  does not change the probability of the other. Symbolically, $A \perp B$. The defining
-  equation is $P(A \cap B) = P(A)\,P(B)$.
-- **Dependent events.** Any two events that are not independent. Knowing one *does* shift the
-  probability of the other (in either direction).
-- **Mutually exclusive (disjoint) events.** Events that cannot both happen:
-  $A \cap B = \varnothing$, so $P(A \cap B) = 0$. This is a statement about *overlap*, and it
-  is a completely different idea from independence (see the common mistake below).
-- **Mutual (joint) independence.** A collection of events is mutually independent when the
-  product rule holds for the whole collection *and* every sub-collection — a stronger
-  condition than checking the events two at a time.
+- **Independent events** $A \perp B$ — two events such that the occurrence of one does not change the
+  probability of the other. Formally, $A$ and $B$ are independent when $P(A\cap B)=P(A)\,P(B)$.
+- **Dependent events** — any pair that is not independent; learning one shifts the probability of the
+  other, in either direction.
+- **Product rule (for independent events)** — the statement $P(A\cap B)=P(A)\,P(B)$. It is a *definition*
+  of independence, not a law that always holds; it holds exactly when the events are independent.
+- **General multiplication rule** — the always-true statement $P(A\cap B)=P(A\mid B)\,P(B)$ from Week 3. It
+  holds for *every* pair with $P(B)>0$. Independence is the special case where $P(A\mid B)$ simplifies to
+  $P(A)$.
+- **Mutually exclusive (disjoint) events** — events that cannot both occur, so $A\cap B=\varnothing$ and
+  $P(A\cap B)=0$. This is a statement about *overlap*, and it is **not** independence.
+- **Information** — used informally here: $B$ "carries information about" $A$ when $P(A\mid B)\neq P(A)$.
+  Independence is precisely the case of *no* information.
 
 ## Concept development
 
-### Independence as a product rule and as a conditioning statement
+### From conditioning to independence
 
-There are two ways to write independence, and they describe the same idea from two angles.
-
-The **product form** says that the chance of both events happening is just the product of
-their separate chances:
+Week 3 gave us the general multiplication rule, which is always true whenever the conditioning event has
+positive probability:
 
 $$
-A \perp B \quad\Longleftrightarrow\quad P(A \cap B) = P(A)\,P(B).
+P(A\cap B)=P(A\mid B)\,P(B), \qquad P(B)>0.
 $$
 
-The **conditioning form** comes from last week's definition of conditional probability. As
-long as $P(B) > 0$,
+This says nothing special yet — it is just the definition of conditional probability rearranged. The
+interesting question is what happens for the special pairs where conditioning on $B$ does **not** move the
+probability of $A$. Suppose
 
 $$
-P(A \mid B) = \frac{P(A \cap B)}{P(B)}.
+P(A\mid B)=P(A).
 $$
 
-Substitute the product form into the top of that fraction. If $P(A \cap B) = P(A)\,P(B)$,
-then
+In words: learning that $B$ happened leaves your probability for $A$ unchanged. Substitute this into the
+multiplication rule and the conditional collapses into the plain marginal:
 
 $$
-P(A \mid B) = \frac{P(A)\,P(B)}{P(B)} = P(A).
+P(A\cap B)=P(A\mid B)\,P(B)=P(A)\,P(B).
 $$
 
-So independence is exactly the statement that **conditioning on $B$ does not move the
-probability of $A$**: $P(A \mid B) = P(A)$. By the same algebra, $P(B \mid A) = P(B)$ too —
-the relationship is symmetric, which matches the intuition that "telling you nothing" should
-work both directions. The conditioning form is usually the most useful test in practice: pick
-the conditional probability you can compute, and check whether it equals the unconditional
-one.
+That product form, $P(A\cap B)=P(A)\,P(B)$, is the official **definition of independence**, written
+$A \perp B$. It is the cleaner definition for two reasons. First, it is symmetric — it treats $A$ and $B$
+the same way, so independence is automatically a two-way street: if $B$ tells you nothing about $A$, then
+$A$ tells you nothing about $B$. Second, it makes sense even when $P(B)=0$, where the conditional $P(A\mid B)$
+is undefined. For events with positive probability, all three statements below say exactly the same thing:
+
+$$
+A \perp B \iff P(A\cap B)=P(A)\,P(B) \iff P(A\mid B)=P(A) \iff P(B\mid A)=P(B).
+$$
+
+The practical takeaway: to *decide* whether two events are independent, you usually check the product rule,
+because it only needs three numbers — $P(A)$, $P(B)$, and $P(A\cap B)$ — and never asks you to compute a
+conditional probability.
+
+![**Three ways to say "no information" (synthetic).** The product-rule form $P(A\cap B)=P(A)\,P(B)$, the
+forward conditional $P(A\mid B)=P(A)$, and the reverse conditional $P(B\mid A)=P(B)$ are three faces of one
+claim — proving any one gives you all three.](../assets/figures/wk04_independence_equivalence_diagram.png){#fig-wk04-equivalence fig-alt="A diagram of three boxes connected by double-headed arrows labeled 'same claim.' The boxes read P(A intersect B) = P(A)P(B), P(A given B) = P(A), and P(B given A) = P(B)."}
+
+::: {.callout-note appearance="minimal"}
+**What the figure shows (non-visual equivalent).** The three boxed statements are logically equivalent for
+events with positive probability: starting from any one of them and substituting into the general
+multiplication rule $P(A\cap B)=P(A\mid B)\,P(B)$ recovers the other two. *Course-original diagram; no data
+plotted — a relationship among statements, not a numeric result.*
+:::
+
+### Independence as a modeling assumption versus a fact to be checked
+
+There are two very different situations in practice, and keeping them apart is most of the skill.
+
+Sometimes independence is a **physical assumption you make up front** because the mechanism guarantees it. A
+fair coin has no memory: the second flip does not consult the first. Two cards drawn from separate, freshly
+shuffled decks do not influence each other. In these cases you *assert* independence from how the world
+works, and then you are *allowed* to multiply. This is the normal way independence enters a model.
+
+Other times you are handed a full probability description — a table, a tree, or a set of conditional
+probabilities — and independence becomes a **fact to be verified**, not assumed. You check whether
+$P(A\cap B)$ really equals $P(A)\,P(B)$. The answer is whatever the numbers say, regardless of whether the
+events "feel" related. Our commuter world is exactly this second kind of situation: we already specified all
+the probabilities back in Weeks 1 through 3, so independence here is not up for negotiation — it is settled
+by arithmetic.
+
+The danger is sliding from the first mode into the second by habit: assuming independence (because it makes
+the multiplication easy) for events that the numbers say are dependent. That is the single most common way a
+probability calculation goes silently wrong.
 
 ### Independence is not mutual exclusivity
 
-These two ideas get confused constantly, so it is worth stating the contrast head-on, because
-they point in *opposite* directions.
+These two ideas are constantly confused because both involve a pair of events and both feel like the events
+are "separate." They are in fact opposites.
 
-*Mutually exclusive* events are events that **block** each other: if one happens, the other
-cannot. Drawing a single card that is "the king of hearts" and "a black card" are mutually
-exclusive — one card cannot be both. Here $P(A \cap B) = 0$.
+**Mutually exclusive** means the events cannot both happen: their intersection is empty, so
+$P(A\cap B)=0$. Knowing that one occurred tells you the other *definitely did not*. That is the strongest
+possible information one event can carry about another — it is the opposite of "no information."
 
-*Independent* events are events that **ignore** each other: if one happens, the other's chance
-is unchanged. There is no blocking at all.
+**Independent** means $P(A\cap B)=P(A)\,P(B)$: knowing one occurred tells you *nothing* about the other.
 
-Now watch what happens if you try to make two events both mutually exclusive *and*
-independent, with each having positive probability. Mutual exclusivity forces
-$P(A \cap B) = 0$. Independence forces $P(A \cap B) = P(A)\,P(B)$. For both to hold we would
-need $P(A)\,P(B) = 0$, which is impossible when each probability is positive. So two events
-that can each actually happen **cannot** be mutually exclusive and independent at the same
-time. In fact mutually exclusive events with positive probability are about as *dependent* as
-events get: learn that one occurred and you instantly know the other did not. Far from telling
-you nothing, mutual exclusivity tells you everything.
-
-### Several events, and the danger of assuming independence
-
-Independence extends to more than two events, but the bookkeeping grows. Three events $A$,
-$B$, $C$ are **mutually independent** when the product rule holds for every pair *and* for the
-whole trio:
+Now put the two together. Suppose $A$ and $B$ are mutually exclusive **and** both have positive probability,
+$P(A)>0$ and $P(B)>0$. Then
 
 $$
-P(A \cap B) = P(A)P(B),\quad P(A \cap C) = P(A)P(C),\quad P(B \cap C) = P(B)P(C),
+P(A\cap B)=0 \quad\text{but}\quad P(A)\,P(B)>0,
 $$
 
-$$
-P(A \cap B \cap C) = P(A)\,P(B)\,P(C).
-$$
+so $P(A\cap B)\neq P(A)\,P(B)$, and the events are **dependent**. The logic is intuitive once you see it: if
+$A$ and $B$ cannot coexist, then learning $A$ happened drives the probability of $B$ all the way down to
+zero — a very large amount of information. Two disjoint events of positive probability are therefore
+*necessarily* dependent, never independent. The only way an event can be both mutually exclusive with $A$
+and independent of $A$ is if it has probability zero, which is a degenerate edge case, not a useful model.
 
-Checking the three pairs is *not enough* on its own; you can build artificial examples that
-are independent in every pair yet not as a trio. For the everyday models in this course the
-distinction rarely bites, but it is the reason careful texts say "mutually independent" rather
-than just "independent."
+Keep the slogan in mind for the rest of the course: **disjoint is a statement about overlap; independent is a
+statement about information.** They are different questions with, usually, opposite answers.
 
-When several events truly are mutually independent, life is easy: the joint probability is the
-product of the individual probabilities, and you can chain as many factors as you like. This
-is exactly why independence is so attractive — and exactly why it is so dangerous to assume
-without checking. The moment you write a product of probabilities, you have made an
-independence claim, whether or not you said so out loud. The next section tests that claim in
-the world we have been building all term.
+![**Independent versus mutually exclusive (synthetic).** Left: two fair-coin flips — the same 50/50 split of
+the second flip appears inside *both* halves of the first flip, which is the visual signature of "no
+information." Right: the two outcomes of a single flip — the regions never touch, which is the opposite
+signature, "maximum information" (if one happens, the other definitely
+did not).](../assets/figures/wk04_disjoint_vs_independent_diagram.png){#fig-wk04-disjoint fig-alt="Two panels. Left panel: a square split into a 50-50 vertical division for the first coin flip, with each half split at the same horizontal 50-50 line for the second flip, showing identical proportions in both halves. Right panel: two separate non-touching rectangles labeled first flip heads and first flip tails, each probability 0.5, with a labeled gap indicating they cannot both occur."}
+
+::: {.callout-note appearance="minimal"}
+**What the figure shows (non-visual equivalent).** Left: because the horizontal split sits at the *same*
+height ($0.5$) in both halves, learning the first flip's result never changes the odds on the second — this
+is independence. Right: "first flip heads" and "first flip tails" cannot both occur, so $P(\text{both})=0$,
+while $P(\text{heads})\,P(\text{tails})=0.5\times0.5=0.25\neq0$ — so despite feeling "separate," these two
+events are *dependent*, the opposite of the left panel. *Synthetic instructional example; numbers are illustrative.*
+:::
 
 ## Worked examples
 
-### Worked example — is "on time" independent of "rain"? (the commuter's morning)
+We work each example symbolically first — writing the independence check as a comparison of two
+quantities — and then plug in numbers. All data are **synthetic; seed 35003 set**.
 
-> Data here are **synthetic; seed set** in any simulation. They are the locked
-> commuter's-morning numbers used all term.
+### Worked example — the commuter slice: is "on time" independent of "rain"?
 
-**Setup (symbolic first).** Recall Maya's shuttle world. Let $R$ be the event that it rains
-and $O$ the event that the shuttle is on time. We are given the conditional reliabilities and
-the rain rate:
-
-$$
-P(R) = 0.30,\qquad P(O \mid R) = 0.60,\qquad P(O \mid R^c) = 0.90.
-$$
-
-To test independence with the conditioning form, we compare $P(O \mid R)$ against the
-*overall* on-time rate $P(O)$. We get $P(O)$ from the law of total probability (week 2/3):
+Recall Maya's morning shuttle. The fixed probabilities are $P(\text{rain})=0.30$, with the shuttle's
+reliability depending on the weather: $P(\text{on time}\mid\text{rain})=0.60$ and
+$P(\text{on time}\mid\text{no rain})=0.90$. Combining these (the total-probability calculation from Week 3)
+gave the marginal
 
 $$
-P(O) = P(O \mid R)\,P(R) + P(O \mid R^c)\,P(R^c).
+P(\text{on time})=0.60(0.30)+0.90(0.70)=0.81.
 $$
 
-**Now the numbers.**
+Let $A=\{\text{on time}\}$ and $B=\{\text{rain}\}$. **Symbolically**, $A$ and $B$ are independent if and only
+if $P(A\mid B)=P(A)$ — that is, if and only if the on-time rate *on rainy days* equals the on-time rate
+*overall*. **Numerically**, those two numbers are
 
 $$
-P(O) = (0.60)(0.30) + (0.90)(0.70) = 0.18 + 0.63 = 0.81.
+P(\text{on time}\mid\text{rain})=0.60 \qquad\text{versus}\qquad P(\text{on time})=0.81.
 $$
 
-So the unconditional on-time rate is $P(O) = 0.81$. The independence test asks whether
-conditioning on rain leaves that untouched:
+Since $0.60 \neq 0.81$, the events are **not independent**. We can confirm with the product-rule form. The
+joint probability of a rainy, on-time morning is
 
 $$
-P(O \mid R) = 0.60 \;\neq\; 0.81 = P(O).
+P(\text{on time}\cap\text{rain})=P(\text{on time}\mid\text{rain})\,P(\text{rain})=0.60(0.30)=0.18,
 $$
 
-They are **not** equal, so **$O$ and $R$ are not independent**. Knowing it rained drops the
-on-time probability from $0.81$ down to $0.60$ — rain genuinely carries information about the
-shuttle. We can confirm the same conclusion through the product form. The joint probability of
-rain *and* on time is
+while the product of the marginals is
 
 $$
-P(O \cap R) = P(O \mid R)\,P(R) = (0.60)(0.30) = 0.18,
+P(\text{on time})\,P(\text{rain})=0.81(0.30)=0.243.
 $$
 
-while the product of the marginals would be
+Because $0.18 \neq 0.243$, the product rule fails, and "on time" and "rain" are dependent — exactly the same
+verdict we reached from the conditional. And the direction makes sense: rain *lowers* the chance of an
+on-time shuttle ($0.60 < 0.81$), so rain carries genuine information. This dependence is the seed of the
+positive correlation between rain and lateness we will quantify in Week 12.
+
+![**The product-rule check, drawn (synthetic).** The actual joint probability $P(\text{on
+time}\cap\text{rain})=0.18$ against the product $P(\text{on time})\,P(\text{rain})=0.243$ the two events
+*would* multiply to if independent — the visible gap of $0.063$ is the
+signature of dependence.](../assets/figures/wk04_commuter_product_rule_check.png){#fig-wk04-commuter-check fig-alt="Bar chart with two bars. Left bar: P(on time and rain), actual joint, 0.180. Right bar: P(on time) times P(rain), if independent, 0.243. The right bar is taller, with a labeled gap of 0.063 marked dependent."}
+
+::: {.callout-note appearance="minimal"}
+**What the figure shows (non-visual equivalent).** The actual joint probability ($0.18$) sits below what the
+product rule would give if the events were independent ($0.243$); the bars would be the same height only if
+"on time" and "rain" carried no information about each other. *Synthetic instructional example; numbers are illustrative.*
+:::
+
+### Worked example — two flips of a fair coin (independent by construction)
+
+Now a case that goes the other way. Flip a fair coin twice and record each result. Let $A=\{\text{first
+flip is heads}\}$ and $B=\{\text{second flip is heads}\}$. A fair coin has no memory, so we *model* the two
+flips as independent — this is an assumption justified by the physics, not something forced on us by a table.
+
+**Symbolically**, independence means $P(A\cap B)=P(A)\,P(B)$. The four equally likely outcomes of two flips
+are HH, HT, TH, TT, each with probability $\tfrac14$. **Numerically**, $P(A)=\tfrac12$ (the first flip is
+heads in HH and HT) and $P(B)=\tfrac12$ (the second flip is heads in HH and TH), while the only outcome with
+both flips heads is HH, so
 
 $$
-P(O)\,P(R) = (0.81)(0.30) = 0.243.
+P(A\cap B)=P(\text{HH})=\tfrac14 \qquad\text{and}\qquad
+P(A)\,P(B)=\tfrac12\cdot\tfrac12=\tfrac14.
 $$
 
-Because $0.18 \neq 0.243$, the product rule fails — the same verdict, reached the other way.
-The gap between $0.18$ and $0.243$ *is* the dependence: it measures how much rain and
-on-time-ness move together.
+The two sides agree, so $A \perp B$: the flips are independent, exactly as the no-memory model demands.
+Equivalently, $P(B\mid A)=\tfrac14 / \tfrac12=\tfrac12=P(B)$ — learning the first flip was heads tells you
+nothing about the second. This is the clean opposite of the commuter case: there, conditioning moved the
+probability ($0.60$ versus $0.81$); here, it leaves it untouched.
 
-**A contrast that *is* independent.** Suppose Maya flips a fair coin each morning to decide
-whether to pack a lunch. Let $H$ be "the coin lands heads." Nothing about the weather touches
-the coin, so $P(H \mid R) = 0.50 = P(H)$. Here conditioning on rain changes nothing, and the
-product rule holds: $P(H \cap R) = (0.50)(0.30) = 0.15 = P(H)\,P(R)$. So $H \perp R$. The coin
-is independent of the weather; the shuttle is not. The lesson is that **independence is a
-property of the specific situation**, not a default you may assume — you have to look.
+![**The product-rule check for two coin flips (synthetic).** The actual joint $P(HH)=0.25$ against the
+product $P(\text{heads})\,P(\text{heads})=0.25$ — an exact match, the signature of
+independence.](../assets/figures/wk04_coin_joint_check.png){#fig-wk04-coin-check fig-alt="Bar chart with two bars of equal height. Left bar: P(HH), actual joint, 0.25. Right bar: P(heads) times P(heads), if independent, 0.25. Labeled exact match, independent."}
 
-### Worked example — two rolls of a fair die (transfer)
+::: {.callout-note appearance="minimal"}
+**What the figure shows (non-visual equivalent).** Both bars stand at exactly $0.25$ — the actual joint
+probability of two heads equals the product of the two marginal probabilities, with no gap at all. Compare
+this to the commuter figure just above, where the two bars were visibly different heights. *Synthetic instructional example; numbers are illustrative.*
+:::
 
-Now move to a brand-new context to see independence where it genuinely holds. Roll one fair
-six-sided die, then roll a second fair die. Let $A$ be "the first die shows a $6$" and $B$ be
-"the second die shows a $6$."
+A quick check that disjointness is a *different* question: are "first flip heads" and "first flip tails"
+independent? They are mutually exclusive (a single flip cannot be both), each has probability $\tfrac12 > 0$,
+so by the rule above they must be **dependent** — and indeed
+$P(\text{both})=0 \neq \tfrac12\cdot\tfrac12=\tfrac14$. Mutual exclusivity, once again, is the opposite of
+independence.
 
-**Symbolic reasoning.** The two rolls are physically separate; the first die has no memory and
-no influence on the second. So each event has probability $P(A) = P(B) = \tfrac{1}{6}$, and we
-expect independence:
+Put the two worked examples above side by side and the whole week compresses into one picture: the same
+"conditional versus marginal" comparison, once with bars that move and once with bars that do not.
+
+![**Dependent versus independent, side by side (synthetic).** Left: the shuttle, where conditioning on rain
+moves the on-time probability from $0.81$ down to $0.60$. Right: the coin, where conditioning on the first
+flip leaves the probability of heads at exactly
+$0.5$.](../assets/figures/wk04_dependent_vs_independent_bars.png){#fig-wk04-compare fig-alt="Two side-by-side bar-chart panels on the same 0-to-1 scale. Left panel, shuttle: P(on time given rain) = 0.60 and P(on time) = 0.81, visibly different heights. Right panel, coin: P(heads given first flip heads) = 0.50 and P(heads) = 0.50, identical heights."}
+
+::: {.callout-note appearance="minimal"}
+**What the figure shows (non-visual equivalent).** On the same $0$-to-$1$ scale, the shuttle's two bars
+differ ($0.60$ versus $0.81$) while the coin's two bars are identical ($0.50$ versus $0.50$). A visible height
+difference between the conditional and the marginal bar is exactly what "carries information" looks like;
+equal heights are exactly what "no information" looks like. *Synthetic instructional example; numbers are illustrative.*
+:::
+
+### Worked example — transfer: two dice, and the trap of "sum = 7"
+
+Take a new scene to test the idea. Roll two fair dice and look at the two face values. The 36 ordered
+outcomes $(i,j)$ are equally likely.
+
+First, the **two individual face values are independent**, by construction: one die cannot influence the
+other. Let $A=\{\text{first die}=1\}$ and $C=\{\text{second die}=1\}$. Symbolically we check
+$P(A\cap C)=P(A)\,P(C)$. Numerically, $P(A)=\tfrac{6}{36}=\tfrac16$ and likewise $P(C)=\tfrac16$, while only
+the single outcome $(1,1)$ puts both at one, so
 
 $$
-P(A \cap B) = P(A)\,P(B) = \frac{1}{6}\cdot\frac{1}{6} = \frac{1}{36}.
+P(A\cap C)=\tfrac{1}{36} \qquad\text{and}\qquad P(A)\,P(C)=\tfrac16\cdot\tfrac16=\tfrac{1}{36}.
 $$
 
-**Check against the sample space.** Two dice give $6 \times 6 = 36$ equally likely ordered
-outcomes. Exactly one of them — $(6,6)$ — has both dice showing six, so directly
-$P(A \cap B) = \tfrac{1}{36}$. That matches the product, so $A \perp B$: a confirmed case of
-genuine independence. Equivalently, $P(A \mid B) = \tfrac{1}{6} = P(A)$ — learning the second
-die came up six tells you nothing about the first.
+They match, so the two face values are independent — knowing the first die is a 1 says nothing about the
+second.
 
-**Where the same setup stops being independent.** Change one event. Let $A$ still be "first die
-shows $6$" but let $S$ be "the two dice sum to $7$." Now
+Now the trap. Let $D=\{\text{the sum of the two dice}=7\}$ and keep $A=\{\text{first die}=1\}$. It is
+tempting to assume $A$ and $D$ are independent because "the dice rolls are independent." But the sum is a
+property of *both* dice at once, so conditioning on the first die can change what sums are reachable.
+Symbolically, check $P(A\cap D)$ against $P(A)\,P(D)$. The outcomes summing to 7 are
+$(1,6),(2,5),(3,4),(4,3),(5,2),(6,1)$ — six of them — so $P(D)=\tfrac{6}{36}=\tfrac16$. The only outcome that
+is both "first die = 1" *and* "sum = 7" is $(1,6)$, so $P(A\cap D)=\tfrac{1}{36}$. Compare:
 
 $$
-P(A) = \frac{1}{6},\qquad P(S) = \frac{6}{36} = \frac{1}{6},\qquad
-P(A \cap S) = P(\{(6,1)\}) = \frac{1}{36}.
+P(A\cap D)=\tfrac{1}{36} \qquad\text{and}\qquad P(A)\,P(D)=\tfrac16\cdot\tfrac16=\tfrac{1}{36}.
 $$
 
-Here the product of the marginals is $\tfrac{1}{6}\cdot\tfrac{1}{6} = \tfrac{1}{36}$, which
-*equals* $P(A \cap S)$ — so, perhaps surprisingly, $A$ and "sum is $7$" *are* independent. But
-swap the target sum: let $S'$ be "the two dice sum to $6$." Then $P(S') = \tfrac{5}{36}$, while
-$P(A \cap S') = 0$ because a first-die six can never be part of a sum of six. The product
-$\tfrac{1}{6}\cdot\tfrac{5}{36} = \tfrac{5}{216} \neq 0$, so $A$ and "sum is $6$" are **not**
-independent. Same dice, same first event — and yet independence flips depending on the second
-event. This is the whole moral of the week: independence has to be *checked against the
-numbers*, never assumed from the surface story.
+These two happen to be **equal**, so for the specific total 7, $A=\{\text{first die}=1\}$ and
+$D=\{\text{sum}=7\}$ *are* independent. The number 7 is special: because each face value $1$ through $6$ has
+exactly one partner that completes a sum of 7, fixing the first die never changes the chance the sum is 7.
+
+The dependence appears the moment you pick a different total. Take $D'=\{\text{sum}=2\}$. The only way to sum
+to 2 is $(1,1)$, so $P(D')=\tfrac{1}{36}$, and the event "first die = 1 *and* sum = 2" is again just
+$(1,1)$, giving $P(A\cap D')=\tfrac{1}{36}$. But
+
+$$
+P(A\cap D')=\tfrac{1}{36} \qquad\text{versus}\qquad
+P(A)\,P(D')=\tfrac16\cdot\tfrac{1}{36}=\tfrac{1}{216},
+$$
+
+and $\tfrac{1}{36}\neq\tfrac{1}{216}$, so $A$ and $D'$ are **dependent**: learning the first die is a 1
+raises the chance of a sum of 2 from $\tfrac{1}{36}$ all the way to $\tfrac16$ (you now only need the second
+die to be a 1). The lesson is the one this whole week is built around: *the individual dice being independent
+does not make every event about them independent.* You must check the actual events, with the actual product
+rule, rather than reasoning from the inputs.
+
+![**The 36 outcomes, with the trap laid bare (synthetic).** Event $A=\{\text{first die}=1\}$ is the shaded
+column; the sum-$=7$ diagonal (six outcomes, outlined) crosses that column exactly once, at
+$(1,6)$; the sum-$=2$ corner (one outcome total, outlined) sits *entirely inside* that same
+column, at $(1,1)$.](../assets/figures/wk04_dice_outcome_grid.png){#fig-wk04-dice-grid fig-alt="A 6 by 6 grid of two-dice outcomes. The first-die-equals-1 column is shaded gray and outlined. A diagonal of six cells summing to 7 is outlined, crossing the shaded column at one cell. The single cell summing to 2, at position (1,1), is outlined and lies inside the shaded column."}
+
+::: {.callout-note appearance="minimal"}
+**What the figure shows (non-visual equivalent).** The sum-$=7$ diagonal has $6$ outcomes total, and only
+$1$ of them ($(1,6)$) falls in column $A$ — exactly the same $1$-in-$6$ share that column $A$ itself
+represents, so conditioning on $A$ does not concentrate the sum-$=7$ outcomes any more than chance would.
+The sum-$=2$ event has only $1$ outcome total, and it *already sits inside* column $A$ — so conditioning on
+$A$ captures all of it, concentrating everything. That asymmetry is the whole trap. *Synthetic instructional example; numbers are illustrative.*
+:::
+
+![**The same trap, as conditional-versus-marginal bars (synthetic).** For sum $=7$ the two bars match
+($\tfrac16=\tfrac16$); for sum $=2$ they do not
+($\tfrac16\neq\tfrac{1}{36}$).](../assets/figures/wk04_dice_conditional_comparison.png){#fig-wk04-dice-bars fig-alt="Two side-by-side bar-chart panels. Left panel, sum equals 7: P(sum=7 given first=1) = 1/6 and P(sum=7) = 1/6, identical heights. Right panel, sum equals 2: P(sum=2 given first=1) = 1/6 and P(sum=2) = 1/36, very different heights."}
+
+::: {.callout-note appearance="minimal"}
+**What the figure shows (non-visual equivalent).** Same-height bars ($\tfrac16$ and $\tfrac16$) for sum
+$=7$ mean conditioning on $A$ changed nothing; different-height bars ($\tfrac16$ and $\tfrac{1}{36}$) for
+sum $=2$ mean conditioning on $A$ changed a great deal. This is the same product-rule comparison used for
+the shuttle and the coin above, now applied to a case where the answer depends on *which* event you ask
+about. *Synthetic instructional example; numbers are illustrative.*
+:::
+
+The same idea can be expressed as a short, **shown-not-run** R sketch — extended below with a plotting block
+that reproduces the bar chart just above. (In this build R is teaching code — displayed, not executed; run
+it yourself to reproduce.)
+
+```{r}
+#| label: two-dice-independence-check
+#| eval: false
+set.seed(35003)
+# All 36 equally likely ordered outcomes of two fair dice.
+grid <- expand.grid(first = 1:6, second = 1:6)
+p <- 1 / nrow(grid)                       # each outcome has probability 1/36
+
+A  <- grid$first == 1                      # event A: first die = 1
+D7 <- (grid$first + grid$second) == 7      # event D: sum = 7
+D2 <- (grid$first + grid$second) == 2      # event D': sum = 2
+
+# Compare P(A and D) with P(A) * P(D) for each total.
+joint7 <- p * sum(A & D7); prod7 <- (p * sum(A)) * (p * sum(D7))
+joint2 <- p * sum(A & D2); prod2 <- (p * sum(A)) * (p * sum(D2))
+
+c(joint7 = joint7, prod7 = prod7)          # equal  -> independent for sum = 7
+c(joint2 = joint2, prod2 = prod2)          # unequal -> dependent for sum = 2
+
+# The same comparison, restated as CONDITIONAL probabilities (a second view of the same numbers),
+# plus a shown-not-run plot -- run this yourself to reproduce the bar chart shown just below.
+p_D7_given_A <- joint7 / (p * sum(A))      # P(sum = 7 | first = 1)
+p_D7         <- p * sum(D7)                # P(sum = 7)
+p_D2_given_A <- joint2 / (p * sum(A))      # P(sum = 2 | first = 1)
+p_D2         <- p * sum(D2)                # P(sum = 2)
+
+par(mfrow = c(1, 2))
+barplot(c(p_D7_given_A, p_D7), names.arg = c("P(sum=7|first=1)", "P(sum=7)"),
+        main = "Sum = 7: bars match (independent)")
+barplot(c(p_D2_given_A, p_D2), names.arg = c("P(sum=2|first=1)", "P(sum=2)"),
+        main = "Sum = 2: bars differ (dependent)")
+```
 
 ## A common mistake
 
-The headline mistake is **treating "mutually exclusive" and "independent" as if they were the
-same thing** — or, worse, as if one implied the other. They are nearly opposites. Mutually
-exclusive (positive-probability) events are maximally *dependent*: one happening rules the
-other out. Independent events have no such relationship. If you ever find yourself reasoning
-"they can't both happen, so they're independent," stop — you have the idea exactly backward.
+The mistake that costs the most points later is **confusing independence with mutual exclusivity** — and its
+close cousin, **assuming independence to make the multiplication easy.**
 
-The second, costlier mistake is **assuming independence in order to multiply, when the events
-are actually linked**. It is tempting because multiplying is so easy. But in Maya's world,
-"on time today" and "on time tomorrow" both depend on the *same* weather, so they are *not*
-independent; estimating the chance of two on-time days as $0.81 \times 0.81$ would be wrong.
-The fix is not better arithmetic — it is asking, before you multiply, "does learning one of
-these change my belief about the other?" If yes, you may not simply multiply. This is the
-judgment the syllabus warns no tool can make for you: software multiplies whatever you hand
-it, but only you can decide whether the events deserve to be multiplied.
+Students often reason: "These two events seem unrelated, so they can't both happen, so I'll treat them as
+independent." Every step there is shaky. "Can't both happen" is *mutual exclusivity*, which (for positive
+-probability events) forces $P(A\cap B)=0$ and therefore makes the events **dependent**, the exact opposite
+of what was intended. And "seem unrelated" is intuition, not a check. The fix is mechanical and reliable:
+**never declare independence from a feeling.** Either you can name a physical reason the mechanism has no
+memory (separate fair coins, separate dice, freshly shuffled decks), in which case independence is a
+justified modeling assumption, or you have the numbers and verify $P(A\cap B)=P(A)\,P(B)$ directly. If the
+product rule fails — as it does for "on time" and "rain," where $0.18\neq0.243$ — the events are dependent,
+and multiplying $P(A)\,P(B)$ would give the wrong joint probability. When in doubt, fall back on the
+always-true general rule $P(A\cap B)=P(A\mid B)\,P(B)$, which never assumes anything.
 
 ## Low-stakes self-checks (ungraded)
 
-These are for your own practice — ungraded, no submission, no key. Talk through your reasoning
-in words, then test it against numbers.
+These are for your own practice — **ungraded**, no submission. Try each before reading on.
 
-1. In your own words, give two events from daily life you believe are independent and two you
-   believe are dependent. For each pair, state the independence test you would run if you had
-   the numbers.
-2. Using Maya's world, you found $P(O \mid R) = 0.60$ and $P(O) = 0.81$. Compute
-   $P(O \mid R^c)$ and confirm it also differs from $0.81$. Does the fact that *both*
-   conditionals differ from the marginal make sense? Why must they pull in opposite directions?
-3. Two events satisfy $P(A) = 0.4$, $P(B) = 0.5$, and $P(A \cap B) = 0.2$. Are they
-   independent? Are they mutually exclusive? Justify each answer with the relevant equation.
-4. Explain, in two or three sentences, why two positive-probability events cannot be both
-   mutually exclusive and independent at once.
-5. Roll two fair dice. Decide whether "first die is even" and "second die is even" are
-   independent, then whether "first die is even" and "the sum is even" are independent. Check
-   each against the 36-outcome sample space.
+1. In the commuter world, you found $P(\text{on time}\cap\text{rain})=0.18$ but
+   $P(\text{on time})\,P(\text{rain})=0.243$. Without recomputing, state in one sentence what the gap
+   between these two numbers tells you about whether rain carries information about an on-time shuttle.
+2. Two flips of a fair coin gave $P(A\cap B)=\tfrac14=P(A)\,P(B)$. Suppose instead the coin were bent so
+   that $P(\text{heads})=0.7$ on each independent flip. Predict $P(\text{both heads})$ and check that the
+   two flips are still independent.
+3. Explain, in your own words, why two events that are mutually exclusive and both have positive probability
+   can never be independent. Use the two-flip example "first flip heads" versus "first flip tails."
+4. For two fair dice, you saw that "first die = 1" and "sum = 7" are independent but "first die = 1" and
+   "sum = 2" are not. Pick the total "sum = 6" and decide whether "first die = 1" and "sum = 6" are
+   independent by checking the product rule. (Hint: how many ways sum to 6, and is $(1,5)$ one of them?)
+5. A student claims, "Independence means the two events can't overlap." Write a one-sentence correction that
+   names the two ideas being confused.
 
 ## Reading and source pointer
 
-This week tracks **Grinstead & Snell, Chapter 4 (Conditional Probability)**, where independence
-is introduced as a consequence of conditioning, and is reinforced by the independence-versus-
-mutual-exclusivity discussion in the **MIT OCW 18.05** unit on conditional probability,
-independence, and Bayes' theorem. *These notes are the course's own synthesis, grounded in but
-not copied from the sources.* All example data are synthetic with seeds set where simulation
-appears.
+This week is grounded in the conditional-probability and independence material of the two course texts; read
+either or both alongside these notes.
+
+- **Grinstead & Snell, *Introduction to Probability*, Ch 4 (Conditional Probability)** — develops conditional
+  probability and the definition of independence, including the product-rule characterization and the
+  contrast with events that cannot co-occur. Free online:
+  <https://www.dartmouth.edu/~chance/teaching_aids/books_articles/probability_book/book.html>.
+- **MIT OpenCourseWare 18.05 (conditional probability, independence)** — its conditional-probability and
+  independence material reinforces the "no information" reading of independence and the base-rate intuition
+  behind dependent events. Free at:
+  <https://ocw.mit.edu/courses/18-05-introduction-to-probability-and-statistics-spring-2022/>.
+
+These notes are the course's own synthesis, grounded in but not copied from the sources. All example data
+are synthetic, with seed 35003 set.
 
 ## Public vs. graded
 
-These notes, the examples, and the practice here are **public and ungraded** — study material
-only. No graded prompts, answer keys, rubrics, point values, or due dates appear on this site.
-Graded checkpoints, quizzes, homework, labs, the midterm, the project, and the final live in
-**Blackboard (the LMS)**, which is authoritative for due dates, submissions, and grades. If
-this page and Blackboard ever disagree, follow Blackboard.
+These notes, the examples, and the practice here are **public and ungraded** — study material only. No
+graded prompts, answer keys, rubrics, point values, or due dates appear on this site. Graded checkpoints,
+quizzes, homework, labs, the midterm, the project, and the final live in **Blackboard (the LMS)**, which is
+authoritative for due dates, submissions, and grades. If this page and Blackboard ever disagree, follow
+Blackboard.
 
 ## Looking ahead
 
-Independence is the *no-information* case — conditioning that changes nothing. Next week we
-turn to the opposite, most consequential case: conditioning that changes a belief a lot, and
-how to run that update backward. **Week 5 — Bayes' rule & updating** takes the same machinery
-and uses it to ask, given that the shuttle was *late*, how likely was it that it had *rained*?
-That reversal — from $P(\text{late} \mid \text{rain})$ to $P(\text{rain} \mid \text{late})$ —
-is the engine of Bayesian reasoning, and independence is exactly the special case it gracefully
-reduces to when the evidence carries no information.
+Independence told us when conditioning changes *nothing*. Next week we turn the spotlight back onto the
+cases where conditioning changes *a lot*, and we learn to run the conditioning backwards. In
+[Week 5 — Bayes' rule & updating](week-05-bayes-rule-and-updating.qmd) we will start from
+$P(\text{on time}\mid\text{rain})$ and recover the reverse direction $P(\text{rain}\mid\text{late})$, and we
+will meet the headline example of the course — a medical screening test where a positive result is far less
+alarming than it first appears. The dependence we measured this week between rain and lateness is precisely
+what makes those reverse questions interesting: if the events were independent, there would be nothing to
+update.
 
 ## See also
 
-- [Notation glossary](../resources/notation-glossary.qmd) — the symbols $A \perp B$,
-  $P(A \mid B)$, $A \cap B$, and $A^c$ used above.
-- [Distribution reference](../resources/distribution-reference.qmd) — for the models where
-  independence assumptions reappear later in the term.
-- [Course syllabus](../syllabus.qmd) — including the AI-use policy this week echoes about
-  unstated independence assumptions.
+- [Week 3 — Conditional probability](week-03-conditional-probability.qmd) — the multiplication rule and the
+  $0.60$-versus-$0.81$ slice this week builds on.
+- [Week 5 — Bayes' rule & updating](week-05-bayes-rule-and-updating.qmd) — running the conditioning backward
+  once events are known to be dependent.
+- [Week 12 — Joint distributions & dependence](week-12-joint-distributions-and-dependence.qmd) — where the
+  rain-and-lateness dependence becomes a covariance and a correlation.
+- [Notation glossary](../resources/notation-glossary.qmd) — the binding symbols, including $A \perp B$ and
+  $P(A\mid B)$.
+- [Distribution reference](../resources/distribution-reference.qmd) — the standard models that will assume
+  independence later in the course.
+- [Syllabus](../syllabus.qmd) — course rhythm, policies, and where graded work lives.
+
+> Week 4 has no companion lab; the simulation strand resumes with the Week 5 Bayes-by-simulation lab.

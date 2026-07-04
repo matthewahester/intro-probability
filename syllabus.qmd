@@ -69,8 +69,7 @@ weights live in Blackboard.
 
 | Category | Rough emphasis |
 |----------|----------------|
-| Checkpoints | small |
-| Quizzes | small |
+| Weekly quizzes | small |
 | Homework | the largest single category |
 | Simulation labs | small |
 | Midterm | moderate |
@@ -78,8 +77,8 @@ weights live in Blackboard.
 | Final | moderate |
 
 Read this as a picture of *where the weight sits*: regular homework is the backbone of the grade, the
-midterm and final each carry moderate weight, and the many smaller pieces — checkpoints, quizzes,
-labs, and the project — add up around them. For the exact weighting, consult Blackboard.
+midterm and final each carry moderate weight, and the smaller pieces — quizzes, labs, and the project
+— add up around them. For the exact weighting, consult Blackboard.
 
 ## Software and reproducibility
 
@@ -103,19 +102,25 @@ When you use AI on permitted work, include a brief **AI Use Note** with three pa
 | Purpose | what you asked it to do |
 | Verification | how you checked its output yourself |
 
-The **Verification** field is load-bearing: AI output is a draft to be checked against the course
-material and your own work, never an answer to be trusted on sight. The full policy lives in
-Blackboard.
+The **Verification** field is load-bearing: probability answers are highly sensitive to assumptions,
+so AI output is a draft to be checked against the course material and your own work, never an answer
+to be trusted on sight. The full policy lives in Blackboard.
 
 ## Materials
 
-You will need:
+The course uses two free, openly licensed texts — you are pointed to **both** — plus an optional
+reference:
 
-- *Introduction to Probability* (Grinstead & Snell) — the free primary text, GNU FDL.
-- **MIT OpenCourseWare 18.05** — a free supplement (CC BY-NC-SA 4.0), used selectively.
-- E. T. Jaynes, *Probability Theory: The Logic of Science* — optional, cited only for orientation.
+- ***Introduction to Probability*** (Grinstead & Snell) — the free **primary text**, GNU Free
+  Documentation License.
+- **[MIT OpenCourseWare 18.05](https://ocw.mit.edu/courses/18-05-introduction-to-probability-and-statistics-spring-2022/)**
+  — a free **supplementary text** (CC BY-NC-SA 4.0), used selectively for Bayesian reasoning, the
+  standard models, simulation, and review.
+- E. T. Jaynes, *Probability Theory: The Logic of Science* — **optional**, not a course text, cited
+  only for orientation.
 - **Blackboard (the LMS)** — for all graded work, dates, and announcements.
-- A **scientific calculator** for in-class quizzes and the exams.
+- A **non-graphing scientific calculator** for in-class quizzes and the exams (a TI-84 also works;
+  phones may not be used as calculators on quizzes or exams).
 
 ## Where things live
 
